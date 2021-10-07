@@ -38,8 +38,6 @@ type mockServerOpts struct {
 	StatusCode   int
 	Username     string
 	Password     string
-	Token        string
-	TokenHeader  string
 	RequestData  interface{}
 	ResponseData *[]tempo.FetchEntry
 }
@@ -53,11 +51,6 @@ func mockServer(t *testing.T, e *mockServerOpts) *httptest.Server {
 			username, password, _ := r.BasicAuth()
 			require.Equal(t, e.Username, username, "API call basic auth username mismatch")
 			require.Equal(t, e.Password, password, "API call basic auth password mismatch")
-		}
-
-		if e.Token != "" {
-			headerValue := r.Header.Get(e.TokenHeader)
-			require.Equal(t, e.Token, headerValue, "API call auth token mismatch")
 		}
 
 		if e.RequestData != nil {
