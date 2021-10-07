@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	// WorklogCreatePath is the endpoint used to create new worklogs.
-	WorklogCreatePath string = "/rest/tempo-timesheets/4/worklogs"
-	// WorklogSearchPath is the endpoint used to search existing worklogs.
-	WorklogSearchPath string = "/rest/tempo-timesheets/4/worklogs/search"
+	// PathWorklogCreate is the endpoint used to create new worklogs.
+	PathWorklogCreate string = "/rest/tempo-timesheets/4/worklogs"
+	// PathWorklogSearch is the endpoint used to search existing worklogs.
+	PathWorklogSearch string = "/rest/tempo-timesheets/4/worklogs/search"
 )
 
 // Issue represents the Jira issue the time logged against.
@@ -78,7 +78,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		Worker: opts.User,
 	}
 
-	resp, err := client.SendRequest(ctx, http.MethodPost, WorklogSearchPath, searchParams, &c.opts.HTTPClientOptions)
+	resp, err := client.SendRequest(ctx, http.MethodPost, PathWorklogSearch, searchParams, &c.opts.HTTPClientOptions)
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
@@ -140,7 +140,7 @@ func (c *tempoClient) uploadEntry(ctx context.Context, item worklog.Entry, opts 
 		Worker:                opts.User,
 	}
 
-	if _, err := client.SendRequest(ctx, http.MethodPost, WorklogCreatePath, entry, &c.opts.HTTPClientOptions); err != nil {
+	if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, entry, &c.opts.HTTPClientOptions); err != nil {
 		errChan <- err
 		return
 	}

@@ -177,7 +177,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	}
 
 	mockServer := newMockServer(t, &mockServerOpts{
-		Path:       tempo.WorklogSearchPath,
+		Path:       tempo.PathWorklogSearch,
 		Method:     http.MethodPost,
 		StatusCode: http.StatusOK,
 		Username:   clientUsername,
@@ -328,7 +328,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	}
 
 	mockServer := newMockServer(t, &mockServerOpts{
-		Path:        tempo.WorklogCreatePath,
+		Path:        tempo.PathWorklogCreate,
 		Method:      http.MethodPost,
 		StatusCode:  http.StatusOK,
 		Username:    clientUsername,
@@ -421,7 +421,7 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 	}
 
 	mockServer := newMockServer(t, &mockServerOpts{
-		Path:        tempo.WorklogCreatePath,
+		Path:        tempo.PathWorklogCreate,
 		Method:      http.MethodPost,
 		StatusCode:  http.StatusOK,
 		Username:    clientUsername,
@@ -578,7 +578,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 	}
 
 	mockServer := newMockServer(t, &mockServerOpts{
-		Path:        tempo.WorklogCreatePath,
+		Path:        tempo.PathWorklogCreate,
 		Method:      http.MethodPost,
 		StatusCode:  http.StatusOK,
 		Username:    clientUsername,
