@@ -58,8 +58,8 @@ func newMockServer(t *testing.T, opts *mockServerOpts) *httptest.Server {
 }
 
 func TestClockifyClient_FetchEntries(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
-	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 	remainingCalls := 1
 
 	expectedEntries := []worklog.Entry{
@@ -208,8 +208,8 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 }
 
 func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
-	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 	remainingCalls := 1
 
 	expectedEntries := []worklog.Entry{

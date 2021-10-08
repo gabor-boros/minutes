@@ -9,7 +9,7 @@ import (
 )
 
 func getTestEntry() worklog.Entry {
-	start := time.Date(2021, 10, 2, 5, 0, 0, 0, time.Local)
+	start := time.Date(2021, 10, 2, 5, 0, 0, 0, time.UTC)
 	end := start.Add(time.Hour * 2)
 
 	return worklog.Entry{

@@ -103,8 +103,8 @@ func newMockServer(t *testing.T, opts *mockServerOpts) *httptest.Server {
 }
 
 func TestTempoClient_FetchEntries(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
-	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
@@ -257,7 +257,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 }
 
 func TestTempoClient_UploadEntries(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
 
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
@@ -349,7 +349,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 }
 
 func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
 
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
@@ -442,7 +442,7 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 }
 
 func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
-	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.Local)
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
 
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
