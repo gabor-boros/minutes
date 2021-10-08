@@ -109,7 +109,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
 
-	expectedEntries := &[]worklog.Entry{
+	expectedEntries := []worklog.Entry{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",

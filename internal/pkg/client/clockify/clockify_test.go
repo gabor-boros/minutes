@@ -62,7 +62,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.Local)
 	remainingCalls := 1
 
-	expectedEntries := &[]worklog.Entry{
+	expectedEntries := []worklog.Entry{
 		{
 			Client: worklog.IDNameField{
 				ID:   "456",
@@ -212,7 +212,7 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.Local)
 	remainingCalls := 1
 
-	expectedEntries := &[]worklog.Entry{
+	expectedEntries := []worklog.Entry{
 		{
 			Client: worklog.IDNameField{
 				ID:   "456",

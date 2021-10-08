@@ -83,7 +83,7 @@ type clockifyClient struct {
 	opts *ClientOpts
 }
 
-func (c clockifyClient) getSearchURL(user string, params *WorklogSearchParams) (string, error) {
+func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) (string, error) {
 	searchPath := fmt.Sprintf(PathWorklog, c.opts.Workspace, user)
 	worklogURL, err := url.Parse(c.opts.BaseURL + searchPath)
 	if err != nil {
@@ -102,7 +102,7 @@ func (c clockifyClient) getSearchURL(user string, params *WorklogSearchParams) (
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
-func (c clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) (*[]worklog.Entry, error) {
+func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) (*[]worklog.Entry, error) {
 	r, err := regexp.Compile(c.opts.TasksAsTagsRegex)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (c clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.
 	return &items, nil
 }
 
-func (c clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (*[]worklog.Entry, error) {
+func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
 	var items []worklog.Entry
 	currentPage := 1
 	pageSize := 100
@@ -224,7 +224,7 @@ func (c clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts
 		currentPage++
 	}
 
-	return &items, nil
+	return items, nil
 }
 
 // NewClient returns a new Clockify client.

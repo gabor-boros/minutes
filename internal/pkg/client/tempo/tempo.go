@@ -71,7 +71,7 @@ type tempoClient struct {
 	opts *ClientOpts
 }
 
-func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (*[]worklog.Entry, error) {
+func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
 	searchParams := &SearchParams{
 		From:   opts.Start.Local().Format("2006-01-02"),
 		To:     opts.End.Local().Format("2006-01-02"),
@@ -111,7 +111,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		})
 	}
 
-	return &items, nil
+	return items, nil
 }
 
 func (c *tempoClient) uploadEntry(ctx context.Context, item worklog.Entry, opts *client.UploadOpts, errChan chan error) {

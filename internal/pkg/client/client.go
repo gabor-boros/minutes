@@ -73,7 +73,7 @@ type Fetcher interface {
 	// FetchEntries from a given source and return the list of worklog items
 	// If the fetching resulted in an error, the list of worklog items will be
 	// nil and an error will return.
-	FetchEntries(ctx context.Context, opts *FetchOpts) (*[]worklog.Entry, error)
+	FetchEntries(ctx context.Context, opts *FetchOpts) ([]worklog.Entry, error)
 }
 
 // UploadOpts specifies the only options for the Uploader. In contrast to the

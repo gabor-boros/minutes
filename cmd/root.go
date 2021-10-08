@@ -182,7 +182,7 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	})
 	cobra.CheckErr(err)
 
-	wl := worklog.NewWorklog(*entries)
+	wl := worklog.NewWorklog(entries)
 	completeEntries := wl.CompleteEntries()
 	incompleteEntries := wl.IncompleteEntries()
 
