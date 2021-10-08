@@ -9,7 +9,7 @@
   <h3 align="center">Minutes</h3>
 
   <p align="center">
-    Sync worklogs between time trackers, invoicing, and bookkeeping software.
+    Sync worklogs between multiple time trackers, invoicing, and bookkeeping software.
     <br />
     <a href="https://github.com/minutes/tree/master/docs/README.md"><strong>Explore the docs</strong></a>
     <br />

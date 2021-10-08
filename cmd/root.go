@@ -31,7 +31,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:   program,
-		Short: "Sync worklogs between multiple time tracker, invoicing, and bookkeeping software.",
+		Short: "Sync worklogs between multiple time trackers, invoicing, and bookkeeping software.",
 		Long: `
 Minutes is a CLI tool for synchronizing work logs between multiple time
 trackers, invoicing, and bookkeeping software to make entrepreneurs'
