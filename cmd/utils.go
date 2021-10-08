@@ -30,7 +30,7 @@ func printEntries(header string, entries []worklog.Entry) {
 	fmt.Printf("%s:\n", header)
 
 	if len(entries) == 0 {
-		fmt.Printf("No items found.\n\n")
+		fmt.Printf("No entries found.\n\n")
 		return
 	}
 
@@ -64,9 +64,9 @@ func prompt(message string) string {
 	return strings.TrimSpace(input)
 }
 
-func isSliceContains(item string, slice []string) bool {
+func isSliceContains(entry string, slice []string) bool {
 	for _, s := range slice {
-		if s == item {
+		if s == entry {
 			return true
 		}
 	}

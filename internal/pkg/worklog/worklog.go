@@ -31,8 +31,8 @@ func groupEntries(entries []Entry) []Entry {
 	}
 
 	groupedEntries := make([]Entry, 0, len(entryGroup))
-	for _, item := range entryGroup {
-		groupedEntries = append(groupedEntries, item)
+	for _, entry := range entryGroup {
+		groupedEntries = append(groupedEntries, entry)
 	}
 
 	return groupedEntries

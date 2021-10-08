@@ -194,8 +194,8 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 		return incompleteEntries[i].Task.Name < incompleteEntries[j].Task.Name
 	})
 
-	printEntries("Incomplete items", incompleteEntries)
-	printEntries("Complete items", completeEntries)
+	printEntries("Incomplete entries", incompleteEntries)
+	printEntries("Complete entries", completeEntries)
 
 	if strings.ToLower(prompt("Continue? [y/n]")) != "y" {
 		fmt.Println("User interruption. Aborting.")

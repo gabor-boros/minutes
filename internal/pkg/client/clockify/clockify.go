@@ -115,14 +115,14 @@ func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time
 		}
 	}
 
-	var items []worklog.Entry
+	var entries []worklog.Entry
 	totalTasks := len(tasks)
 
 	for taskID, taskName := range tasks {
 		splitBillableDuration := time.Duration(math.Round(float64(bd.Nanoseconds()) / float64(totalTasks)))
 		splitUnbillableDuration := time.Duration(math.Round(float64(ubd.Nanoseconds()) / float64(totalTasks)))
 
-		items = append(items, worklog.Entry{
+		entries = append(entries, worklog.Entry{
 			Client: worklog.IDNameField{
 				ID:   entry.Project.ClientID,
 				Name: entry.Project.ClientName,
@@ -143,15 +143,15 @@ func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time
 		})
 	}
 
-	return &items, nil
+	return &entries, nil
 }
 
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
-	var items []worklog.Entry
+	var entries []worklog.Entry
 	currentPage := 1
 	pageSize := 100
 
-	// Naive pagination as the API does not return the number of total items
+	// Naive pagination as the API does not return the number of total entries
 	for currentPage*pageSize < MaxPageLength {
 		searchParams := &WorklogSearchParams{
 			Start:      opts.Start.Format(DateFormat),
@@ -172,17 +172,17 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			return nil, err
 		}
 
-		var entries []FetchEntry
-		if err = json.NewDecoder(resp.Body).Decode(&entries); err != nil {
+		var fetchedEntries []FetchEntry
+		if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
 			return nil, err
 		}
 
 		// The API returned no entries, meaning no entries left
-		if len(entries) == 0 {
+		if len(fetchedEntries) == 0 {
 			break
 		}
 
-		for _, entry := range entries {
+		for _, entry := range fetchedEntries {
 			billableDuration := entry.TimeInterval.End.Sub(entry.TimeInterval.Start)
 			unbillableDuration := time.Duration(0)
 
@@ -192,14 +192,14 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			}
 
 			if c.opts.TasksAsTags && len(entry.Tags) > 0 {
-				pageItems, err := c.splitEntry(entry, billableDuration, unbillableDuration)
+				pageEntries, err := c.splitEntry(entry, billableDuration, unbillableDuration)
 				if err != nil {
 					return nil, err
 				}
 
-				items = append(items, *pageItems...)
+				entries = append(entries, *pageEntries...)
 			} else {
-				items = append(items, worklog.Entry{
+				entries = append(entries, worklog.Entry{
 					Client: worklog.IDNameField{
 						ID:   entry.Project.ClientID,
 						Name: entry.Project.ClientName,
@@ -224,7 +224,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 		currentPage++
 	}
 
-	return items, nil
+	return entries, nil
 }
 
 // NewClient returns a new Clockify client.

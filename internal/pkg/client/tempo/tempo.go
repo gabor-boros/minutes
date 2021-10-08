@@ -83,14 +83,14 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var entries []FetchEntry
-	if err = json.NewDecoder(resp.Body).Decode(&entries); err != nil {
+	var fetchedEntries []FetchEntry
+	if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var items []worklog.Entry
-	for _, entry := range entries {
-		items = append(items, worklog.Entry{
+	var entries []worklog.Entry
+	for _, entry := range fetchedEntries {
+		entries = append(entries, worklog.Entry{
 			Client: worklog.IDNameField{
 				ID:   entry.Issue.AccountKey,
 				Name: entry.Issue.AccountKey,
@@ -111,16 +111,16 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		})
 	}
 
-	return items, nil
+	return entries, nil
 }
 
-func (c *tempoClient) uploadEntry(ctx context.Context, item worklog.Entry, opts *client.UploadOpts, errChan chan error) {
-	billableDuration := item.BillableDuration
-	unbillableDuration := item.UnbillableDuration
+func (c *tempoClient) uploadEntry(ctx context.Context, entry worklog.Entry, opts *client.UploadOpts, errChan chan error) {
+	billableDuration := entry.BillableDuration
+	unbillableDuration := entry.UnbillableDuration
 	totalTimeSpent := billableDuration + unbillableDuration
 
 	if opts.TreatDurationAsBilled {
-		billableDuration = item.UnbillableDuration + item.BillableDuration
+		billableDuration = entry.UnbillableDuration + entry.BillableDuration
 		unbillableDuration = 0
 	}
 
@@ -130,17 +130,17 @@ func (c *tempoClient) uploadEntry(ctx context.Context, item worklog.Entry, opts 
 		totalTimeSpent = billableDuration + unbillableDuration
 	}
 
-	entry := &UploadEntry{
-		Comment:               item.Summary,
+	uploadEntry := &UploadEntry{
+		Comment:               entry.Summary,
 		IncludeNonWorkingDays: true,
-		OriginTaskID:          item.Task.Name,
-		Started:               item.Start.Local().Format("2006-01-02"),
+		OriginTaskID:          entry.Task.Name,
+		Started:               entry.Start.Local().Format("2006-01-02"),
 		BillableSeconds:       int(billableDuration.Seconds()),
 		TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
 		Worker:                opts.User,
 	}
 
-	if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, entry, &c.opts.HTTPClientOptions); err != nil {
+	if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, uploadEntry, &c.opts.HTTPClientOptions); err != nil {
 		errChan <- err
 		return
 	}
@@ -148,14 +148,14 @@ func (c *tempoClient) uploadEntry(ctx context.Context, item worklog.Entry, opts 
 	errChan <- nil
 }
 
-func (c *tempoClient) UploadEntries(ctx context.Context, items []worklog.Entry, opts *client.UploadOpts) error {
+func (c *tempoClient) UploadEntries(ctx context.Context, entries []worklog.Entry, opts *client.UploadOpts) error {
 	errChan := make(chan error)
 
-	for _, item := range items {
-		go c.uploadEntry(ctx, item, opts, errChan)
+	for _, entry := range entries {
+		go c.uploadEntry(ctx, entry, opts, errChan)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := 0; i < len(entries); i++ {
 		if err := <-errChan; err != nil {
 			return fmt.Errorf("%v: %v", client.ErrUploadEntries, err)
 		}

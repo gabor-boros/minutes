@@ -68,10 +68,10 @@ type FetchOpts struct {
 	End   time.Time
 }
 
-// Fetcher specifies the functions used to fetch worklog items.
+// Fetcher specifies the functions used to fetch worklog entries.
 type Fetcher interface {
-	// FetchEntries from a given source and return the list of worklog items
-	// If the fetching resulted in an error, the list of worklog items will be
+	// FetchEntries from a given source and return the list of worklog entries
+	// If the fetching resulted in an error, the list of worklog entries will be
 	// nil and an error will return.
 	FetchEntries(ctx context.Context, opts *FetchOpts) ([]worklog.Entry, error)
 }
@@ -97,16 +97,16 @@ type UploadOpts struct {
 	User string
 }
 
-// Uploader specifies the functions used to upload worklog items.
+// Uploader specifies the functions used to upload worklog entries.
 type Uploader interface {
 	// UploadEntries to a given target.
 	// If the upload resulted in an error, the upload will stop and an error
 	// will return.
-	UploadEntries(ctx context.Context, items []worklog.Entry, opts *UploadOpts) error
+	UploadEntries(ctx context.Context, entries []worklog.Entry, opts *UploadOpts) error
 }
 
 // FetchUploader is the combination of Fetcher and Uploader.
-// The FetchUploader can to fetch items from and upload to a given resource.
+// The FetchUploader can to fetch entries from and upload to a given resource.
 type FetchUploader interface {
 	Fetcher
 	Uploader
