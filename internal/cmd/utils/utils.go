@@ -53,18 +53,12 @@ func Prompt(message string) string {
 }
 
 // GetTime parses a string based on the given format and returns the time.
-// FIXME: End and Start dates have the same value
-// FIXME: Returns the UTC time, not local time
+// If the rawDate was an empty string, the today's midnight will return.
 func GetTime(rawDate string, dateFormat string) (time.Time, error) {
-	var date time.Time
-	var err error
-
 	if rawDate == "" {
 		year, month, day := time.Now().Date()
-		date = time.Date(year, month, day, 0, 0, 0, 0, time.Local)
-	} else {
-		return time.Parse(dateFormat, rawDate)
+		return time.Date(year, month, day, 0, 0, 0, 0, time.Local), nil
 	}
 
-	return date, err
+	return time.ParseInLocation(dateFormat, rawDate, time.Local)
 }

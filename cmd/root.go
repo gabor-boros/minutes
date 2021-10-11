@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gabor-boros/minutes/internal/cmd/printer"
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
@@ -297,8 +298,14 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	start, err := utils.GetTime(viper.GetString("start"), dateFormat)
 	cobra.CheckErr(err)
 
-	end, err := utils.GetTime(viper.GetString("end"), dateFormat)
+	rawEnd := viper.GetString("end")
+	end, err := utils.GetTime(rawEnd, dateFormat)
 	cobra.CheckErr(err)
+
+	// No end date was set, hence we are setting the end date to next day midnight
+	if rawEnd == "" {
+		end = end.Add(time.Hour * 24)
+	}
 
 	fetcher, err := getFetcher()
 	cobra.CheckErr(err)
