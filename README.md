@@ -11,7 +11,7 @@
   <p align="center">
     Sync worklogs between multiple time trackers, invoicing, and bookkeeping software.
     <br />
-    <a href="https://github.com/minutes/tree/master/docs/README.md"><strong>Explore the docs</strong></a>
+    <a href="https://gabor-boros.github.io/minutes"><strong>Explore the docs</strong></a>
     <br />
     <br />
     <a href="https://github.com/gabor-boros/minutes/issues">Bug report</a>
@@ -21,6 +21,7 @@
 </div>
 
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 ```plaintext
@@ -42,7 +43,7 @@ You have 5 complete and 0 incomplete items. Before proceeding, please double-che
 Continue? [y/n]:
 ```
 
-Minutes is a CLI tool for synchronizing work logs between multiple time trackers, invoicing, and bookkeeping software to make entrepreneurs' daily work easier.  Every source and destination comes with their specific flags. Before using any flags, check the related documentation.
+Minutes is a CLI tool for synchronizing work logs between multiple time trackers, invoicing, and bookkeeping software to make entrepreneurs' daily work easier. Every source and destination comes with their specific flags. Before using any flags, check the related documentation.
 
 Minutes come with absolutely **NO WARRANTY**; before and after synchronizing any logs, please ensure you got the expected result.
 
@@ -58,7 +59,7 @@ To install `minutes`, use one of the [release artifacts](https://github.com/gabo
 
 `minutes` has numerous flags and there will be more when other sources or targets are added. Therefore, `minutes` comes with a config file, that can be placed to the user's home directory or the config directory.
 
-_To read more about the config file, please refer to the [Documentation](https://github.com/minutes/tree/master/docs/README.md)_
+_To read more about the config file, please refer to the [Documentation](https://gabor-boros.github.io/minutes/getting-started)_
 
 ## Usage
 
@@ -86,16 +87,14 @@ Flags:
       --table-sort-by strings        sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
   -t, --target string                set the target of the sync [tempo]
       --target-user string           set the source user ID
-      --tasks-as-tags                treat tags matching the value of tasks-as-tags-regex as tasks
-      --tasks-as-tags-regex string   regex of the task pattern
+      --tags-as-tasks                treat tags matching the value of tags-as-tasks-regex as tasks
+      --tags-as-tasks-regex string   regex of the task pattern
       --tempo-password string        set the login password
       --tempo-url string             set the base URL
       --tempo-username string        set the login user ID
       --verbose                      print verbose messages
       --version                      show command version
 ```
-
-
 
 ### Usage examples
 
@@ -124,7 +123,7 @@ $ minutes --date-format "2006-01-02" --start "2021-10-07" --end "2021-10-08"
 
 ```shell
 # Specify how a tag should look like to be considered as a task
-$ minutes --tasks-as-tags --tasks-as-tags-regex '[A-Z]{2,7}-\d{1,6}'
+$ minutes --tags-as-tasks --tags-as-tasks-regex '[A-Z]{2,7}-\d{1,6}'
 ```
 
 #### Minute based rounding
@@ -155,8 +154,8 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tasks-as-tags = true
-tasks-as-tags-regex = '[A-Z]{2,7}-\d{1,6}'
+tags-as-tasks = true
+tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
 
@@ -176,26 +175,26 @@ summary = 40
 project = 10
 client = 10
 
-# Column Config                          
+# Column Config
 [table-column-config.summary]
-widthmax = 40  
+widthmax = 40
 ```
 
 ## Supported tools
 
-| Tool        | Use as source     | Use as target |
-| ----------- | ----------------- | ------------- |
-| Clockify    | **yes**           | upon request  |
-| Everhour    | upon request      | upon request  |
-| FreshBooks  | upon request      | **planned**   |
-| Harvest     | upon request      | upon request  |
-| QuickBooks  | upon request      | upon request  |
-| Tempo       | **yes**           | **yes**       |
-| Time Doctor | upon request      | upon request  |
-| TimeCamp    | upon request      | upon request  |
-| Timewarrior | upon request      | upon request  |
-| Toggl Track | **planned**       | upon request  |
-| Zoho Books  | upon request      | **planned**   |
+| Tool        | Use as source | Use as target |
+| ----------- | ------------- | ------------- |
+| Clockify    | **yes**       | upon request  |
+| Everhour    | upon request  | upon request  |
+| FreshBooks  | upon request  | **planned**   |
+| Harvest     | upon request  | upon request  |
+| QuickBooks  | upon request  | upon request  |
+| Tempo       | **yes**       | **yes**       |
+| Time Doctor | upon request  | upon request  |
+| TimeCamp    | upon request  | upon request  |
+| Timewarrior | upon request  | upon request  |
+| Toggl Track | **planned**   | upon request  |
+| Zoho Books  | upon request  | **planned**   |
 
 See the [open issues](https://github.com/gabor-boros/minutes/issues) for a full list of proposed features, tools and known issues.
 
@@ -203,10 +202,10 @@ See the [open issues](https://github.com/gabor-boros/minutes/issues) for a full 
 
 The following list of features are not supported at the moment:
 
-* Cost rate sync
-* Hourly rate sync
-* Estimate sync
-* Multiple source and target user support
+- Cost rate sync
+- Hourly rate sync
+- Estimate sync
+- Multiple source and target user support
 
 ## Contributing
 
@@ -222,6 +221,7 @@ Don't forget to give the project a star!
 5. Open a Pull Request
 
 <!-- MARKDOWN LINKS & IMAGES -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/gabor-boros/minutes.svg?style=for-the-badge
 [contributors-url]: https://github.com/gabor-boros/minutes/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/gabor-boros/minutes.svg?style=for-the-badge

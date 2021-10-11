@@ -1,4 +1,4 @@
-.PHONY: help prerequisites deps format lint test build clean
+.PHONY: help prerequisites deps format lint test build release changelog docs clean
 .DEFAULT_GOAL := build
 
 BIN_NAME := minutes
@@ -33,6 +33,12 @@ build: deps ## Build binary
 
 release: ## Release a new version on GitHub
 	goreleaser release --rm-dist --auto-snapshot
+
+changelog: ## Generate changelog
+	git-cliff --unreleased --prepend CHANGELOG.md
+
+docs: ## Serve the documentation site locally
+	@cd www && mkdocs serve
 
 clean: ## Clean up project root
 	rm -rf bin/
