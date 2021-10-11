@@ -9,6 +9,9 @@ builds:
       - linux
       - windows
       - darwin
+    hooks:
+      post:
+        - "upx {{ .Path }}"
 dist: bin
 archives:
   - replacements:
