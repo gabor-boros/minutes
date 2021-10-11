@@ -356,8 +356,8 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	clockifyClient := clockify.NewClient(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			HTTPClientOptions: *httpClientOpts,
-			TasksAsTags:       true,
-			TasksAsTagsRegex:  `^TASK\-\d+$`,
+			TagsAsTasks:       true,
+			TagsAsTasksRegex:  `^TASK\-\d+$`,
 		},
 		Workspace: "marvel-studios",
 	})

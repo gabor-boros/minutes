@@ -119,8 +119,8 @@ func initCommonFlags() {
 	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{printer.ColumnStart, printer.ColumnProject, printer.ColumnTask, printer.ColumnSummary}, fmt.Sprintf("sort table by column %v", printer.Columns))
 	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", printer.HideableColumns))
 
-	rootCmd.Flags().BoolP("tasks-as-tags", "", false, "treat tags matching the value of tasks-as-tags-regex as tasks")
-	rootCmd.Flags().StringP("tasks-as-tags-regex", "", "", "regex of the task pattern")
+	rootCmd.Flags().BoolP("tags-as-tasks", "", false, "treat tags matching the value of tags-as-tasks-regex as tasks")
+	rootCmd.Flags().StringP("tags-as-tasks-regex", "", "", "regex of the task pattern")
 
 	rootCmd.Flags().BoolP("round-to-closest-minute", "", false, "round time to closest minute")
 	rootCmd.Flags().BoolP("force-billed-duration", "", false, "treat every second spent as billed")
@@ -158,11 +158,11 @@ func validateFlags() {
 		cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the supported targets %v\n", target, targets))
 	}
 
-	if viper.GetBool("tasks-as-tags") {
-		tasksAsTagsRegex := viper.GetString("tasks-as-tags-regex")
+	if viper.GetBool("tags-as-tasks") {
+		tasksAsTagsRegex := viper.GetString("tags-as-tasks-regex")
 
 		if tasksAsTagsRegex == "" {
-			cobra.CheckErr("tasks-as-tags-regex cannot be empty if tasks-as-tags is set")
+			cobra.CheckErr("tags-as-tasks-regex cannot be empty if tags-as-tasks is set")
 		}
 
 		_, err := regexp.Compile(tasksAsTagsRegex)
@@ -194,8 +194,8 @@ func getClientOpts(urlFlag string, usernameFlag string, passwordFlag string, tok
 			HTTPClient:  http.DefaultClient,
 			TokenHeader: tokenHeader,
 		},
-		TasksAsTags:      viper.GetBool("tasks-as-tags"),
-		TasksAsTagsRegex: viper.GetString("tasks-as-tags-regex"),
+		TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+		TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
 	}
 
 	baseURL, err := url.Parse(viper.GetString(urlFlag))

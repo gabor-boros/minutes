@@ -45,18 +45,18 @@ type HTTPClientOptions struct {
 // using BaseClientOpts.
 type BaseClientOpts struct {
 	HTTPClientOptions
-	// TasksAsTags defines to use tag names to determine the task.
-	// Using TasksAsTags can be useful if the user's workflow involves
+	// TagsAsTasks defines to use tag names to determine the task.
+	// Using TagsAsTasks can be useful if the user's workflow involves
 	// splitting activity across multiple tasks, or when the user has no option
 	// to set multiple tasks for a single activity.
 	//
-	// This option must be used in conjunction with TasksAsTagsRegex option.
-	TasksAsTags bool
-	// TasksAsTagsRegex sets the regular expression used for extracting tasks
+	// This option must be used in conjunction with TagsAsTasksRegex option.
+	TagsAsTasks bool
+	// TagsAsTasksRegex sets the regular expression used for extracting tasks
 	// from the list of tags.
 	//
-	// This option must be used in conjunction with TasksAsTags option.
-	TasksAsTagsRegex string
+	// This option must be used in conjunction with TagsAsTasks option.
+	TagsAsTasksRegex string
 }
 
 // FetchOpts specifies the only options for Fetchers.

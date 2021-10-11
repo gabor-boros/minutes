@@ -103,7 +103,7 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 }
 
 func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) (*[]worklog.Entry, error) {
-	r, err := regexp.Compile(c.opts.TasksAsTagsRegex)
+	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 				billableDuration = 0
 			}
 
-			if c.opts.TasksAsTags && len(entry.Tags) > 0 {
+			if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
 				pageEntries, err := c.splitEntry(entry, billableDuration, unbillableDuration)
 				if err != nil {
 					return nil, err
