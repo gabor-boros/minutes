@@ -231,4 +231,4 @@ Don't forget to give the project a star!
 [issues-shield]: https://img.shields.io/github/issues/gabor-boros/minutes.svg?style=for-the-badge
 [issues-url]: https://github.com/gabor-boros/minutes/issues
 [license-shield]: https://img.shields.io/github/license/gabor-boros/minutes.svg?style=for-the-badge
-[license-url]: https://github.com/gabor-boros/minutes/blob/master/LICENSE
+[license-url]: https://github.com/gabor-boros/minutes/blob/main/LICENSE

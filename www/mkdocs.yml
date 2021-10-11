@@ -4,7 +4,7 @@ site_description: Sync worklogs between multiple time trackers, invoicing, and b
 copyright: Made with ❤️ by Minutes contributors.
 repo_name: gabor-boros/minutes
 repo_url: https://github.com/gabor-boros/minutes
-edit_uri: edit/master/www/docs/
+edit_uri: edit/main/www/docs/
 
 theme:
   name: material
