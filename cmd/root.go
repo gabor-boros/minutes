@@ -2,20 +2,30 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"regexp"
+	"strings"
+
+	"github.com/gabor-boros/minutes/internal/cmd/printer"
+	"github.com/gabor-boros/minutes/internal/cmd/utils"
+	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
+	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
+
+	"github.com/jedib0t/go-pretty/v6/table"
+
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"regexp"
-	"sort"
-	"strings"
 )
 
 const (
-	program            string = "minutes"
-	worklogTableFormat string = "| %s\t| %s\t| %s\t| %s\t|\n"
+	program           string = "minutes"
+	defaultDateFormat string = "2006-01-02 15:04:05"
 )
 
 var (
@@ -28,6 +38,9 @@ var (
 
 	sources = []string{"clockify", "tempo"}
 	targets = []string{"tempo"}
+
+	ErrNoSourceImplementation = errors.New("no source implementation found")
+	ErrNoTargetImplementation = errors.New("no target implementation found")
 
 	rootCmd = &cobra.Command{
 		Use:   program,
@@ -94,13 +107,16 @@ func initCommonFlags() {
 
 	rootCmd.Flags().StringP("start", "", "", "set the start date (defaults to 00:00:00)")
 	rootCmd.Flags().StringP("end", "", "", "set the end date (defaults to now)")
-	rootCmd.Flags().StringP("date-format", "", "2006-01-02 15:04:05", "set start and end date format (in Go style)")
+	rootCmd.Flags().StringP("date-format", "", defaultDateFormat, "set start and end date format (in Go style)")
 
 	rootCmd.Flags().StringP("source-user", "", "", "set the source user ID")
 	rootCmd.Flags().StringP("source", "s", "", fmt.Sprintf("set the source of the sync %v", sources))
 
 	rootCmd.Flags().StringP("target-user", "", "", "set the source user ID")
 	rootCmd.Flags().StringP("target", "t", "", fmt.Sprintf("set the target of the sync %v", targets))
+
+	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{printer.ColumnStart, printer.ColumnProject, printer.ColumnTask, printer.ColumnSummary}, fmt.Sprintf("sort table by column %v", printer.Columns))
+	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", printer.HideableColumns))
 
 	rootCmd.Flags().BoolP("tasks-as-tags", "", false, "treat tags matching the value of tasks-as-tags-regex as tasks")
 	rootCmd.Flags().StringP("tasks-as-tags-regex", "", "", "regex of the task pattern")
@@ -133,11 +149,11 @@ func validateFlags() {
 		cobra.CheckErr("sync source cannot match the target")
 	}
 
-	if !isSliceContains(source, sources) {
+	if !utils.IsSliceContains(source, sources) {
 		cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the supported sources %v\n", source, sources))
 	}
 
-	if !isSliceContains(target, targets) {
+	if !utils.IsSliceContains(target, targets) {
 		cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the supported targets %v\n", target, targets))
 	}
 
@@ -151,6 +167,119 @@ func validateFlags() {
 		_, err := regexp.Compile(tasksAsTagsRegex)
 		cobra.CheckErr(err)
 	}
+
+	for _, sortBy := range viper.GetStringSlice("table-sort-by") {
+		column := sortBy
+
+		if strings.HasPrefix(column, "-") {
+			column = sortBy[1:]
+		}
+
+		if !utils.IsSliceContains(column, printer.Columns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the sortable columns %v\n", column, printer.Columns))
+		}
+	}
+
+	for _, column := range viper.GetStringSlice("table-hide-column") {
+		if !utils.IsSliceContains(column, printer.HideableColumns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, printer.HideableColumns))
+		}
+	}
+}
+
+func getClientOpts(urlFlag string, usernameFlag string, passwordFlag string, tokenFlag string, tokenHeader string) (*client.BaseClientOpts, error) {
+	opts := &client.BaseClientOpts{
+		HTTPClientOptions: client.HTTPClientOptions{
+			HTTPClient:  http.DefaultClient,
+			TokenHeader: tokenHeader,
+		},
+		TasksAsTags:      viper.GetBool("tasks-as-tags"),
+		TasksAsTagsRegex: viper.GetString("tasks-as-tags-regex"),
+	}
+
+	baseURL, err := url.Parse(viper.GetString(urlFlag))
+	if err != nil {
+		return opts, err
+	}
+
+	if usernameFlag != "" {
+		opts.Username = viper.GetString(usernameFlag)
+	}
+
+	if passwordFlag != "" {
+		opts.Password = viper.GetString(passwordFlag)
+	}
+
+	if tokenFlag != "" {
+		opts.Token = viper.GetString(tokenFlag)
+	}
+
+	opts.BaseURL = baseURL.String()
+
+	return opts, nil
+}
+
+func getFetcher() (client.Fetcher, error) {
+	switch viper.GetString("source") {
+	case "clockify":
+		opts, err := getClientOpts(
+			"clockify-url",
+			"",
+			"",
+			"clockify-api-key",
+			"X-Api-Key",
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return clockify.NewClient(&clockify.ClientOpts{
+			BaseClientOpts: *opts,
+			Workspace:      viper.GetString("clockify-workspace"),
+		}), nil
+	case "tempo":
+		opts, err := getClientOpts(
+			"tempo-url",
+			"tempo-username",
+			"tempo-password",
+			"",
+			"",
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return tempo.NewClient(&tempo.ClientOpts{
+			BaseClientOpts: *opts,
+		}), nil
+	default:
+		return nil, ErrNoSourceImplementation
+	}
+}
+
+func getUploader() (client.Uploader, error) {
+	switch viper.GetString("target") {
+	case "tempo":
+		opts, err := getClientOpts(
+			"tempo-url",
+			"tempo-username",
+			"tempo-password",
+			"",
+			"",
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return tempo.NewClient(&tempo.ClientOpts{
+			BaseClientOpts: *opts,
+		}), nil
+	default:
+		return nil, ErrNoTargetImplementation
+	}
 }
 
 func runRootCmd(_ *cobra.Command, _ []string) {
@@ -163,10 +292,12 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 
 	validateFlags()
 
-	start, err := getTime(viper.GetString("start"))
+	dateFormat := viper.GetString("date-format")
+
+	start, err := utils.GetTime(viper.GetString("start"), dateFormat)
 	cobra.CheckErr(err)
 
-	end, err := getTime(viper.GetString("end"))
+	end, err := utils.GetTime(viper.GetString("end"), dateFormat)
 	cobra.CheckErr(err)
 
 	fetcher, err := getFetcher()
@@ -186,18 +317,30 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	completeEntries := wl.CompleteEntries()
 	incompleteEntries := wl.IncompleteEntries()
 
-	sort.Slice(completeEntries, func(i int, j int) bool {
-		return completeEntries[i].Task.Name < completeEntries[j].Task.Name
+	columnTruncates := map[string]int{}
+	err = viper.UnmarshalKey("table-column-truncates", &columnTruncates)
+	cobra.CheckErr(err)
+
+	tablePrinter := printer.NewTablePrinter(&printer.TablePrinterOpts{
+		BasePrinterOpts: printer.BasePrinterOpts{
+			Output:        os.Stdout,
+			AutoIndex:     true,
+			Title:         fmt.Sprintf("Worklog entries (%s - %s)", start.Local().String(), end.Local().String()),
+			SortBy:        viper.GetStringSlice("table-sort-by"),
+			HiddenColumns: viper.GetStringSlice("table-hide-column"),
+		},
+		Style: table.StyleLight,
+		ColumnConfig: printer.ParseColumnConfigs(
+			"table-column-config.%s",
+			viper.GetStringSlice("table-hide-column"),
+		),
+		ColumnTruncates: columnTruncates,
 	})
 
-	sort.Slice(incompleteEntries, func(i int, j int) bool {
-		return incompleteEntries[i].Task.Name < incompleteEntries[j].Task.Name
-	})
+	err = tablePrinter.Print(completeEntries, incompleteEntries)
+	cobra.CheckErr(err)
 
-	printEntries("Incomplete entries", incompleteEntries)
-	printEntries("Complete entries", completeEntries)
-
-	if strings.ToLower(prompt("Continue? [y/n]")) != "y" {
+	if strings.ToLower(utils.Prompt("Continue? [y/n]: ")) != "y" {
 		fmt.Println("User interruption. Aborting.")
 		os.Exit(0)
 	}

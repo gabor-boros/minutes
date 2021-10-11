@@ -23,25 +23,21 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-```shell
-Incomplete entries:
-| Task	| Summary		| Billed| Unbilled	|
-| 	| 			| 	| 		|
-| 	| 			| 26m16s| 0s		|
-| 	| 			| 	| 		|
-| 	| Total time spent:	| 26m16s| 0s		|
-
-Complete entries:
-| Task		| Summary						| Billed	| Unbilled	|
-| 		| 							| 		| 		|
-| TA-4685	| Read developer reviews				| 8m43s		| 0s		|
-| TA-4305	| Check ticket updates and clean up after the ticket	| 23m25s	| 0s		|
-| TA-4815	| Review ticket						| 43m22s	| 0s		|
-| TA-4869	| Continue the discovery document			| 3h24m2s	| 0s		|
-| TA-4869	| Read the API developer documentations			| 1h56m15s	| 0s		|
-| TA-4909	| Participate in firefighting				| 25m37s	| 0s		|
-| 		| 							| 		| 		|
-| 		| Total time spent:					| 7h1m24s	| 0s		|
+```plaintext
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Worklog entries (2021-10-04 02:00:00 +0200 CEST - 2021-10-05 02:00:00 +0200 CEST)                                                                       │
+├────┬─────────┬────────────────────────────────┬──────────────────────┬───────────────┬─────────────────────┬─────────────────────┬───────────┬──────────┤
+│    │ TASK    │ SUMMARY                        │ PROJECT              │ CLIENT        │ START               │ END                 │    BILLED │ UNBILLED │
+├────┼─────────┼────────────────────────────────┼──────────────────────┼───────────────┼─────────────────────┼─────────────────────┼───────────┼──────────┤
+│  1 │ MIN-001 │ Create an mkdocs based doc...  │ Document every...    │ Example Corp. │ 2021-10-04 08:00:00 │ 2021-10-04 08:20:37 │    20m37s │       0s │
+│  2 │ MIN-002 │ Add column text truncating     │ Time syncing tool    │ Example Corp. │ 2021-10-04 14:33:56 │ 2021-10-04 14:46:52 │    12m56s │       0s │
+│  3 │ MIN-007 │ Some very long summary tha...  │ Time syncing tool    │ Example Corp. │ 2021-10-04 15:45:32 │ 2021-10-04 15:53:21 │     7m49s │       0s │
+│  4 │ MIN-008 │ New table formatted output     │ Time syncing tool    │ Example Corp. │ 2021-10-04 19:11:51 │ 2021-10-04 19:56:01 │    44m10s │       0s │
+│  5 │ MIN-014 │ Debug time parsing issues      │ Time syncing tool    │ Example Corp. │ 2021-10-04 21:44:05 │ 2021-10-04 22:15:53 │    31m48s │       0s │
+├────┼─────────┼────────────────────────────────┼──────────────────────┼───────────────┼─────────────────────┼─────────────────────┼───────────┼──────────┤
+│    │         │                                │                      │               │                     │ total time spent    │ 10h18m11s │       0s │
+└────┴─────────┴────────────────────────────────┴──────────────────────┴───────────────┴─────────────────────┴─────────────────────┴───────────┴──────────┘
+You have 5 complete and 0 incomplete items. Before proceeding, please double-check them.
 
 Continue? [y/n]:
 ```
@@ -86,6 +82,8 @@ Flags:
   -s, --source string                set the source of the sync [clockify tempo]
       --source-user string           set the source user ID
       --start string                 set the start date (defaults to 00:00:00)
+      --table-hide-column strings    hide table column [summary project client start end]
+      --table-sort-by strings        sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
   -t, --target string                set the target of the sync [tempo]
       --target-user string           set the source user ID
       --tasks-as-tags                treat tags matching the value of tasks-as-tags-regex as tasks
@@ -137,7 +135,7 @@ $ minutes --tasks-as-tags --tasks-as-tags-regex '[A-Z]{2,7}-\d{1,6}'
 $ minutes --round-to-closest-minute
 ```
 
-### Simple config file
+### Sample config file
 
 ```toml
 # Source config
@@ -161,6 +159,26 @@ tasks-as-tags = true
 tasks-as-tags-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
+
+table-sort-by = [
+    "start",
+    "project",
+    "task",
+    "summary",
+]
+
+table-hide-column = [
+    "end"
+]
+
+[table-column-truncates]
+summary = 40
+project = 10
+client = 10
+
+# Column Config                          
+[table-column-config.summary]
+widthmax = 40  
 ```
 
 ## Supported tools
