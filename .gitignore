@@ -25,3 +25,5 @@ dist/
 
 # Misc
 .DS_Store
+venv/
+virtualenv/
