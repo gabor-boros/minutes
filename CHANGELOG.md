@@ -13,7 +13,8 @@ All notable changes to this project will be documented in this file.
 - Add readme file (6784310)
 - Add code of conduct (6b29c4f)
 - Update go install instructions (a91840f)
-- Add project documentation and changelog generation (48b7f98)
+- Add project documentation and changelog generation (c82e766)
+- Fix broken links (9938b0b)
 
 **Features**
 
@@ -58,4 +59,5 @@ All notable changes to this project will be documented in this file.
 - Add CodeQL integration (29d4b74)
 - Setup PR builds (210c58f)
 - Update cron frequency (05db753)
+- Disable build targets but ubuntu (c4c04f5)
 
