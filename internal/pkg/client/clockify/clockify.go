@@ -104,7 +104,7 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 func (c *clockifyClient) splitEntry(entry worklog.Entry, fetchedEntry FetchEntry) ([]worklog.Entry, error) {
 	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	tasks := map[string]string{}
@@ -156,17 +156,17 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 
 		searchURL, err := c.getSearchURL(opts.User, searchParams)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
 		resp, err := client.SendRequest(ctx, http.MethodGet, searchURL, nil, &c.opts.HTTPClientOptions)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
 		var fetchedEntries []FetchEntry
 		if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
 		// The API returned no entries, meaning no entries left
@@ -206,7 +206,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
 				pageEntries, err := c.splitEntry(worklogEntry, entry)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 				}
 
 				entries = append(entries, pageEntries...)
