@@ -57,7 +57,7 @@ flags, check the related documentation.
 Minutes comes with absolutely NO WARRANTY; for more information, visit the
 project's home page.
 
-Project home page: https://github.com/gabor-boros/minutes
+Project home page: https://gabor-boros.github.io/minutes
 Report bugs at: https://github.com/gabor-boros/minutes/issues
 Report security issues to: gabor.brs@gmail.com`,
 		Run: runRootCmd,
