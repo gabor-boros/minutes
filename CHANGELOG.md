@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Update project home page in help output ([fe83511](https://github.com/gabor-boros/minutes/commit/fe8351104f745c6ef2a265a0e139cb9209f5ab9e))
 - Extend release document ([b6d61e9](https://github.com/gabor-boros/minutes/commit/b6d61e9221bea664380277c700f8a1842c4b93f0))
 - Correct some typos ([924324b](https://github.com/gabor-boros/minutes/commit/924324b059f72e4b40200d164715708b3af36a7c))
+- Fix configuration option kind ([e2dc5f7](https://github.com/gabor-boros/minutes/commit/e2dc5f76750a10df6a4b98542ba9b0ed2baf2d6a))
 
 **Features**
 
@@ -40,6 +41,7 @@ All notable changes to this project will be documented in this file.
 - Update changelog entries ([4b6dc29](https://github.com/gabor-boros/minutes/commit/4b6dc2911349587df3207afea4675b1e3e77033f))
 - Update changelog ([2fccd28](https://github.com/gabor-boros/minutes/commit/2fccd287eae65a20160141f6091eb12fd1126040))
 - Update changelog ([a82bb4b](https://github.com/gabor-boros/minutes/commit/a82bb4b939687ec40099b9515fd442e78bdf5ef8))
+- Update changelog ([4123205](https://github.com/gabor-boros/minutes/commit/41232050be4aed8441fe99bbdd1849d9319922f1))
 
 **Refactor**
 
