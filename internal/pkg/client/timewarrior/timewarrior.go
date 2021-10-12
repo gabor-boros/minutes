@@ -62,14 +62,14 @@ func (c *timewarriorClient) assembleCommand(subcommand string, opts *client.Fetc
 	return c.opts.Command, arguments
 }
 
-func (c *timewarriorClient) splitEntry(entry worklog.Entry, fetchEntry FetchEntry) ([]worklog.Entry, error) {
+func (c *timewarriorClient) splitEntry(entry worklog.Entry, fetchedEntry FetchEntry) ([]worklog.Entry, error) {
 	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
 		return nil, err
 	}
 
 	tasks := map[string]string{}
-	for _, tag := range fetchEntry.Tags {
+	for _, tag := range fetchedEntry.Tags {
 		if task := r.FindString(tag); task != "" {
 			tasks[tag] = task
 		}

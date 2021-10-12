@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -102,14 +101,14 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
-func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) ([]worklog.Entry, error) {
+func (c *clockifyClient) splitEntry(entry worklog.Entry, fetchedEntry FetchEntry) ([]worklog.Entry, error) {
 	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
 		return nil, err
 	}
 
 	tasks := map[string]string{}
-	for _, tag := range entry.Tags {
+	for _, tag := range fetchedEntry.Tags {
 		if task := r.FindString(tag.Name); task != "" {
 			tasks[tag.ID] = task
 		}
@@ -119,27 +118,20 @@ func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time
 	totalTasks := len(tasks)
 
 	for taskID, taskName := range tasks {
-		splitBillableDuration := time.Duration(math.Round(float64(bd.Nanoseconds()) / float64(totalTasks)))
-		splitUnbillableDuration := time.Duration(math.Round(float64(ubd.Nanoseconds()) / float64(totalTasks)))
+		splitBillable, splitUnbillable := entry.SplitDuration(totalTasks)
 
 		entries = append(entries, worklog.Entry{
-			Client: worklog.IDNameField{
-				ID:   entry.Project.ClientID,
-				Name: entry.Project.ClientName,
-			},
-			Project: worklog.IDNameField{
-				ID:   entry.Project.ID,
-				Name: entry.Project.Name,
-			},
+			Client:  entry.Client,
+			Project: entry.Project,
 			Task: worklog.IDNameField{
 				ID:   taskID,
 				Name: taskName,
 			},
-			Summary:            entry.Description,
-			Notes:              entry.Description,
-			Start:              entry.TimeInterval.Start,
-			BillableDuration:   splitBillableDuration,
-			UnbillableDuration: splitUnbillableDuration,
+			Summary:            fetchedEntry.Description,
+			Notes:              fetchedEntry.Description,
+			Start:              entry.Start,
+			BillableDuration:   splitBillable,
+			UnbillableDuration: splitUnbillable,
 		})
 	}
 
@@ -191,33 +183,35 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 				billableDuration = 0
 			}
 
+			worklogEntry := worklog.Entry{
+				Client: worklog.IDNameField{
+					ID:   entry.Project.ClientID,
+					Name: entry.Project.ClientName,
+				},
+				Project: worklog.IDNameField{
+					ID:   entry.Project.ID,
+					Name: entry.Project.Name,
+				},
+				Task: worklog.IDNameField{
+					ID:   entry.Task.ID,
+					Name: entry.Task.Name,
+				},
+				Summary:            entry.Task.Name,
+				Notes:              entry.Description,
+				Start:              entry.TimeInterval.Start,
+				BillableDuration:   billableDuration,
+				UnbillableDuration: unbillableDuration,
+			}
+
 			if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
-				pageEntries, err := c.splitEntry(entry, billableDuration, unbillableDuration)
+				pageEntries, err := c.splitEntry(worklogEntry, entry)
 				if err != nil {
 					return nil, err
 				}
 
 				entries = append(entries, pageEntries...)
 			} else {
-				entries = append(entries, worklog.Entry{
-					Client: worklog.IDNameField{
-						ID:   entry.Project.ClientID,
-						Name: entry.Project.ClientName,
-					},
-					Project: worklog.IDNameField{
-						ID:   entry.Project.ID,
-						Name: entry.Project.Name,
-					},
-					Task: worklog.IDNameField{
-						ID:   entry.Task.ID,
-						Name: entry.Task.Name,
-					},
-					Summary:            entry.Task.Name,
-					Notes:              entry.Description,
-					Start:              entry.TimeInterval.Start,
-					BillableDuration:   billableDuration,
-					UnbillableDuration: unbillableDuration,
-				})
+				entries = append(entries, worklogEntry)
 			}
 		}
 

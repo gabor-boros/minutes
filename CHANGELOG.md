@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
 - Update changelog ([97d9867](https://github.com/gabor-boros/minutes/commit/97d986761306a892d1354228c650615a7146dfba))
 - Use commit links in changelog ([8011d6a](https://github.com/gabor-boros/minutes/commit/8011d6af1d1e2ae917da871b16109991e3118812))
+- Update changelog entries ([4b6dc29](https://github.com/gabor-boros/minutes/commit/4b6dc2911349587df3207afea4675b1e3e77033f))
 
 **Refactor**
 
@@ -50,6 +51,7 @@ All notable changes to this project will be documented in this file.
 - Remove unused `verbose` flag ([96c1e83](https://github.com/gabor-boros/minutes/commit/96c1e83bf70dfe62152d4ece1f61351e05834df5))
 - Do not return pointer slice when splitting ([6a34847](https://github.com/gabor-boros/minutes/commit/6a34847c150815c25c04077daa557ea5855bf3ae))
 - Add entry duration splitting as a method ([e657956](https://github.com/gabor-boros/minutes/commit/e657956f78e3fe37be22e3dfbb5dc65a6d345865))
+- Use outsourced entry duration splitting ([e81f1fd](https://github.com/gabor-boros/minutes/commit/e81f1fd08b9ffb93c0d74b0d976e0fb915e4fb4d))
 
 **Testing**
 
