@@ -88,3 +88,18 @@ func TestEntryIsCompleteIncomplete(t *testing.T) {
 	entry.UnbillableDuration = 0
 	assert.False(t, entry.IsComplete())
 }
+
+func TestEntry_SplitDuration(t *testing.T) {
+	var splitBillable time.Duration
+	var splitUnbillable time.Duration
+	entry := getTestEntry()
+
+	splitBillable, splitUnbillable = entry.SplitDuration(1)
+	assert.Equal(t, entry.BillableDuration, splitBillable)
+	assert.Equal(t, entry.UnbillableDuration, splitUnbillable)
+
+	entry.UnbillableDuration = time.Hour * 2
+	splitBillable, splitUnbillable = entry.SplitDuration(2)
+	assert.Equal(t, time.Hour*1, splitBillable)
+	assert.Equal(t, time.Hour*1, splitUnbillable)
+}

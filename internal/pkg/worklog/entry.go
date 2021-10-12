@@ -2,6 +2,7 @@ package worklog
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -45,4 +46,11 @@ func (e *Entry) IsComplete() bool {
 	isTimeFilled := !e.Start.IsZero() && (e.BillableDuration.Seconds() > 0 || e.UnbillableDuration.Seconds() > 0)
 
 	return isMetadataFilled && isTimeFilled
+}
+
+// SplitDuration splits the billable and unbillable duration to N parts.
+func (e *Entry) SplitDuration(parts int) (splitBillableDuration time.Duration, splitUnbillableDuration time.Duration) {
+	splitBillableDuration = time.Duration(math.Round(float64(e.BillableDuration.Nanoseconds()) / float64(parts)))
+	splitUnbillableDuration = time.Duration(math.Round(float64(e.UnbillableDuration.Nanoseconds()) / float64(parts)))
+	return splitBillableDuration, splitUnbillableDuration
 }
