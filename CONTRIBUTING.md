@@ -107,7 +107,8 @@ executed `make prerequisites`.
 3. Make sure that formatters are not complaining (`make format` returns 0)
 4. Make sure that linters are not complaining (`make lint` returns 0)
 5. Take a note about the next release version, keeping semantic versioning in mind
-6. Update the CHANGELOG.md using `TAG="<new release version>" make changelog`
+6. Update the CHANGELOG.md using `TAG="<CURRENT RELEASE VERSION>" make changelog`
 7. Compare the CHANGELOG.md changes and push to master
 8. Cut a new tag for the next release version 
 9. Run `GITHUB_TOKEN="<TOKEN>" make release` to package the tool and create a GitHub release
+10. Create a new milestone following the `v<NEXT RELEASE VERSION>` pattern

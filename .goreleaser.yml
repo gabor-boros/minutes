@@ -24,6 +24,9 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+milestones:
+  - close: true
+    fail_on_error: true
 changelog:
   sort: asc
   filters:
