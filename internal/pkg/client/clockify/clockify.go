@@ -102,7 +102,7 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
-func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) (*[]worklog.Entry, error) {
+func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time.Duration) ([]worklog.Entry, error) {
 	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func (c *clockifyClient) splitEntry(entry FetchEntry, bd time.Duration, ubd time
 		})
 	}
 
-	return &entries, nil
+	return entries, nil
 }
 
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
@@ -197,7 +197,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 					return nil, err
 				}
 
-				entries = append(entries, *pageEntries...)
+				entries = append(entries, pageEntries...)
 			} else {
 				entries = append(entries, worklog.Entry{
 					Client: worklog.IDNameField{
