@@ -126,7 +126,6 @@ func initCommonFlags() {
 	rootCmd.Flags().BoolP("force-billed-duration", "", false, "treat every second spent as billed")
 
 	rootCmd.Flags().BoolP("dry-run", "", false, "fetch entries, but do not sync them")
-	rootCmd.Flags().BoolP("verbose", "", false, "print verbose messages")
 	rootCmd.Flags().BoolP("version", "", false, "show command version")
 }
 
