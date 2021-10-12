@@ -1,8 +1,8 @@
 Source documentation for [Timewarrior](https://timewarrior.net/).
 
-Timewarrior is one of the most flexible tool. Thanks to its flexibility there is no built-in/dedicated way to mark an entry billable/unbillable, set client, project, or task.
+Timewarrior is one of the most flexible tools. Thanks to its flexibility there is no built-in/dedicated way to mark an entry billable/unbillable, set client, project, or task.
 
-Therefore, several assumptions made to integrate with Timewarrior, though the goal was to keep the maximum flexibility.
+Therefore, several assumptions were made to integrate with Timewarrior, though the goal was to keep the maximum flexibility.
 
 !!! warning
 
