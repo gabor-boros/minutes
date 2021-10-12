@@ -7,9 +7,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 
 	"github.com/gabor-boros/minutes/internal/cmd/printer"
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
@@ -37,7 +40,7 @@ var (
 	commit  string
 	date    string
 
-	sources = []string{"clockify", "tempo"}
+	sources = []string{"clockify", "tempo", "timewarrior"}
 	targets = []string{"tempo"}
 
 	ErrNoSourceImplementation = errors.New("no source implementation found")
@@ -72,6 +75,7 @@ func init() {
 	initCommonFlags()
 	initClockifyFlags()
 	initTempoFlags()
+	initTimewarriorFlags()
 }
 
 func initConfig() {
@@ -141,6 +145,15 @@ func initTempoFlags() {
 	rootCmd.Flags().StringP("tempo-password", "", "", "set the login password")
 }
 
+func initTimewarriorFlags() {
+	rootCmd.Flags().StringP("timewarrior-command", "", "timew", "set the executable name")
+	rootCmd.Flags().StringSliceP("timewarrior-arguments", "", []string{}, "set additional arguments")
+
+	rootCmd.Flags().StringP("timewarrior-unbillable-tag", "", "unbillable", "set the unbillable tag")
+	rootCmd.Flags().StringP("timewarrior-client-tag-regex", "", "", "regex of client tag pattern")
+	rootCmd.Flags().StringP("timewarrior-project-tag-regex", "", "", "regex of project tag pattern")
+}
+
 func validateFlags() {
 	source := viper.GetString("source")
 	target := viper.GetString("target")
@@ -183,6 +196,25 @@ func validateFlags() {
 	for _, column := range viper.GetStringSlice("table-hide-column") {
 		if !utils.IsSliceContains(column, printer.HideableColumns) {
 			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, printer.HideableColumns))
+		}
+	}
+
+	switch source {
+	case "timewarrior":
+		if viper.GetString("timewarrior-command") == "" {
+			cobra.CheckErr("timewarrior command must be set")
+		}
+
+		if viper.GetString("timewarrior-unbillable-tag") == "" {
+			cobra.CheckErr("timewarrior unbillable tag must be set")
+		}
+
+		if viper.GetString("timewarrior-client-tag-regex") == "" {
+			cobra.CheckErr("timewarrior client tag regex must be set")
+		}
+
+		if viper.GetString("timewarrior-project-tag-regex") == "" {
+			cobra.CheckErr("timewarrior project tag regex must be set")
 		}
 	}
 }
@@ -253,6 +285,21 @@ func getFetcher() (client.Fetcher, error) {
 
 		return tempo.NewClient(&tempo.ClientOpts{
 			BaseClientOpts: *opts,
+		}), nil
+	case "timewarrior":
+		opts := &client.BaseClientOpts{
+			TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+			TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+		}
+
+		return timewarrior.NewClient(&timewarrior.ClientOpts{
+			BaseClientOpts:     *opts,
+			Command:            viper.GetString("timewarrior-command"),
+			CommandArguments:   viper.GetStringSlice("timewarrior-arguments"),
+			CommandCtxExecutor: exec.CommandContext,
+			UnbillableTag:      viper.GetString("timewarrior-unbillable-tag"),
+			ClientTagRegex:     viper.GetString("timewarrior-client-tag-regex"),
+			ProjectTagRegex:    viper.GetString("timewarrior-project-tag-regex"),
 		}), nil
 	default:
 		return nil, ErrNoSourceImplementation

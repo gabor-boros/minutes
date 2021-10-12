@@ -192,7 +192,7 @@ widthmax = 40
 | Tempo       | **yes**       | **yes**       |
 | Time Doctor | upon request  | upon request  |
 | TimeCamp    | upon request  | upon request  |
-| Timewarrior | upon request  | upon request  |
+| Timewarrior | **yes**       | upon request  |
 | Toggl Track | **planned**   | upon request  |
 | Zoho Books  | upon request  | **planned**   |
 

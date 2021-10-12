@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Add basic tempo client implementation ([202ac41](https://github.com/gabor-boros/minutes/commit/202ac41def09858d31809be3a6fa8cf5b9f95a00))
 - Add basic clockify client implementation ([cb04282](https://github.com/gabor-boros/minutes/commit/cb04282b206bc1a926ab6e37b4cd67450e2c4766))
 - Add initial CLI implementation ([98a6759](https://github.com/gabor-boros/minutes/commit/98a6759ec7557d5bdc5e313f00086cc468ee4197))
+- Add initial timewarrior integration ([823c472](https://github.com/gabor-boros/minutes/commit/823c4720360850c1eaca6a6a7765e43c4a47877c))
 
 **Miscellaneous Tasks**
 
@@ -34,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Add issue templates ([99fba16](https://github.com/gabor-boros/minutes/commit/99fba16dc5a695d42d9dfee21fc7dad64ce98afe))
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
 - Update changelog ([97d9867](https://github.com/gabor-boros/minutes/commit/97d986761306a892d1354228c650615a7146dfba))
+- Use commit links in changelog ([8011d6a](https://github.com/gabor-boros/minutes/commit/8011d6af1d1e2ae917da871b16109991e3118812))
 
 **Refactor**
 
@@ -46,6 +48,8 @@ All notable changes to this project will be documented in this file.
 - Rename ci.yml to build.yml ([4165ea4](https://github.com/gabor-boros/minutes/commit/4165ea4eddf529563c4b8b54ea914a71c53d5ff9))
 - Rename codeql-analysis.yml to codeql.yml ([88edae1](https://github.com/gabor-boros/minutes/commit/88edae1c0741141b5750ba79ca14bbdbe7741976))
 - Remove unused `verbose` flag ([96c1e83](https://github.com/gabor-boros/minutes/commit/96c1e83bf70dfe62152d4ece1f61351e05834df5))
+- Do not return pointer slice when splitting ([6a34847](https://github.com/gabor-boros/minutes/commit/6a34847c150815c25c04077daa557ea5855bf3ae))
+- Add entry duration splitting as a method ([e657956](https://github.com/gabor-boros/minutes/commit/e657956f78e3fe37be22e3dfbb5dc65a6d345865))
 
 **Testing**
 
