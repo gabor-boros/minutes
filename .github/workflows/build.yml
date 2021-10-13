@@ -34,8 +34,9 @@ jobs:
       - name: Stash test results
         uses: actions/upload-artifact@master
         with:
-          name: test-results
+          name: "Test results"
           path: .coverage.out
+          retention-days: 7
 
   coverage:
     name: coverage
@@ -47,8 +48,7 @@ jobs:
       - name: Unstash test results
         uses: actions/download-artifact@master
         with:
-          name: test-results
-          path: .coverage.out
+          name: "Test results"
       - name: Upload test results
         uses: paambaati/codeclimate-action@v3.0.0
         env:
