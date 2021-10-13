@@ -5,7 +5,8 @@ name: Docs
     branches:
       - main
     paths:
-      - www/*
+      - '**.md'
+      - 'www/**'
   pull_request: { }
 
 jobs:
