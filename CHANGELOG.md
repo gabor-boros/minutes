@@ -59,6 +59,7 @@ All notable changes to this project will be documented in this file.
 - Add benchmarks for NewWorklog ([87f6767](https://github.com/gabor-boros/minutes/commit/87f6767ea04e5d74787b9c6ef348040cb4efb441))
 - Remove unused mock server opts ([9fba963](https://github.com/gabor-boros/minutes/commit/9fba963788638154a3caa058f66ed624711d2dd0))
 - Use UTC for time zone in tests ([145031e](https://github.com/gabor-boros/minutes/commit/145031e88bb97b8db68851b8173044edc90dd232))
+- Fix annoying flaky tests ([48b57c6](https://github.com/gabor-boros/minutes/commit/48b57c676c6e60f503de5ad638cfa03c16a8464d))
 
 **Build**
 
@@ -75,4 +76,5 @@ All notable changes to this project will be documented in this file.
 - Disable build targets but ubuntu ([c4c04f5](https://github.com/gabor-boros/minutes/commit/c4c04f5ab6c109f9c6c483cfe8ce801e112faf01))
 - Report coverage ([bb4982e](https://github.com/gabor-boros/minutes/commit/bb4982ec3978e0da62a7b4188e861fce0213b695))
 - Checkout code before coverage reporting ([ecb3edb](https://github.com/gabor-boros/minutes/commit/ecb3edbeafa98f0ec8a5214747ec4c18ba1ac398))
+- Fine-tune artifact stashing ([8e05ab3](https://github.com/gabor-boros/minutes/commit/8e05ab35c86d47c1da1369c08e51ebf40316fd25))
 
