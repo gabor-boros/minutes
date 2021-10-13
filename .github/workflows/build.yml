@@ -43,6 +43,7 @@ jobs:
     needs:
       - test
     steps:
+      - uses: actions/checkout@v2
       - name: Unstash test results
         uses: actions/download-artifact@master
         with:
@@ -53,6 +54,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: 20a724e6a2bf80ab3a3cb88c02df2e95bf918da42e63bc5eaa6f0c9dfbe7e77d
         with:
+          prefix: github.com/${{github.repository}}
           coverageLocations: ${{github.workspace}}/.coverage.out:gocov
 
   build:
