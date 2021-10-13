@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - Add dependencies ([1a24535](https://github.com/gabor-boros/minutes/commit/1a2453537aa3750a36b0883c6b7214e5f110385c))
 - Add issue templates ([99fba16](https://github.com/gabor-boros/minutes/commit/99fba16dc5a695d42d9dfee21fc7dad64ce98afe))
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
+- Refactor and add badges ([72f091f](https://github.com/gabor-boros/minutes/commit/72f091f8fcfb18584e51e9064d7691de2abc5217))
 
 **Refactor**
 
@@ -72,5 +73,6 @@ All notable changes to this project will be documented in this file.
 - Setup PR builds ([210c58f](https://github.com/gabor-boros/minutes/commit/210c58f7423c04668c4982d7f536027c420f9d15))
 - Update cron frequency ([05db753](https://github.com/gabor-boros/minutes/commit/05db7538cb9c4fd76a0b1e5fdb2a33207421d423))
 - Disable build targets but ubuntu ([c4c04f5](https://github.com/gabor-boros/minutes/commit/c4c04f5ab6c109f9c6c483cfe8ce801e112faf01))
-- Report coverage ([488a2c7](https://github.com/gabor-boros/minutes/commit/488a2c708b6c63b857e95e54ca07baf8a7ddff70))
+- Report coverage ([bb4982e](https://github.com/gabor-boros/minutes/commit/bb4982ec3978e0da62a7b4188e861fce0213b695))
+- Checkout code before coverage reporting ([ecb3edb](https://github.com/gabor-boros/minutes/commit/ecb3edbeafa98f0ec8a5214747ec4c18ba1ac398))
 
