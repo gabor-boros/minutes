@@ -15,10 +15,10 @@ All notable changes to this project will be documented in this file.
 - Update go install instructions ([a91840f](https://github.com/gabor-boros/minutes/commit/a91840f69b4797f27fb707dedae767c53aff6f33))
 - Add project documentation and changelog generation ([c82e766](https://github.com/gabor-boros/minutes/commit/c82e766bb29c436c49e909ef6123a64b50872407))
 - Fix broken links ([9938b0b](https://github.com/gabor-boros/minutes/commit/9938b0b08d99022383357f4c9e2caded66323fcc))
-- Update project home page in help output ([fe83511](https://github.com/gabor-boros/minutes/commit/fe8351104f745c6ef2a265a0e139cb9209f5ab9e))
-- Extend release document ([b6d61e9](https://github.com/gabor-boros/minutes/commit/b6d61e9221bea664380277c700f8a1842c4b93f0))
-- Correct some typos ([924324b](https://github.com/gabor-boros/minutes/commit/924324b059f72e4b40200d164715708b3af36a7c))
-- Fix configuration option kind ([e2dc5f7](https://github.com/gabor-boros/minutes/commit/e2dc5f76750a10df6a4b98542ba9b0ed2baf2d6a))
+- Update project home page in help output ([114dfdb](https://github.com/gabor-boros/minutes/commit/114dfdbcd07e86dbc49e545f0415aad6ef9b7291))
+- Extend release document ([d1c24c2](https://github.com/gabor-boros/minutes/commit/d1c24c20e38cead13302eefc8517213438a6bca8))
+- Correct some typos ([4c4eea6](https://github.com/gabor-boros/minutes/commit/4c4eea6b2adc1a08b39364e14f0147be56830fcd))
+- Fix configuration option kind ([7da72a9](https://github.com/gabor-boros/minutes/commit/7da72a9300572c9bb4caeaa57d6839cabe60ccfd))
 
 **Features**
 
@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - Add basic tempo client implementation ([202ac41](https://github.com/gabor-boros/minutes/commit/202ac41def09858d31809be3a6fa8cf5b9f95a00))
 - Add basic clockify client implementation ([cb04282](https://github.com/gabor-boros/minutes/commit/cb04282b206bc1a926ab6e37b4cd67450e2c4766))
 - Add initial CLI implementation ([98a6759](https://github.com/gabor-boros/minutes/commit/98a6759ec7557d5bdc5e313f00086cc468ee4197))
-- Add initial timewarrior integration ([823c472](https://github.com/gabor-boros/minutes/commit/823c4720360850c1eaca6a6a7765e43c4a47877c))
+- Add initial timewarrior integration ([748a304](https://github.com/gabor-boros/minutes/commit/748a30424cc8ad61eb0be44c9e5bf3e32a905ace))
 
 **Miscellaneous Tasks**
 
@@ -36,12 +36,6 @@ All notable changes to this project will be documented in this file.
 - Add dependencies ([1a24535](https://github.com/gabor-boros/minutes/commit/1a2453537aa3750a36b0883c6b7214e5f110385c))
 - Add issue templates ([99fba16](https://github.com/gabor-boros/minutes/commit/99fba16dc5a695d42d9dfee21fc7dad64ce98afe))
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
-- Update changelog ([97d9867](https://github.com/gabor-boros/minutes/commit/97d986761306a892d1354228c650615a7146dfba))
-- Use commit links in changelog ([8011d6a](https://github.com/gabor-boros/minutes/commit/8011d6af1d1e2ae917da871b16109991e3118812))
-- Update changelog entries ([4b6dc29](https://github.com/gabor-boros/minutes/commit/4b6dc2911349587df3207afea4675b1e3e77033f))
-- Update changelog ([2fccd28](https://github.com/gabor-boros/minutes/commit/2fccd287eae65a20160141f6091eb12fd1126040))
-- Update changelog ([a82bb4b](https://github.com/gabor-boros/minutes/commit/a82bb4b939687ec40099b9515fd442e78bdf5ef8))
-- Update changelog ([4123205](https://github.com/gabor-boros/minutes/commit/41232050be4aed8441fe99bbdd1849d9319922f1))
 
 **Refactor**
 
@@ -53,11 +47,11 @@ All notable changes to this project will be documented in this file.
 - Rename tasks-as-tags to tags-as-tasks and tasks-as-tags-regex to tags-as-tasks-regex ([180126b](https://github.com/gabor-boros/minutes/commit/180126b8f22fbbfc56243f90007b260c82eef227))
 - Rename ci.yml to build.yml ([4165ea4](https://github.com/gabor-boros/minutes/commit/4165ea4eddf529563c4b8b54ea914a71c53d5ff9))
 - Rename codeql-analysis.yml to codeql.yml ([88edae1](https://github.com/gabor-boros/minutes/commit/88edae1c0741141b5750ba79ca14bbdbe7741976))
-- Remove unused `verbose` flag ([96c1e83](https://github.com/gabor-boros/minutes/commit/96c1e83bf70dfe62152d4ece1f61351e05834df5))
-- Do not return pointer slice when splitting ([6a34847](https://github.com/gabor-boros/minutes/commit/6a34847c150815c25c04077daa557ea5855bf3ae))
-- Add entry duration splitting as a method ([e657956](https://github.com/gabor-boros/minutes/commit/e657956f78e3fe37be22e3dfbb5dc65a6d345865))
-- Use outsourced entry duration splitting ([e81f1fd](https://github.com/gabor-boros/minutes/commit/e81f1fd08b9ffb93c0d74b0d976e0fb915e4fb4d))
-- Wrap errors into client.ErrFetchEntries ([5004245](https://github.com/gabor-boros/minutes/commit/5004245d63d9d8e32b4680b51c6edeb908fd162d))
+- Remove unused `verbose` flag ([28f865d](https://github.com/gabor-boros/minutes/commit/28f865da49f9568fbdf3a8a9da1033ed0006584c))
+- Do not return pointer slice when splitting ([481eb3b](https://github.com/gabor-boros/minutes/commit/481eb3b23ca228c6d6e898a47de793e2e3a79d67))
+- Add entry duration splitting as a method ([4fbb077](https://github.com/gabor-boros/minutes/commit/4fbb077aa7bc1bb8f214e981544b92ec13425164))
+- Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
+- Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
 
 **Testing**
 
@@ -69,7 +63,8 @@ All notable changes to this project will be documented in this file.
 
 - Add initial Makefile ([d25eab8](https://github.com/gabor-boros/minutes/commit/d25eab83162bd8d14a6b949205030d084785034d))
 - Add post build hook to call upx ([6391c0f](https://github.com/gabor-boros/minutes/commit/6391c0f16b0dab7d4693eb3d4f3215d6fecfffa2))
-- User .Version in snapshot name ([4544742](https://github.com/gabor-boros/minutes/commit/4544742275930a371cacd0115167722a694a45c9))
+- User .Version in snapshot name ([d3299d3](https://github.com/gabor-boros/minutes/commit/d3299d3416836439a4400be3819ab152b19c322f))
+- Add coverage reporting ([5911595](https://github.com/gabor-boros/minutes/commit/5911595e2c71b348eac7972bc52864e0140e7b76))
 
 **Ci**
 
@@ -77,4 +72,5 @@ All notable changes to this project will be documented in this file.
 - Setup PR builds ([210c58f](https://github.com/gabor-boros/minutes/commit/210c58f7423c04668c4982d7f536027c420f9d15))
 - Update cron frequency ([05db753](https://github.com/gabor-boros/minutes/commit/05db7538cb9c4fd76a0b1e5fdb2a33207421d423))
 - Disable build targets but ubuntu ([c4c04f5](https://github.com/gabor-boros/minutes/commit/c4c04f5ab6c109f9c6c483cfe8ce801e112faf01))
+- Report coverage ([488a2c7](https://github.com/gabor-boros/minutes/commit/488a2c708b6c63b857e95e54ca07baf8a7ddff70))
 
