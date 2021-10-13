@@ -3,6 +3,9 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+[![Maintainability][maintainability-shield]][maintainability-url]
+[![Coverage][coverage-shield]][coverage-url]
+
 
 <br />
 <div align="center">
@@ -222,13 +225,17 @@ Don't forget to give the project a star!
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/gabor-boros/minutes.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/gabor-boros/minutes.svg
 [contributors-url]: https://github.com/gabor-boros/minutes/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/gabor-boros/minutes.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/gabor-boros/minutes.svg
 [forks-url]: https://github.com/gabor-boros/minutes/network/members
-[stars-shield]: https://img.shields.io/github/stars/gabor-boros/minutes.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/gabor-boros/minutes.svg
 [stars-url]: https://github.com/gabor-boros/minutes/stargazers
-[issues-shield]: https://img.shields.io/github/issues/gabor-boros/minutes.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/gabor-boros/minutes.svg
 [issues-url]: https://github.com/gabor-boros/minutes/issues
-[license-shield]: https://img.shields.io/github/license/gabor-boros/minutes.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/gabor-boros/minutes.svg
 [license-url]: https://github.com/gabor-boros/minutes/blob/main/LICENSE
+[maintainability-shield]: https://api.codeclimate.com/v1/badges/316725f57830f48733e8/maintainability
+[maintainability-url]: https://codeclimate.com/github/gabor-boros/minutes/maintainability
+[coverage-shield]: https://api.codeclimate.com/v1/badges/316725f57830f48733e8/test_coverage
+[coverage-url]: https://codeclimate.com/github/gabor-boros/minutes/test_coverage

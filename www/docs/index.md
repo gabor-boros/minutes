@@ -11,19 +11,25 @@
 
   <p align="center">
     <a href="https://github.com/gabor-boros/minutes/graphs/contributors">
-      <img src="https://img.shields.io/github/contributors/gabor-boros/minutes.svg?style=for-the-badge" />
+        <img src="https://img.shields.io/github/contributors/gabor-boros/minutes.svg" />
     </a>
     <a href="https://github.com/gabor-boros/minutes/network/members">
-      <img src="https://img.shields.io/github/forks/gabor-boros/minutes.svg?style=for-the-badge" />
+        <img src="https://img.shields.io/github/forks/gabor-boros/minutes.svg" />
     </a>
     <a href="https://github.com/gabor-boros/minutes/stargazers">
-      <img src="https://img.shields.io/github/stars/gabor-boros/minutes.svg?style=for-the-badge" />
+        <img src="https://img.shields.io/github/stars/gabor-boros/minutes.svg" />
     </a>
     <a href="https://github.com/gabor-boros/minutes/issues">
-      <img src="https://img.shields.io/github/issues/gabor-boros/minutes.svg?style=for-the-badge" />
+        <img src="https://img.shields.io/github/issues/gabor-boros/minutes.svg" />
     </a>
-    <a href="https://gabor-boros.github.io/minutes/license">
-      <img src="https://img.shields.io/github/license/gabor-boros/minutes.svg?style=for-the-badge" />
+    <a href="https://github.com/gabor-boros/minutes/blob/main/LICENSE">
+        <img src="https://img.shields.io/github/license/gabor-boros/minutes.svg" />
+    </a>
+    <a href="https://codeclimate.com/github/gabor-boros/minutes/maintainability">
+        <img src="https://api.codeclimate.com/v1/badges/316725f57830f48733e8/maintainability" />
+    </a>
+    <a href="https://codeclimate.com/github/gabor-boros/minutes/test_coverage">
+        <img src="https://api.codeclimate.com/v1/badges/316725f57830f48733e8/test_coverage" />
     </a>
   </p>
 </div>
