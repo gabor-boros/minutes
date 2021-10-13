@@ -9,13 +9,15 @@ name: Build
       - main
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         go:
           - '1.17'
         os:
           - ubuntu-latest
+          - windows-latest
+          - macos-latest
     runs-on: '${{ matrix.os }}'
     steps:
       - uses: actions/checkout@v2
@@ -29,5 +31,42 @@ jobs:
         run: make lint
       - name: Test
         run: make test
+      - name: Stash test results
+        uses: actions/upload-artifact@master
+        with:
+          name: test-results
+          path: .coverage.out
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    needs:
+      - test
+    steps:
+      - name: Unstash test results
+        uses: actions/download-artifact@master
+        with:
+          name: test-results
+          path: .coverage.out
+      - name: Upload test results
+        uses: paambaati/codeclimate-action@v3.0.0
+        env:
+          CC_TEST_REPORTER_ID: 20a724e6a2bf80ab3a3cb88c02df2e95bf918da42e63bc5eaa6f0c9dfbe7e77d
+        with:
+          coverageLocations: ${{github.workspace}}/.coverage.out:gocov
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    needs:
+      - test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'
+      - name: Prerequisites
+        run: make prerequisites
       - name: Build
         run: make build
