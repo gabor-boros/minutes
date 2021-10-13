@@ -14,7 +14,6 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 
-	"github.com/gabor-boros/minutes/internal/cmd/printer"
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
@@ -120,8 +119,8 @@ func initCommonFlags() {
 	rootCmd.Flags().StringP("target-user", "", "", "set the source user ID")
 	rootCmd.Flags().StringP("target", "t", "", fmt.Sprintf("set the target of the sync %v", targets))
 
-	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{printer.ColumnStart, printer.ColumnProject, printer.ColumnTask, printer.ColumnSummary}, fmt.Sprintf("sort table by column %v", printer.Columns))
-	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", printer.HideableColumns))
+	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{utils.ColumnStart, utils.ColumnProject, utils.ColumnTask, utils.ColumnSummary}, fmt.Sprintf("sort table by column %v", utils.Columns))
+	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", utils.HideableColumns))
 
 	rootCmd.Flags().BoolP("tags-as-tasks", "", false, "treat tags matching the value of tags-as-tasks-regex as tasks")
 	rootCmd.Flags().StringP("tags-as-tasks-regex", "", "", "regex of the task pattern")
@@ -188,14 +187,14 @@ func validateFlags() {
 			column = sortBy[1:]
 		}
 
-		if !utils.IsSliceContains(column, printer.Columns) {
-			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the sortable columns %v\n", column, printer.Columns))
+		if !utils.IsSliceContains(column, utils.Columns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the sortable columns %v\n", column, utils.Columns))
 		}
 	}
 
 	for _, column := range viper.GetStringSlice("table-hide-column") {
-		if !utils.IsSliceContains(column, printer.HideableColumns) {
-			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, printer.HideableColumns))
+		if !utils.IsSliceContains(column, utils.HideableColumns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, utils.HideableColumns))
 		}
 	}
 
@@ -374,8 +373,8 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	err = viper.UnmarshalKey("table-column-truncates", &columnTruncates)
 	cobra.CheckErr(err)
 
-	tablePrinter := printer.NewTablePrinter(&printer.TablePrinterOpts{
-		BasePrinterOpts: printer.BasePrinterOpts{
+	tablePrinter := utils.NewTablePrinter(&utils.TablePrinterOpts{
+		BasePrinterOpts: utils.BasePrinterOpts{
 			Output:        os.Stdout,
 			AutoIndex:     true,
 			Title:         fmt.Sprintf("Worklog entries (%s - %s)", start.Local().String(), end.Local().String()),
@@ -383,7 +382,7 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 			HiddenColumns: viper.GetStringSlice("table-hide-column"),
 		},
 		Style: table.StyleLight,
-		ColumnConfig: printer.ParseColumnConfigs(
+		ColumnConfig: utils.ParseColumnConfigs(
 			"table-column-config.%s",
 			viper.GetStringSlice("table-hide-column"),
 		),
