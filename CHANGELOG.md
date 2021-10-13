@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Extend release document ([d1c24c2](https://github.com/gabor-boros/minutes/commit/d1c24c20e38cead13302eefc8517213438a6bca8))
 - Correct some typos ([4c4eea6](https://github.com/gabor-boros/minutes/commit/4c4eea6b2adc1a08b39364e14f0147be56830fcd))
 - Fix configuration option kind ([7da72a9](https://github.com/gabor-boros/minutes/commit/7da72a9300572c9bb4caeaa57d6839cabe60ccfd))
+- Update bug report and feature request links ([fb79d57](https://github.com/gabor-boros/minutes/commit/fb79d57ec297bc535521e52e94b20ea1e20f7ab8))
 
 **Features**
 
