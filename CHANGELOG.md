@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Correct some typos ([4c4eea6](https://github.com/gabor-boros/minutes/commit/4c4eea6b2adc1a08b39364e14f0147be56830fcd))
 - Fix configuration option kind ([7da72a9](https://github.com/gabor-boros/minutes/commit/7da72a9300572c9bb4caeaa57d6839cabe60ccfd))
 - Update bug report and feature request links ([fb79d57](https://github.com/gabor-boros/minutes/commit/fb79d57ec297bc535521e52e94b20ea1e20f7ab8))
+- Update documentation generation path triggers ([cabc5d9](https://github.com/gabor-boros/minutes/commit/cabc5d9ec03533881d1c7fc5fcc65c832adb8449))
 
 **Features**
 
