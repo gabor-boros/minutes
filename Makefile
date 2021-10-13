@@ -1,4 +1,4 @@
-.PHONY: help prerequisites deps format lint test build release changelog docs clean
+.PHONY: help prerequisites deps format lint test coverage-report build release changelog docs clean
 .DEFAULT_GOAL := build
 
 BIN_NAME := minutes
@@ -17,7 +17,7 @@ deps: ## Download dependencies
 	go mod download
 	go mod tidy
 
-format: deps ## Run formatter on the project
+format: ## Run formatter on the project
 	goreturns -b -local -p -w -e -l .
 
 lint: format ## Run linters on the project
@@ -25,7 +25,10 @@ lint: format ## Run linters on the project
 	gosec -quiet ./...
 
 test: deps ## Run tests
-	go test ./...
+	go test -vet "" -cover -coverprofile .coverage.out ./...
+
+coverage-report: ## Generate coverage report from previous test run
+	go tool cover -html .coverage.out -o coverage.html
 
 build: deps ## Build binary
 	goreleaser build --rm-dist --snapshot --single-target
