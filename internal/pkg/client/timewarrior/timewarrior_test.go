@@ -133,7 +133,7 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
-	require.Equal(t, expectedEntries, entries, "fetched entries are not matching")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
@@ -226,7 +226,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
-	require.Equal(t, expectedEntries, entries, "fetched entries are not matching")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
@@ -338,5 +338,5 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
-	require.Equal(t, expectedEntries, entries, "fetched entries are not matching")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }

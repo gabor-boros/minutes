@@ -204,7 +204,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
-	require.Equal(t, expectedEntries, entries, "fetched entries are not matching")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
 
 func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
@@ -369,5 +369,5 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
-	require.Equal(t, expectedEntries, entries, "fetched entries are not matching")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
