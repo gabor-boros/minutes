@@ -4,9 +4,9 @@
   <p align="center">
     Sync worklogs between multiple time trackers, invoicing, and bookkeeping software.
     <br />
-    <a href="https://github.com/gabor-boros/minutes/issues">Bug report</a>
+    <a href="https://github.com/gabor-boros/minutes/issues/new?assignees=gabor-boros&labels=needs+triage&template=bug_report.md&title=%5BBUG%5D+">Bug report</a>
     ·
-    <a href="https://github.com/gabor-boros/minutes/issues">Feature request</a>
+    <a href="https://github.com/gabor-boros/minutes/issues/new?assignees=gabor-boros&labels=enhancement&template=feature_request.md&title=%5BREQUEST%5D">Feature request</a>
   </p>
 
   <p align="center">
