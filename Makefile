@@ -1,7 +1,11 @@
-.PHONY: help prerequisites deps format lint test coverage-report build release changelog docs clean
+.PHONY: help prerequisites deps format lint test bench coverage-report build release changelog docs clean
 .DEFAULT_GOAL := build
 
 BIN_NAME := minutes
+
+# NOTE: Set in CI/CD as well
+COVERAGE_OUT := .coverage.out
+COVERAGE_HTML := coverage.html
 
 help: ## Show available targets
 	@echo "Available targets:"
@@ -25,17 +29,21 @@ lint: format ## Run linters on the project
 	gosec -quiet ./...
 
 test: deps ## Run tests
-	go test -vet "" -cover -coverprofile .coverage.out ./...
+	go test -race -cover -covermode=atomic -coverprofile .coverage.out ./...
+
+bench: deps ## Run benchmarks
+	# ^$ filters out every unit test, so only benchmarks will run
+	go test -run "^$" -benchmem -bench . ./...
 
 coverage-report: ## Generate coverage report from previous test run
-	go tool cover -html .coverage.out -o coverage.html
+	go tool cover -html "$(COVERAGE_OUT)" -o "$(COVERAGE_HTML)"
 
 build: deps ## Build binary
 	goreleaser build --rm-dist --snapshot --single-target
 	@find bin -name "$(BIN_NAME)" -exec cp "{}" bin/ \;
 
 release: ## Release a new version on GitHub
-	goreleaser release --rm-dist --auto-snapshot
+	goreleaser release --rm-dist
 
 changelog: ## Generate changelog
 	git-cliff --unreleased --prepend CHANGELOG.md
@@ -44,4 +52,5 @@ docs: ## Serve the documentation site locally
 	@cd www && mkdocs serve
 
 clean: ## Clean up project root
-	rm -rf bin/
+	rm -rf bin/ "$(COVERAGE_OUT)" "$(COVERAGE_HTML)"
+	go clean -r -i -cache -testcache -modcache
