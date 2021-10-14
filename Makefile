@@ -53,4 +53,3 @@ docs: ## Serve the documentation site locally
 
 clean: ## Clean up project root
 	rm -rf bin/ "$(COVERAGE_OUT)" "$(COVERAGE_HTML)"
-	go clean -r -i -cache -testcache -modcache

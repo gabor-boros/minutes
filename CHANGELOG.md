@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - Add basic clockify client implementation ([cb04282](https://github.com/gabor-boros/minutes/commit/cb04282b206bc1a926ab6e37b4cd67450e2c4766))
 - Add initial CLI implementation ([98a6759](https://github.com/gabor-boros/minutes/commit/98a6759ec7557d5bdc5e313f00086cc468ee4197))
 - Add initial timewarrior integration ([748a304](https://github.com/gabor-boros/minutes/commit/748a30424cc8ad61eb0be44c9e5bf3e32a905ace))
+- Add initial progress indicator ([cfd860c](https://github.com/gabor-boros/minutes/commit/cfd860c13e4aaba5862ed007b17d34ebcd5db221))
 
 **Miscellaneous Tasks**
 
@@ -39,6 +40,7 @@ All notable changes to this project will be documented in this file.
 - Add issue templates ([99fba16](https://github.com/gabor-boros/minutes/commit/99fba16dc5a695d42d9dfee21fc7dad64ce98afe))
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
 - Refactor and add badges ([72f091f](https://github.com/gabor-boros/minutes/commit/72f091f8fcfb18584e51e9064d7691de2abc5217))
+- Add pull request template ([21ce60a](https://github.com/gabor-boros/minutes/commit/21ce60a68125fe3bf22e6505becda6249b9cdcdf))
 
 **Refactor**
 
@@ -55,6 +57,7 @@ All notable changes to this project will be documented in this file.
 - Add entry duration splitting as a method ([4fbb077](https://github.com/gabor-boros/minutes/commit/4fbb077aa7bc1bb8f214e981544b92ec13425164))
 - Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
+- Move printer to cmd utils ([f6dc3b8](https://github.com/gabor-boros/minutes/commit/f6dc3b8359bac27be6dd943b71328c33054566e2))
 
 **Testing**
 
@@ -69,6 +72,8 @@ All notable changes to this project will be documented in this file.
 - Add post build hook to call upx ([6391c0f](https://github.com/gabor-boros/minutes/commit/6391c0f16b0dab7d4693eb3d4f3215d6fecfffa2))
 - User .Version in snapshot name ([d3299d3](https://github.com/gabor-boros/minutes/commit/d3299d3416836439a4400be3819ab152b19c322f))
 - Add coverage reporting ([5911595](https://github.com/gabor-boros/minutes/commit/5911595e2c71b348eac7972bc52864e0140e7b76))
+- Add several Makefile improvements ([291bc75](https://github.com/gabor-boros/minutes/commit/291bc754cdb2feb644a4d0733c0675ceddcaee05))
+- Remove go clean call as it is insane ([4753e1d](https://github.com/gabor-boros/minutes/commit/4753e1de5a70cb2e14507e7f802c4448d5f7db74))
 
 **Ci**
 

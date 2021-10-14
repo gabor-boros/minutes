@@ -14,11 +14,11 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 
-	"github.com/gabor-boros/minutes/internal/cmd/printer"
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
 
+	"github.com/jedib0t/go-pretty/v6/progress"
 	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
@@ -120,8 +120,8 @@ func initCommonFlags() {
 	rootCmd.Flags().StringP("target-user", "", "", "set the source user ID")
 	rootCmd.Flags().StringP("target", "t", "", fmt.Sprintf("set the target of the sync %v", targets))
 
-	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{printer.ColumnStart, printer.ColumnProject, printer.ColumnTask, printer.ColumnSummary}, fmt.Sprintf("sort table by column %v", printer.Columns))
-	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", printer.HideableColumns))
+	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{utils.ColumnStart, utils.ColumnProject, utils.ColumnTask, utils.ColumnSummary}, fmt.Sprintf("sort table by column %v", utils.Columns))
+	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", utils.HideableColumns))
 
 	rootCmd.Flags().BoolP("tags-as-tasks", "", false, "treat tags matching the value of tags-as-tasks-regex as tasks")
 	rootCmd.Flags().StringP("tags-as-tasks-regex", "", "", "regex of the task pattern")
@@ -188,14 +188,14 @@ func validateFlags() {
 			column = sortBy[1:]
 		}
 
-		if !utils.IsSliceContains(column, printer.Columns) {
-			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the sortable columns %v\n", column, printer.Columns))
+		if !utils.IsSliceContains(column, utils.Columns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the sortable columns %v\n", column, utils.Columns))
 		}
 	}
 
 	for _, column := range viper.GetStringSlice("table-hide-column") {
-		if !utils.IsSliceContains(column, printer.HideableColumns) {
-			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, printer.HideableColumns))
+		if !utils.IsSliceContains(column, utils.HideableColumns) {
+			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, utils.HideableColumns))
 		}
 	}
 
@@ -374,8 +374,8 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	err = viper.UnmarshalKey("table-column-truncates", &columnTruncates)
 	cobra.CheckErr(err)
 
-	tablePrinter := printer.NewTablePrinter(&printer.TablePrinterOpts{
-		BasePrinterOpts: printer.BasePrinterOpts{
+	tablePrinter := utils.NewTablePrinter(&utils.TablePrinterOpts{
+		BasePrinterOpts: utils.BasePrinterOpts{
 			Output:        os.Stdout,
 			AutoIndex:     true,
 			Title:         fmt.Sprintf("Worklog entries (%s - %s)", start.Local().String(), end.Local().String()),
@@ -383,7 +383,7 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 			HiddenColumns: viper.GetStringSlice("table-hide-column"),
 		},
 		Style: table.StyleLight,
-		ColumnConfig: printer.ParseColumnConfigs(
+		ColumnConfig: utils.ParseColumnConfigs(
 			"table-column-config.%s",
 			viper.GetStringSlice("table-hide-column"),
 		),
@@ -398,15 +398,49 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 		os.Exit(0)
 	}
 
+	// In worst case, the maximum number of errors will match the number of entries
+	uploadErrChan := make(chan error, len(completeEntries))
+
+	fmt.Printf("\nUploading worklog entries:\n\n")
 	if !viper.GetBool("dry-run") {
-		err = uploader.UploadEntries(context.Background(), completeEntries, &client.UploadOpts{
+		progressUpdateFrequency := progress.DefaultUpdateFrequency
+		progressWriter := utils.NewProgressWriter(progressUpdateFrequency)
+
+		// Intentionally called as a goroutine
+		go progressWriter.Render()
+
+		uploader.UploadEntries(context.Background(), completeEntries, uploadErrChan, &client.UploadOpts{
 			RoundToClosestMinute:   viper.GetBool("round-to-closest-minute"),
 			TreatDurationAsBilled:  viper.GetBool("force-billed-duration"),
 			CreateMissingResources: false,
 			User:                   viper.GetString("target-user"),
+			ProgressWriter:         progressWriter,
 		})
-		cobra.CheckErr(err)
+
+		// Wait for at least one tracker to appear and while the rendering is in progress,
+		// wait for the remaining updates to render.
+		time.Sleep(time.Second)
+		for progressWriter.IsRenderInProgress() {
+			time.Sleep(progressUpdateFrequency)
+		}
 	}
+
+	var uploadErrors []error
+	for i := 0; i < len(completeEntries); i++ {
+		if err := <-uploadErrChan; err != nil {
+			uploadErrors = append(uploadErrors, err)
+		}
+	}
+
+	if errCount := len(uploadErrors); errCount != 0 {
+		fmt.Printf("\nFailed to upload %d worklog entries!\n\n", errCount)
+		for _, err := range uploadErrors {
+			fmt.Println(err)
+		}
+		os.Exit(1)
+	}
+
+	fmt.Printf("\nSuccessfully uploaded %d worklog entries!\n", len(completeEntries))
 }
 
 func Execute(buildVersion string, buildCommit string, buildDate string) {

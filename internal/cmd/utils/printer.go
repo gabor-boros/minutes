@@ -1,4 +1,4 @@
-package printer
+package utils
 
 import (
 	"fmt"
@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-
-	"github.com/gabor-boros/minutes/internal/cmd/utils"
 
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -102,10 +100,10 @@ func (p *tablePrinter) convertEntryToRow(entry *worklog.Entry) table.Row {
 	timeSpent := entry.BillableDuration + entry.UnbillableDuration
 
 	return table.Row{
-		utils.Truncate(entry.Task.Name, p.truncateMap[ColumnTask]),
-		utils.Truncate(entry.Summary, p.truncateMap[ColumnSummary]),
-		utils.Truncate(entry.Project.Name, p.truncateMap[ColumnProject]),
-		utils.Truncate(entry.Client.Name, p.truncateMap[ColumnClient]),
+		Truncate(entry.Task.Name, p.truncateMap[ColumnTask]),
+		Truncate(entry.Summary, p.truncateMap[ColumnSummary]),
+		Truncate(entry.Project.Name, p.truncateMap[ColumnProject]),
+		Truncate(entry.Client.Name, p.truncateMap[ColumnClient]),
 		entryStart.Format(rowDateFormat),
 		entryStart.Add(timeSpent).Format(rowDateFormat),
 		entry.BillableDuration,
@@ -197,7 +195,7 @@ func ParseColumnConfigs(key string, hiddenColumns []string) []table.ColumnConfig
 		err := viper.UnmarshalKey(fmt.Sprintf(key, column), &columnConfig)
 		cobra.CheckErr(err)
 
-		if utils.IsSliceContains(column, hiddenColumns) {
+		if IsSliceContains(column, hiddenColumns) {
 			columnConfig.Hidden = true
 		}
 
