@@ -3,13 +3,14 @@ package worklog
 import (
 	"fmt"
 	"math"
+	"regexp"
 	"time"
 )
 
 // IDNameField stands for every field that has an ID and Name.
 type IDNameField struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // IsComplete indicates if the field has both ID and Name filled.
@@ -53,4 +54,36 @@ func (e *Entry) SplitDuration(parts int) (splitBillableDuration time.Duration, s
 	splitBillableDuration = time.Duration(math.Round(float64(e.BillableDuration.Nanoseconds()) / float64(parts)))
 	splitUnbillableDuration = time.Duration(math.Round(float64(e.UnbillableDuration.Nanoseconds()) / float64(parts)))
 	return splitBillableDuration, splitUnbillableDuration
+}
+
+// SplitByTagsAsTasks splits the entry into pieces treating tags as tasks.
+// Not matching tags won't be treated as a new entry should be created,
+// therefore that tag will be skipped and the returned entries will lack that.
+func (e *Entry) SplitByTagsAsTasks(summary string, regex *regexp.Regexp, tags []IDNameField) []Entry {
+	var tasks []IDNameField
+	for _, tag := range tags {
+		if taskName := regex.FindString(tag.Name); taskName != "" {
+			tasks = append(tasks, tag)
+		}
+	}
+
+	var entries []Entry
+	totalTasks := len(tasks)
+
+	for _, task := range tasks {
+		splitBillable, splitUnbillable := e.SplitDuration(totalTasks)
+
+		entries = append(entries, Entry{
+			Client:             e.Client,
+			Project:            e.Project,
+			Task:               task,
+			Summary:            summary,
+			Notes:              e.Notes,
+			Start:              e.Start,
+			BillableDuration:   splitBillable,
+			UnbillableDuration: splitUnbillable,
+		})
+	}
+
+	return entries
 }
