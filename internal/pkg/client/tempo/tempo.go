@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jedib0t/go-pretty/v6/progress"
+
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
@@ -114,7 +116,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	return entries, nil
 }
 
-func (c *tempoClient) uploadEntry(ctx context.Context, entry worklog.Entry, opts *client.UploadOpts, errChan chan error) {
+func (c *tempoClient) uploadEntry(ctx context.Context, entry worklog.Entry, tracker *progress.Tracker, opts *client.UploadOpts, errChan chan error) {
 	billableDuration := entry.BillableDuration
 	unbillableDuration := entry.UnbillableDuration
 	totalTimeSpent := billableDuration + unbillableDuration
@@ -141,27 +143,38 @@ func (c *tempoClient) uploadEntry(ctx context.Context, entry worklog.Entry, opts
 	}
 
 	if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, uploadEntry, &c.opts.HTTPClientOptions); err != nil {
-		errChan <- err
+		if tracker != nil {
+			tracker.MarkAsErrored()
+		}
+
+		errChan <- fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
 		return
+	}
+
+	if tracker != nil {
+		tracker.Increment(1)
+		tracker.MarkAsDone()
 	}
 
 	errChan <- nil
 }
 
-func (c *tempoClient) UploadEntries(ctx context.Context, entries []worklog.Entry, opts *client.UploadOpts) error {
-	errChan := make(chan error)
-
+func (c *tempoClient) UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *client.UploadOpts) {
 	for _, entry := range entries {
-		go c.uploadEntry(ctx, entry, opts, errChan)
-	}
+		var tracker *progress.Tracker
 
-	for i := 0; i < len(entries); i++ {
-		if err := <-errChan; err != nil {
-			return fmt.Errorf("%v: %v", client.ErrUploadEntries, err)
+		if opts.ProgressWriter != nil {
+			tracker = &progress.Tracker{
+				Message: entry.Summary,
+				Total:   1,
+				Units:   progress.UnitsDefault,
+			}
+
+			opts.ProgressWriter.AppendTracker(tracker)
 		}
-	}
 
-	return nil
+		go c.uploadEntry(ctx, entry, tracker, opts, errChan)
+	}
 }
 
 // NewClient returns a new Tempo client.

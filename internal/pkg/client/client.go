@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/jedib0t/go-pretty/v6/progress"
+
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
@@ -95,6 +97,10 @@ type UploadOpts struct {
 	CreateMissingResources bool
 	// User represents the user in which name the time log will be uploaded.
 	User string
+	// ProgressWriter represents a writer that tracks the upload progress.
+	// In case the ProgressWriter is nil, that means the upload progress should
+	// not be tracked, hence, that's not an error.
+	ProgressWriter progress.Writer
 }
 
 // Uploader specifies the functions used to upload worklog entries.
@@ -102,7 +108,7 @@ type Uploader interface {
 	// UploadEntries to a given target.
 	// If the upload resulted in an error, the upload will stop and an error
 	// will return.
-	UploadEntries(ctx context.Context, entries []worklog.Entry, opts *UploadOpts) error
+	UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *UploadOpts)
 }
 
 // FetchUploader is the combination of Fetcher and Uploader.

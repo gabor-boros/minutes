@@ -10,6 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gabor-boros/minutes/internal/cmd/utils"
+	"github.com/jedib0t/go-pretty/v6/progress"
+
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
@@ -262,8 +265,10 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
 
+	progressWriter := utils.NewProgressWriter(progress.DefaultUpdateFrequency)
 	uploadOpts := &client.UploadOpts{
-		User: "steve-rogers",
+		User:           "steve-rogers",
+		ProgressWriter: progressWriter,
 	}
 
 	entries := []worklog.Entry{
@@ -343,9 +348,14 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 		},
 	})
 
-	err := tempoClient.UploadEntries(context.Background(), entries, uploadOpts)
+	errChan := make(chan error)
+	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
 
-	require.Nil(t, err, "cannot fetch entries")
+	for i := 0; i < len(entries); i++ {
+		if err := <-errChan; err != nil {
+			require.Failf(t, "cannot upload entries", err.Error())
+		}
+	}
 }
 
 func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
@@ -436,9 +446,10 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 		},
 	})
 
-	err := tempoClient.UploadEntries(context.Background(), entries, uploadOpts)
+	errChan := make(chan error)
+	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
 
-	require.Nil(t, err, "cannot fetch entries")
+	require.Empty(t, errChan, "cannot fetch entries")
 }
 
 func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
@@ -593,7 +604,8 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 		},
 	})
 
-	err := tempoClient.UploadEntries(context.Background(), entries, uploadOpts)
+	errChan := make(chan error)
+	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
 
-	require.Nil(t, err, "cannot fetch entries")
+	require.Empty(t, errChan, "cannot fetch entries")
 }

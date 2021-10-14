@@ -36,6 +36,8 @@
 
 ---
 
+![minutes](./assets/img/hero.png)
+
 Charging by the hour is one of the most common ways to invoice a client. Some companies or clients specify the time tracking tool to use, though it usually won't fit your own workflows. This even gets more complicated and cumbersome, when the invoices should contain the tasks you spent time on.
 
 Minutes is a CLI tool, primarily made for entrepreneurs and finance people, to help their daily work by synchronizing worklogs from a `source` to a `target` software. The `source` can be your own time tracking tool you use, let's say [Tempo](https://tempo.io/), while the `target` is a bookkeeping software, like [Zoho Books](https://books.zoho.com).

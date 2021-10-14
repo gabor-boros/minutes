@@ -27,24 +27,7 @@
 
 ## About The Project
 
-```plaintext
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Worklog entries (2021-10-04 02:00:00 +0200 CEST - 2021-10-05 02:00:00 +0200 CEST)                                                                       │
-├────┬─────────┬────────────────────────────────┬──────────────────────┬───────────────┬─────────────────────┬─────────────────────┬───────────┬──────────┤
-│    │ TASK    │ SUMMARY                        │ PROJECT              │ CLIENT        │ START               │ END                 │    BILLED │ UNBILLED │
-├────┼─────────┼────────────────────────────────┼──────────────────────┼───────────────┼─────────────────────┼─────────────────────┼───────────┼──────────┤
-│  1 │ MIN-001 │ Create an mkdocs based doc...  │ Document every...    │ Example Corp. │ 2021-10-04 08:00:00 │ 2021-10-04 08:20:37 │    20m37s │       0s │
-│  2 │ MIN-002 │ Add column text truncating     │ Time syncing tool    │ Example Corp. │ 2021-10-04 14:33:56 │ 2021-10-04 14:46:52 │    12m56s │       0s │
-│  3 │ MIN-007 │ Some very long summary tha...  │ Time syncing tool    │ Example Corp. │ 2021-10-04 15:45:32 │ 2021-10-04 15:53:21 │     7m49s │       0s │
-│  4 │ MIN-008 │ New table formatted output     │ Time syncing tool    │ Example Corp. │ 2021-10-04 19:11:51 │ 2021-10-04 19:56:01 │    44m10s │       0s │
-│  5 │ MIN-014 │ Debug time parsing issues      │ Time syncing tool    │ Example Corp. │ 2021-10-04 21:44:05 │ 2021-10-04 22:15:53 │    31m48s │       0s │
-├────┼─────────┼────────────────────────────────┼──────────────────────┼───────────────┼─────────────────────┼─────────────────────┼───────────┼──────────┤
-│    │         │                                │                      │               │                     │ total time spent    │ 10h18m11s │       0s │
-└────┴─────────┴────────────────────────────────┴──────────────────────┴───────────────┴─────────────────────┴─────────────────────┴───────────┴──────────┘
-You have 5 complete and 0 incomplete items. Before proceeding, please double-check them.
-
-Continue? [y/n]:
-```
+![minutes](./www/docs/assets/img/hero.png)
 
 Minutes is a CLI tool for synchronizing work logs between multiple time trackers, invoicing, and bookkeeping software to make entrepreneurs' daily work easier. Every source and destination comes with their specific flags. Before using any flags, check the related documentation.
 

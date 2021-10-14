@@ -18,6 +18,7 @@ import (
 	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
 
+	"github.com/jedib0t/go-pretty/v6/progress"
 	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
@@ -397,15 +398,49 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 		os.Exit(0)
 	}
 
+	// In worst case, the maximum number of errors will match the number of entries
+	uploadErrChan := make(chan error, len(completeEntries))
+
+	fmt.Printf("\nUploading worklog entries:\n\n")
 	if !viper.GetBool("dry-run") {
-		err = uploader.UploadEntries(context.Background(), completeEntries, &client.UploadOpts{
+		progressUpdateFrequency := progress.DefaultUpdateFrequency
+		progressWriter := utils.NewProgressWriter(progressUpdateFrequency)
+
+		// Intentionally called as a goroutine
+		go progressWriter.Render()
+
+		uploader.UploadEntries(context.Background(), completeEntries, uploadErrChan, &client.UploadOpts{
 			RoundToClosestMinute:   viper.GetBool("round-to-closest-minute"),
 			TreatDurationAsBilled:  viper.GetBool("force-billed-duration"),
 			CreateMissingResources: false,
 			User:                   viper.GetString("target-user"),
+			ProgressWriter:         progressWriter,
 		})
-		cobra.CheckErr(err)
+
+		// Wait for at least one tracker to appear and while the rendering is in progress,
+		// wait for the remaining updates to render.
+		time.Sleep(time.Second)
+		for progressWriter.IsRenderInProgress() {
+			time.Sleep(progressUpdateFrequency)
+		}
 	}
+
+	var uploadErrors []error
+	for i := 0; i < len(completeEntries); i++ {
+		if err := <-uploadErrChan; err != nil {
+			uploadErrors = append(uploadErrors, err)
+		}
+	}
+
+	if errCount := len(uploadErrors); errCount != 0 {
+		fmt.Printf("\nFailed to upload %d worklog entries!\n\n", errCount)
+		for _, err := range uploadErrors {
+			fmt.Println(err)
+		}
+		os.Exit(1)
+	}
+
+	fmt.Printf("\nSuccessfully uploaded %d worklog entries!\n", len(completeEntries))
 }
 
 func Execute(buildVersion string, buildCommit string, buildDate string) {
