@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -166,7 +167,7 @@ func SendRequest(ctx context.Context, method string, path string, data interface
 			return nil, err
 		}
 
-		return nil, errors.New(string(errBody))
+		return nil, fmt.Errorf("%d: %s", resp.StatusCode, string(errBody))
 	}
 
 	return resp, err
