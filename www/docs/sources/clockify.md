@@ -8,7 +8,6 @@ The source makes the following special mappings.
 | ----------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tags        | Task                   | Turns tags into tasks and split the entry into as many pieces as the item has matching tags when `tags-as-tasks` is enabled                         |
 | Task        | Summary or Description | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks` is enabled, Summary will be set to the Description of the item |
-| Description | Notes                  |                                                                                                                                                     |
 
 ## CLI flags
 
@@ -16,7 +15,7 @@ The source provides to following extra CLI flags.
 
 ```plaintext
 Flags:
-    --clockify-api-key string      set the API key
+    --clockify-api-key string      set the API key (default "https://clockify.me")
     --clockify-url string          set the base URL
     --clockify-workspace string    set the workspace ID
 ```
