@@ -74,7 +74,7 @@ The following platforms and tools are supported. If you miss your favorite tool,
 | Time Doctor | upon request  | upon request  |
 | TimeCamp    | upon request  | upon request  |
 | Timewarrior | **yes**       | upon request  |
-| Toggl Track | **planned**   | upon request  |
+| Toggl Track | **yes**       | upon request  |
 | Zoho Books  | upon request  | **planned**   |
 
 ## Versioning
