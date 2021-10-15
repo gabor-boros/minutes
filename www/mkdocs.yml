@@ -65,6 +65,7 @@ nav:
   - Clockify: sources/clockify.md
   - Tempo: sources/tempo.md
   - Timewarrior: sources/timewarrior.md
+  - Toggl Track: sources/toggl.md
 - Targets:
   - targets/tempo.md
 - Contributing: CONTRIBUTING.md

@@ -56,30 +56,37 @@ Usage:
   minutes [flags]
 
 Flags:
-      --clockify-api-key string      set the API key
-      --clockify-url string          set the base URL
-      --clockify-workspace string    set the workspace ID
-      --config string                config file (default is $HOME/.minutes.yaml)
-      --date-format string           set start and end date format (in Go style) (default "2006-01-02 15:04:05")
-      --dry-run                      fetch entries, but do not sync them
-      --end string                   set the end date (defaults to now)
-      --force-billed-duration        treat every second spent as billed
-  -h, --help                         help for minutes
-      --round-to-closest-minute      round time to closest minute
-  -s, --source string                set the source of the sync [clockify tempo]
-      --source-user string           set the source user ID
-      --start string                 set the start date (defaults to 00:00:00)
-      --table-hide-column strings    hide table column [summary project client start end]
-      --table-sort-by strings        sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
-  -t, --target string                set the target of the sync [tempo]
-      --target-user string           set the source user ID
-      --tags-as-tasks                treat tags matching the value of tags-as-tasks-regex as tasks
-      --tags-as-tasks-regex string   regex of the task pattern
-      --tempo-password string        set the login password
-      --tempo-url string             set the base URL
-      --tempo-username string        set the login user ID
-      --verbose                      print verbose messages
-      --version                      show command version
+      --clockify-api-key string                set the API key
+      --clockify-url string                    set the base URL
+      --clockify-workspace string              set the workspace ID
+      --config string                          config file (default is $HOME/.minutes.yaml)
+      --date-format string                     set start and end date format (in Go style) (default "2006-01-02 15:04:05")
+      --dry-run                                fetch entries, but do not sync them
+      --end string                             set the end date (defaults to now)
+      --force-billed-duration                  treat every second spent as billed
+  -h, --help                                   help for minutes
+      --round-to-closest-minute                round time to closest minute
+  -s, --source string                          set the source of the sync [clockify tempo timewarrior toggl]
+      --source-user string                     set the source user ID
+      --start string                           set the start date (defaults to 00:00:00)
+      --table-hide-column strings              hide table column [summary project client start end]
+      --table-sort-by strings                  sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
+      --tags-as-tasks                          treat tags matching the value of tags-as-tasks-regex as tasks
+      --tags-as-tasks-regex string             regex of the task pattern
+  -t, --target string                          set the target of the sync [tempo]
+      --target-user string                     set the source user ID
+      --tempo-password string                  set the login password
+      --tempo-url string                       set the base URL
+      --tempo-username string                  set the login user ID
+      --timewarrior-arguments strings          set additional arguments
+      --timewarrior-client-tag-regex string    regex of client tag pattern
+      --timewarrior-command string             set the executable name (default "timew")
+      --timewarrior-project-tag-regex string   regex of project tag pattern
+      --timewarrior-unbillable-tag string      set the unbillable tag (default "unbillable")
+      --toggl-api-key string                   set the API key
+      --toggl-url string                       set the base URL (default "https://api.track.toggl.com")
+      --toggl-workspace int                    set the workspace ID
+      --version                                show command version
 ```
 
 ### Usage examples
@@ -179,7 +186,7 @@ widthmax = 40
 | Time Doctor | upon request  | upon request  |
 | TimeCamp    | upon request  | upon request  |
 | Timewarrior | **yes**       | upon request  |
-| Toggl Track | **planned**   | upon request  |
+| Toggl Track | **yes**       | upon request  |
 | Zoho Books  | upon request  | **planned**   |
 
 See the [open issues](https://github.com/gabor-boros/minutes/issues) for a full list of proposed features, tools and known issues.

@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
+
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
@@ -40,7 +42,7 @@ var (
 	commit  string
 	date    string
 
-	sources = []string{"clockify", "tempo", "timewarrior"}
+	sources = []string{"clockify", "tempo", "timewarrior", "toggl"}
 	targets = []string{"tempo"}
 
 	ErrNoSourceImplementation = errors.New("no source implementation found")
@@ -76,6 +78,7 @@ func init() {
 	initClockifyFlags()
 	initTempoFlags()
 	initTimewarriorFlags()
+	initTogglFlags()
 }
 
 func initConfig() {
@@ -134,7 +137,7 @@ func initCommonFlags() {
 }
 
 func initClockifyFlags() {
-	rootCmd.Flags().StringP("clockify-url", "", "", "set the base URL")
+	rootCmd.Flags().StringP("clockify-url", "", "https://api.clockify.me", "set the base URL")
 	rootCmd.Flags().StringP("clockify-api-key", "", "", "set the API key")
 	rootCmd.Flags().StringP("clockify-workspace", "", "", "set the workspace ID")
 }
@@ -152,6 +155,12 @@ func initTimewarriorFlags() {
 	rootCmd.Flags().StringP("timewarrior-unbillable-tag", "", "unbillable", "set the unbillable tag")
 	rootCmd.Flags().StringP("timewarrior-client-tag-regex", "", "", "regex of client tag pattern")
 	rootCmd.Flags().StringP("timewarrior-project-tag-regex", "", "", "regex of project tag pattern")
+}
+
+func initTogglFlags() {
+	rootCmd.Flags().StringP("toggl-url", "", "https://api.track.toggl.com", "set the base URL")
+	rootCmd.Flags().StringP("toggl-api-key", "", "", "set the API key")
+	rootCmd.Flags().IntP("toggl-workspace", "", 0, "set the workspace ID")
 }
 
 func validateFlags() {
@@ -300,6 +309,27 @@ func getFetcher() (client.Fetcher, error) {
 			UnbillableTag:      viper.GetString("timewarrior-unbillable-tag"),
 			ClientTagRegex:     viper.GetString("timewarrior-client-tag-regex"),
 			ProjectTagRegex:    viper.GetString("timewarrior-project-tag-regex"),
+		}), nil
+	case "toggl":
+		opts, err := getClientOpts(
+			"toggl-url",
+			"toggl-api-key",
+			"",
+			"",
+			"",
+		)
+
+		// Toggl requires basic auth with the token set as the username and
+		// "api_token" set for password as a fix value to access their APIs
+		opts.Password = "api_token"
+
+		if err != nil {
+			return nil, err
+		}
+
+		return toggl.NewClient(&toggl.ClientOpts{
+			BaseClientOpts: *opts,
+			Workspace:      viper.GetInt("toggl-workspace"),
 		}), nil
 	default:
 		return nil, ErrNoSourceImplementation

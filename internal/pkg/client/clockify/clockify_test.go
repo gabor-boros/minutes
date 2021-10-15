@@ -115,8 +115,10 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 				Description: "Have a coffee with Tony",
 				Billable:    true,
 				Project: clockify.Project{
-					ID:         "123",
-					Name:       "MARVEL-101",
+					IDNameField: worklog.IDNameField{
+						ID:   "123",
+						Name: "MARVEL-101",
+					},
 					ClientID:   "456",
 					ClientName: "My Awesome Company",
 				},
@@ -124,11 +126,11 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 					Start: start,
 					End:   end,
 				},
-				Task: clockify.Task{
+				Task: worklog.IDNameField{
 					ID:   "789",
 					Name: "Meet with Iron Man",
 				},
-				Tags: []clockify.Tag{
+				Tags: []worklog.IDNameField{
 					{
 						ID:   "1234",
 						Name: "Coffee",
@@ -147,8 +149,10 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 				Description: "Go back for my wallet",
 				Billable:    false,
 				Project: clockify.Project{
-					ID:         "123",
-					Name:       "MARVEL-101",
+					IDNameField: worklog.IDNameField{
+						ID:   "123",
+						Name: "MARVEL-101",
+					},
 					ClientID:   "456",
 					ClientName: "My Awesome Company",
 				},
@@ -156,11 +160,11 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 					Start: start,
 					End:   end,
 				},
-				Task: clockify.Task{
+				Task: worklog.IDNameField{
 					ID:   "789",
 					Name: "Meet with Iron Man",
 				},
-				Tags: []clockify.Tag{
+				Tags: []worklog.IDNameField{
 					{
 						ID:   "1234",
 						Name: "Coffee",
@@ -284,8 +288,10 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 				Description: "Have a coffee with Tony",
 				Billable:    true,
 				Project: clockify.Project{
-					ID:         "123",
-					Name:       "MARVEL-101",
+					IDNameField: worklog.IDNameField{
+						ID:   "123",
+						Name: "MARVEL-101",
+					},
 					ClientID:   "456",
 					ClientName: "My Awesome Company",
 				},
@@ -293,8 +299,8 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 					Start: start,
 					End:   end,
 				},
-				Task: clockify.Task{},
-				Tags: []clockify.Tag{
+				Task: worklog.IDNameField{},
+				Tags: []worklog.IDNameField{
 					{
 						ID:   "1234",
 						Name: "Coffee",
@@ -313,8 +319,10 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 				Description: "Go back for my wallet",
 				Billable:    false,
 				Project: clockify.Project{
-					ID:         "123",
-					Name:       "MARVEL-101",
+					IDNameField: worklog.IDNameField{
+						ID:   "123",
+						Name: "MARVEL-101",
+					},
 					ClientID:   "456",
 					ClientName: "My Awesome Company",
 				},
@@ -322,8 +330,8 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 					Start: start,
 					End:   end,
 				},
-				Task: clockify.Task{},
-				Tags: []clockify.Tag{
+				Task: worklog.IDNameField{},
+				Tags: []worklog.IDNameField{
 					{
 						ID:   "1234",
 						Name: "Coffee",

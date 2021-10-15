@@ -62,73 +62,36 @@ func (c *timewarriorClient) assembleCommand(subcommand string, opts *client.Fetc
 	return c.opts.Command, arguments
 }
 
-func (c *timewarriorClient) splitEntry(entry worklog.Entry, fetchedEntry FetchEntry) ([]worklog.Entry, error) {
-	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
-	if err != nil {
-		return nil, err
-	}
-
-	tasks := map[string]string{}
-	for _, tag := range fetchedEntry.Tags {
-		if task := r.FindString(tag); task != "" {
-			tasks[tag] = task
-		}
-	}
-
-	var entries []worklog.Entry
-	totalTasks := len(tasks)
-
-	for taskID, taskName := range tasks {
-		splitBillable, splitUnbillable := entry.SplitDuration(totalTasks)
-
-		entries = append(entries, worklog.Entry{
-			Client:  entry.Client,
-			Project: entry.Project,
-			Task: worklog.IDNameField{
-				ID:   taskID,
-				Name: taskName,
-			},
-			Summary:            entry.Summary,
-			Notes:              entry.Notes,
-			Start:              entry.Start,
-			BillableDuration:   splitBillable,
-			UnbillableDuration: splitUnbillable,
-		})
-	}
-
-	return entries, nil
-}
-
 func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
-	var entries []worklog.Entry
 	var fetchedEntries []FetchEntry
 
 	command, arguments := c.assembleCommand("export", opts)
 
 	out, err := c.opts.CommandCtxExecutor(ctx, command, arguments...).Output() // #nosec G204
 	if err != nil {
-		return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	if err = json.Unmarshal(out, &fetchedEntries); err != nil {
-		return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	clientTagRegex, err := regexp.Compile(c.opts.ClientTagRegex)
 	if err != nil {
-		return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	projectTagRegex, err := regexp.Compile(c.opts.ProjectTagRegex)
 	if err != nil {
-		return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	tagsAsTasksRegex, err := regexp.Compile(c.opts.TagsAsTasksRegex)
 	if err != nil {
-		return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
+	var entries []worklog.Entry
 	for _, entry := range fetchedEntries {
 		var clientName string
 		var projectName string
@@ -136,12 +99,12 @@ func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.Fetch
 
 		startDate, err := time.ParseInLocation(ParseDateFormat, entry.Start, time.Local)
 		if err != nil {
-			return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
 		endDate, err := time.ParseInLocation(ParseDateFormat, entry.End, time.Local)
 		if err != nil {
-			return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
 		billableDuration := endDate.Sub(startDate)
@@ -189,11 +152,15 @@ func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.Fetch
 		}
 
 		if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
-			splitEntries, err := c.splitEntry(worklogEntry, entry)
-			if err != nil {
-				return entries, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+			var tags []worklog.IDNameField
+			for _, tag := range entry.Tags {
+				tags = append(tags, worklog.IDNameField{
+					ID:   tag,
+					Name: tag,
+				})
 			}
 
+			splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, tagsAsTasksRegex, tags)
 			entries = append(entries, splitEntries...)
 		} else {
 			entries = append(entries, worklogEntry)

@@ -26,22 +26,9 @@ const (
 
 // Project represents the project assigned to an entry.
 type Project struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
+	worklog.IDNameField
 	ClientID   string `json:"clientId"`
 	ClientName string `json:"clientName"`
-}
-
-// Tag represents a tag assigned to an entry.
-type Tag struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-// Task represents the task assigned to an entry.
-type Task struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
 
 // Interval represents the Start and End date of an entry.
@@ -52,12 +39,12 @@ type Interval struct {
 
 // FetchEntry represents the entry fetched from Clockify.
 type FetchEntry struct {
-	Description  string   `json:"description"`
-	Billable     bool     `json:"billable"`
-	Project      Project  `json:"project"`
-	TimeInterval Interval `json:"timeInterval"`
-	Task         Task     `json:"task"`
-	Tags         []Tag    `json:"tags"`
+	Description  string                `json:"description"`
+	Billable     bool                  `json:"billable"`
+	Project      Project               `json:"project"`
+	TimeInterval Interval              `json:"timeInterval"`
+	Task         worklog.IDNameField   `json:"task"`
+	Tags         []worklog.IDNameField `json:"tags"`
 }
 
 // WorklogSearchParams represents the parameters used to filter search results.
@@ -101,47 +88,19 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
-func (c *clockifyClient) splitEntry(entry worklog.Entry, fetchedEntry FetchEntry) ([]worklog.Entry, error) {
-	r, err := regexp.Compile(c.opts.TagsAsTasksRegex)
-	if err != nil {
-		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-	}
-
-	tasks := map[string]string{}
-	for _, tag := range fetchedEntry.Tags {
-		if task := r.FindString(tag.Name); task != "" {
-			tasks[tag.ID] = task
-		}
-	}
-
-	var entries []worklog.Entry
-	totalTasks := len(tasks)
-
-	for taskID, taskName := range tasks {
-		splitBillable, splitUnbillable := entry.SplitDuration(totalTasks)
-
-		entries = append(entries, worklog.Entry{
-			Client:  entry.Client,
-			Project: entry.Project,
-			Task: worklog.IDNameField{
-				ID:   taskID,
-				Name: taskName,
-			},
-			Summary:            fetchedEntry.Description,
-			Notes:              fetchedEntry.Description,
-			Start:              entry.Start,
-			BillableDuration:   splitBillable,
-			UnbillableDuration: splitUnbillable,
-		})
-	}
-
-	return entries, nil
-}
-
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
+	var err error
 	var entries []worklog.Entry
 	currentPage := 1
 	pageSize := 100
+
+	var tagsAsTasksRegex *regexp.Regexp
+	if c.opts.TagsAsTasks {
+		tagsAsTasksRegex, err = regexp.Compile(c.opts.TagsAsTasksRegex)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		}
+	}
 
 	// Naive pagination as the API does not return the number of total entries
 	for currentPage*pageSize < MaxPageLength {
@@ -204,11 +163,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			}
 
 			if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
-				pageEntries, err := c.splitEntry(worklogEntry, entry)
-				if err != nil {
-					return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-				}
-
+				pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, tagsAsTasksRegex, entry.Tags)
 				entries = append(entries, pageEntries...)
 			} else {
 				entries = append(entries, worklogEntry)

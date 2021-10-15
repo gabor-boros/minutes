@@ -1,8 +1,11 @@
 package worklog_test
 
 import (
+	"regexp"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/assert"
@@ -102,4 +105,57 @@ func TestEntry_SplitDuration(t *testing.T) {
 	splitBillable, splitUnbillable = entry.SplitDuration(2)
 	assert.Equal(t, time.Hour*1, splitBillable)
 	assert.Equal(t, time.Hour*1, splitUnbillable)
+}
+
+func TestEntry_SplitByTag(t *testing.T) {
+	entry := getTestEntry()
+
+	regex, err := regexp.Compile(`^TASK-\d+$`)
+	require.Nil(t, err)
+
+	expectedEntries := []worklog.Entry{
+		{
+			Client:  entry.Client,
+			Project: entry.Project,
+			Task: worklog.IDNameField{
+				ID:   "123",
+				Name: "TASK-123",
+			},
+			Summary:            "test summary",
+			Notes:              entry.Notes,
+			Start:              entry.Start,
+			BillableDuration:   entry.BillableDuration / 2,
+			UnbillableDuration: entry.UnbillableDuration / 2,
+		},
+		{
+			Client:  entry.Client,
+			Project: entry.Project,
+			Task: worklog.IDNameField{
+				ID:   "789",
+				Name: "TASK-789",
+			},
+			Summary:            "test summary",
+			Notes:              entry.Notes,
+			Start:              entry.Start,
+			BillableDuration:   entry.BillableDuration / 2,
+			UnbillableDuration: entry.UnbillableDuration / 2,
+		},
+	}
+
+	entries := entry.SplitByTagsAsTasks("test summary", regex, []worklog.IDNameField{
+		{
+			ID:   "123",
+			Name: "TASK-123",
+		},
+		{
+			ID:   "456",
+			Name: "NO-MATCH",
+		},
+		{
+			ID:   "789",
+			Name: "TASK-789",
+		},
+	})
+
+	assert.ElementsMatch(t, expectedEntries, entries)
 }
