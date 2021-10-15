@@ -30,7 +30,8 @@ All notable changes to this project will be documented in this file.
 - Add basic clockify client implementation ([cb04282](https://github.com/gabor-boros/minutes/commit/cb04282b206bc1a926ab6e37b4cd67450e2c4766))
 - Add initial CLI implementation ([98a6759](https://github.com/gabor-boros/minutes/commit/98a6759ec7557d5bdc5e313f00086cc468ee4197))
 - Add initial timewarrior integration ([748a304](https://github.com/gabor-boros/minutes/commit/748a30424cc8ad61eb0be44c9e5bf3e32a905ace))
-- Add initial progress indicator ([cfd860c](https://github.com/gabor-boros/minutes/commit/cfd860c13e4aaba5862ed007b17d34ebcd5db221))
+- Add upload status indicator (#10) ([d27c124](https://github.com/gabor-boros/minutes/commit/d27c12426b7c864261c31c43e9101f7599a31167))
+- Add initial Toggl Track integration (#13) ([59c2a17](https://github.com/gabor-boros/minutes/commit/59c2a179b6ef21a94c4280017682862eedd41de8))
 
 **Miscellaneous Tasks**
 
@@ -57,7 +58,6 @@ All notable changes to this project will be documented in this file.
 - Add entry duration splitting as a method ([4fbb077](https://github.com/gabor-boros/minutes/commit/4fbb077aa7bc1bb8f214e981544b92ec13425164))
 - Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
-- Move printer to cmd utils ([f6dc3b8](https://github.com/gabor-boros/minutes/commit/f6dc3b8359bac27be6dd943b71328c33054566e2))
 
 **Testing**
 
@@ -73,7 +73,6 @@ All notable changes to this project will be documented in this file.
 - User .Version in snapshot name ([d3299d3](https://github.com/gabor-boros/minutes/commit/d3299d3416836439a4400be3819ab152b19c322f))
 - Add coverage reporting ([5911595](https://github.com/gabor-boros/minutes/commit/5911595e2c71b348eac7972bc52864e0140e7b76))
 - Add several Makefile improvements ([291bc75](https://github.com/gabor-boros/minutes/commit/291bc754cdb2feb644a4d0733c0675ceddcaee05))
-- Remove go clean call as it is insane ([4753e1d](https://github.com/gabor-boros/minutes/commit/4753e1de5a70cb2e14507e7f802c4448d5f7db74))
 
 **Ci**
 
@@ -84,4 +83,5 @@ All notable changes to this project will be documented in this file.
 - Report coverage ([bb4982e](https://github.com/gabor-boros/minutes/commit/bb4982ec3978e0da62a7b4188e861fce0213b695))
 - Checkout code before coverage reporting ([ecb3edb](https://github.com/gabor-boros/minutes/commit/ecb3edbeafa98f0ec8a5214747ec4c18ba1ac398))
 - Fine-tune artifact stashing ([8e05ab3](https://github.com/gabor-boros/minutes/commit/8e05ab35c86d47c1da1369c08e51ebf40316fd25))
+- Do not run docs deploy on pull requests ([637bb6e](https://github.com/gabor-boros/minutes/commit/637bb6ebbb7e7a3800ca07ce7d23353b3ef60a48))
 
