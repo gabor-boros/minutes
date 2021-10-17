@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 **Bug Fixes**
 
 - Solve time parsing issue when start or end date is defined ([3d9c7be](https://github.com/gabor-boros/minutes/commit/3d9c7be5fc5df0d259a3faca8976f42c38d83845))
+- Upload related task entries sequentially (#14) ([55ffaed](https://github.com/gabor-boros/minutes/commit/55ffaed56218b9c7738bcc1c3d6217cb7a6c8ea6))
 
 **Documentation**
 
@@ -58,6 +59,7 @@ All notable changes to this project will be documented in this file.
 - Add entry duration splitting as a method ([4fbb077](https://github.com/gabor-boros/minutes/commit/4fbb077aa7bc1bb8f214e981544b92ec13425164))
 - Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
+- Simplify worklog creation ([15bdad7](https://github.com/gabor-boros/minutes/commit/15bdad721f648586f1175b403ca987daa114f400))
 
 **Testing**
 
