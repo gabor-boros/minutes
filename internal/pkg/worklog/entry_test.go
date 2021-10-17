@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getTestEntry() worklog.Entry {
+func getCompleteTestEntry() worklog.Entry {
 	start := time.Date(2021, 10, 2, 5, 0, 0, 0, time.UTC)
 	end := start.Add(time.Hour * 2)
 
@@ -36,6 +36,12 @@ func getTestEntry() worklog.Entry {
 	}
 }
 
+func getIncompleteTestEntry() worklog.Entry {
+	entry := getCompleteTestEntry()
+	entry.Task = worklog.IDNameField{}
+	return entry
+}
+
 func TestIDNameFieldIsComplete(t *testing.T) {
 	var field worklog.IDNameField
 
@@ -54,39 +60,39 @@ func TestIDNameFieldIsComplete(t *testing.T) {
 }
 
 func TestEntryKey(t *testing.T) {
-	entry := getTestEntry()
+	entry := getCompleteTestEntry()
 	assert.Equal(t, "Internal projects:TASK-0123:Write worklog transfer CLI tool:2021-10-02", entry.Key())
 }
 
 func TestEntryIsComplete(t *testing.T) {
-	entry := getTestEntry()
+	entry := getCompleteTestEntry()
 	assert.True(t, entry.IsComplete())
 }
 
 func TestEntryIsCompleteIncomplete(t *testing.T) {
 	var entry worklog.Entry
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.Client = worklog.IDNameField{}
 	assert.False(t, entry.IsComplete())
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.Project = worklog.IDNameField{}
 	assert.False(t, entry.IsComplete())
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.Task = worklog.IDNameField{}
 	assert.False(t, entry.IsComplete())
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.Summary = ""
 	assert.False(t, entry.IsComplete())
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.Start = time.Time{}
 	assert.False(t, entry.IsComplete())
 
-	entry = getTestEntry()
+	entry = getCompleteTestEntry()
 	entry.BillableDuration = 0
 	entry.UnbillableDuration = 0
 	assert.False(t, entry.IsComplete())
@@ -95,7 +101,7 @@ func TestEntryIsCompleteIncomplete(t *testing.T) {
 func TestEntry_SplitDuration(t *testing.T) {
 	var splitBillable time.Duration
 	var splitUnbillable time.Duration
-	entry := getTestEntry()
+	entry := getCompleteTestEntry()
 
 	splitBillable, splitUnbillable = entry.SplitDuration(1)
 	assert.Equal(t, entry.BillableDuration, splitBillable)
@@ -108,7 +114,7 @@ func TestEntry_SplitDuration(t *testing.T) {
 }
 
 func TestEntry_SplitByTag(t *testing.T) {
-	entry := getTestEntry()
+	entry := getCompleteTestEntry()
 
 	regex, err := regexp.Compile(`^TASK-\d+$`)
 	require.Nil(t, err)

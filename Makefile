@@ -33,7 +33,7 @@ test: deps ## Run tests
 
 bench: deps ## Run benchmarks
 	# ^$ filters out every unit test, so only benchmarks will run
-	go test -run "^$" -benchmem -bench . ./...
+	go test -run '^$$' -benchmem -bench . ./...
 
 coverage-report: ## Generate coverage report from previous test run
 	go tool cover -html "$(COVERAGE_OUT)" -o "$(COVERAGE_HTML)"

@@ -1,17 +1,32 @@
 package worklog
 
-// groupEntries ensures to group similar entries, identified by their key.
-// If the keys are matching for two entries, those will be merged and their duration will be summed up, notes will be
-// concatenated.
-func groupEntries(entries []Entry) []Entry {
-	entryGroup := map[string]Entry{}
+// Worklog is the collection of multiple Entries.
+type Worklog struct {
+	completeEntries   []Entry
+	incompleteEntries []Entry
+}
+
+// CompleteEntries returns those entries which necessary fields were filled.
+func (w *Worklog) CompleteEntries() []Entry {
+	return w.completeEntries
+}
+
+// IncompleteEntries is the opposite of CompleteEntries.
+func (w *Worklog) IncompleteEntries() []Entry {
+	return w.incompleteEntries
+}
+
+// NewWorklog creates a worklog from the given set of entries and merges them.
+func NewWorklog(entries []Entry) Worklog {
+	worklog := Worklog{}
+	mergedEntries := map[string]Entry{}
 
 	for _, entry := range entries {
 		key := entry.Key()
-		storedEntry, isStored := entryGroup[key]
+		storedEntry, isStored := mergedEntries[key]
 
 		if !isStored {
-			entryGroup[key] = entry
+			mergedEntries[key] = entry
 			continue
 		}
 
@@ -27,48 +42,16 @@ func groupEntries(entries []Entry) []Entry {
 			storedEntry.Notes = storedEntry.Notes + noteSeparator + entry.Notes
 		}
 
-		entryGroup[key] = storedEntry
+		mergedEntries[key] = storedEntry
 	}
 
-	groupedEntries := make([]Entry, 0, len(entryGroup))
-	for _, entry := range entryGroup {
-		groupedEntries = append(groupedEntries, entry)
-	}
-
-	return groupedEntries
-}
-
-// Worklog is the collection of multiple Entries.
-type Worklog struct {
-	entries []Entry
-}
-
-// entryGroup returns those entries that are matching the completeness criteria.
-func (w *Worklog) entryGroup(isComplete bool) []Entry {
-	var entries []Entry
-
-	for _, entry := range w.entries {
-		if entry.IsComplete() == isComplete {
-			entries = append(entries, entry)
+	for _, entry := range mergedEntries {
+		if entry.IsComplete() {
+			worklog.completeEntries = append(worklog.completeEntries, entry)
+		} else {
+			worklog.incompleteEntries = append(worklog.incompleteEntries, entry)
 		}
 	}
 
-	return entries
-}
-
-// CompleteEntries returns those entries which necessary fields were filled.
-func (w *Worklog) CompleteEntries() []Entry {
-	return w.entryGroup(true)
-}
-
-// IncompleteEntries is the opposite of CompleteEntries.
-func (w *Worklog) IncompleteEntries() []Entry {
-	return w.entryGroup(false)
-}
-
-// NewWorklog creates a worklog from the given set of entries and groups them.
-func NewWorklog(entries []Entry) Worklog {
-	return Worklog{
-		entries: groupEntries(entries),
-	}
+	return worklog
 }

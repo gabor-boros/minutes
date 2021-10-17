@@ -8,54 +8,111 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var worklogBenchResult worklog.Worklog
+var newWorklogBenchResult worklog.Worklog
+var completeEntriesBenchResult []worklog.Entry
+var incompleteEntriesBenchResult []worklog.Entry
 
-func benchmarkNewWorklog(b *testing.B, entryCount int) {
+func benchNewWorklog(b *testing.B, entryCount int) {
 	b.StopTimer()
 
 	var entries []worklog.Entry
 
 	for i := 0; i != entryCount; i++ {
-		entry := getTestEntry()
+		entry := getCompleteTestEntry()
 		entry.Start.Add(time.Hour * time.Duration(i))
 		entries = append(entries, entry)
 	}
 
 	b.StartTimer()
 
-	var result worklog.Worklog
 	for n := 0; n != b.N; n++ {
-		result = worklog.NewWorklog(entries)
+		// always store the result to a package level variable
+		// so the compiler cannot eliminate the Benchmark itself.
+		newWorklogBenchResult = worklog.NewWorklog(entries)
 	}
-
-	// always store the result to a package level variable
-	// so the compiler cannot eliminate the Benchmark itself.
-	worklogBenchResult = result
 }
 
-func BenchmarkNewWorklog_5(b *testing.B) {
-	benchmarkNewWorklog(b, 5)
+func benchmarkCompleteEntries(b *testing.B, entryCount int) {
+	b.StopTimer()
+
+	var entries []worklog.Entry
+
+	for i := 0; i != entryCount; i++ {
+		entry := getCompleteTestEntry()
+		entry.Start.Add(time.Hour * time.Duration(i))
+		entries = append(entries, entry)
+	}
+
+	wl := worklog.NewWorklog(entries)
+
+	b.StartTimer()
+
+	for n := 0; n != b.N; n++ {
+		// always store the result to a package level variable
+		// so the compiler cannot eliminate the Benchmark itself.
+		completeEntriesBenchResult = wl.CompleteEntries()
+	}
+}
+
+func benchmarkIncompleteEntries(b *testing.B, entryCount int) {
+	b.StopTimer()
+
+	var entries []worklog.Entry
+
+	for i := 0; i != entryCount; i++ {
+		entry := getIncompleteTestEntry()
+		entry.Start.Add(time.Hour * time.Duration(i))
+		entries = append(entries, entry)
+	}
+
+	wl := worklog.NewWorklog(entries)
+
+	b.StartTimer()
+
+	for n := 0; n != b.N; n++ {
+		// always store the result to a package level variable
+		// so the compiler cannot eliminate the Benchmark itself.
+		incompleteEntriesBenchResult = wl.IncompleteEntries()
+	}
 }
 
 func BenchmarkNewWorklog_10(b *testing.B) {
-	benchmarkNewWorklog(b, 10)
+	benchNewWorklog(b, 10)
+	_ = newWorklogBenchResult // Use the result to eliminate linter issues
 }
 
-func BenchmarkNewWorklog_50(b *testing.B) {
-	benchmarkNewWorklog(b, 50)
+func BenchmarkNewWorklog_1000(b *testing.B) {
+	benchNewWorklog(b, 1000)
+	_ = newWorklogBenchResult // Use the result to eliminate linter issues
 }
 
-func BenchmarkNewWorklog_100(b *testing.B) {
-	benchmarkNewWorklog(b, 100)
+func BenchmarkCompleteEntries_10(b *testing.B) {
+	benchmarkCompleteEntries(b, 10)
+	_ = completeEntriesBenchResult // Use the result to eliminate linter issues
+}
+
+func BenchmarkCompleteEntries_1000(b *testing.B) {
+	benchmarkCompleteEntries(b, 1000)
+	_ = completeEntriesBenchResult // Use the result to eliminate linter issues
+}
+
+func BenchmarkIncompleteEntries_10(b *testing.B) {
+	benchmarkIncompleteEntries(b, 10)
+	_ = incompleteEntriesBenchResult // Use the result to eliminate linter issues
+}
+
+func BenchmarkIncompleteEntries_1000(b *testing.B) {
+	benchmarkIncompleteEntries(b, 1000)
+	_ = incompleteEntriesBenchResult // Use the result to eliminate linter issues
 }
 
 func TestWorklogCompleteEntries(t *testing.T) {
-	completeEntry := getTestEntry()
+	completeEntry := getCompleteTestEntry()
 
-	otherCompleteEntry := getTestEntry()
+	otherCompleteEntry := getCompleteTestEntry()
 	otherCompleteEntry.Notes = "Really"
 
-	incompleteEntry := getTestEntry()
+	incompleteEntry := getCompleteTestEntry()
 	incompleteEntry.Task = worklog.IDNameField{}
 
 	wl := worklog.NewWorklog([]worklog.Entry{
@@ -70,12 +127,12 @@ func TestWorklogCompleteEntries(t *testing.T) {
 }
 
 func TestWorklogIncompleteEntries(t *testing.T) {
-	completeEntry := getTestEntry()
+	completeEntry := getCompleteTestEntry()
 
-	incompleteEntry := getTestEntry()
+	incompleteEntry := getCompleteTestEntry()
 	incompleteEntry.Task = worklog.IDNameField{}
 
-	otherIncompleteEntry := getTestEntry()
+	otherIncompleteEntry := getCompleteTestEntry()
 	otherIncompleteEntry.Task = worklog.IDNameField{}
 	otherIncompleteEntry.Notes = "Well, not that easy"
 
