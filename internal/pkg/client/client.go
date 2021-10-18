@@ -23,8 +23,8 @@ var (
 	ErrUploadEntries = errors.New("failed to upload entries")
 )
 
-// HTTPClientOptions specifies all options that are required for HTTP clients.
-type HTTPClientOptions struct {
+// HTTPClientOpts specifies all options that are required for HTTP clients.
+type HTTPClientOpts struct {
 	HTTPClient *http.Client
 	// BaseURL for the API, without a trailing slash.
 	BaseURL string
@@ -47,7 +47,7 @@ type HTTPClientOptions struct {
 // When a client needs other options as well, it composes a new set of options
 // using BaseClientOpts.
 type BaseClientOpts struct {
-	HTTPClientOptions
+	HTTPClientOpts
 	// TagsAsTasks defines to use tag names to determine the task.
 	// Using TagsAsTasks can be useful if the user's workflow involves
 	// splitting activity across multiple tasks, or when the user has no option
@@ -123,7 +123,7 @@ type FetchUploader interface {
 // The SendRequest function prepares a new HTTP request, sends it and returns
 // the response for further parsing. If the response status is not 200 or 201,
 // the function returns an error.
-func SendRequest(ctx context.Context, method string, path string, data interface{}, opts *HTTPClientOptions) (*http.Response, error) {
+func SendRequest(ctx context.Context, method string, path string, data interface{}, opts *HTTPClientOpts) (*http.Response, error) {
 	var err error
 	var marshalledData []byte
 

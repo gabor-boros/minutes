@@ -187,7 +187,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient:  http.DefaultClient,
 		BaseURL:     mockServer.URL,
 		Token:       "t-o-k-e-n",
@@ -196,7 +196,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 
 	clockifyClient := clockify.NewClient(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 		Workspace: "marvel-studios",
 	})
@@ -354,7 +354,7 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient:  http.DefaultClient,
 		BaseURL:     mockServer.URL,
 		Token:       "t-o-k-e-n",
@@ -363,9 +363,9 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 
 	clockifyClient := clockify.NewClient(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
-			TagsAsTasks:       true,
-			TagsAsTasksRegex:  `^TASK\-\d+$`,
+			HTTPClientOpts:   *httpClientOpts,
+			TagsAsTasks:      true,
+			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
 		Workspace: "marvel-studios",
 	})

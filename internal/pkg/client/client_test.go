@@ -87,7 +87,7 @@ func TestSendRequest_GET(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOptions{
+	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 	})
@@ -109,7 +109,7 @@ func TestSendRequest_POST(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	requestOpts := &client.HTTPClientOptions{
+	requestOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 	}
@@ -130,7 +130,7 @@ func TestSendRequest_BasicAuth(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOptions{
+	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   "Thor",
@@ -151,7 +151,7 @@ func TestSendRequest_TokenAuth(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOptions{
+	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
 		HTTPClient:  http.DefaultClient,
 		BaseURL:     mockServer.URL,
 		Token:       "t-o-k-e-n",
@@ -170,7 +170,7 @@ func TestSendRequest_TokenAuth_NoHeader(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOptions{
+	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
 		HTTPClient:  http.DefaultClient,
 		BaseURL:     mockServer.URL,
 		Token:       "t-o-k-e-n",
@@ -189,7 +189,7 @@ func TestSendRequest_Error(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOptions{
+	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 	})

@@ -80,7 +80,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		Worker: opts.User,
 	}
 
-	resp, err := client.SendRequest(ctx, http.MethodPost, PathWorklogSearch, searchParams, &c.opts.HTTPClientOptions)
+	resp, err := client.SendRequest(ctx, http.MethodPost, PathWorklogSearch, searchParams, &c.opts.HTTPClientOpts)
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
@@ -154,7 +154,7 @@ func (c *tempoClient) uploadEntry(ctx context.Context, entries []worklog.Entry, 
 			Worker:                opts.User,
 		}
 
-		if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, uploadEntry, &c.opts.HTTPClientOptions); err != nil {
+		if _, err := client.SendRequest(ctx, http.MethodPost, PathWorklogCreate, uploadEntry, &c.opts.HTTPClientOpts); err != nil {
 			if tracker != nil {
 				tracker.MarkAsErrored()
 			}

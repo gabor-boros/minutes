@@ -230,7 +230,7 @@ func validateFlags() {
 
 func getClientOpts(urlFlag string, usernameFlag string, passwordFlag string, tokenFlag string, tokenHeader string) (*client.BaseClientOpts, error) {
 	opts := &client.BaseClientOpts{
-		HTTPClientOptions: client.HTTPClientOptions{
+		HTTPClientOpts: client.HTTPClientOpts{
 			HTTPClient:  http.DefaultClient,
 			TokenHeader: tokenHeader,
 		},

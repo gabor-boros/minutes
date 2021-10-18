@@ -236,7 +236,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -245,7 +245,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 
 	tempoClient := tempo.NewClient(&tempo.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 	})
 
@@ -335,7 +335,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -344,7 +344,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 
 	tempoClient := tempo.NewClient(&tempo.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 	})
 
@@ -433,7 +433,7 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -442,7 +442,7 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 
 	tempoClient := tempo.NewClient(&tempo.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 	})
 
@@ -591,7 +591,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -600,7 +600,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 
 	tempoClient := tempo.NewClient(&tempo.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 	})
 

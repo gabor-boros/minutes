@@ -159,7 +159,7 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
-		resp, err := client.SendRequest(ctx, http.MethodGet, searchURL, nil, &c.opts.HTTPClientOptions)
+		resp, err := client.SendRequest(ctx, http.MethodGet, searchURL, nil, &c.opts.HTTPClientOpts)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}

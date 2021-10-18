@@ -147,7 +147,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -156,7 +156,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 
 	togglClient := toggl.NewClient(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
+			HTTPClientOpts: *httpClientOpts,
 		},
 		Workspace: 123456789,
 	})
@@ -286,7 +286,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOptions{
+	httpClientOpts := &client.HTTPClientOpts{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    mockServer.URL,
 		Username:   clientUsername,
@@ -295,9 +295,9 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 
 	togglClient := toggl.NewClient(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOptions: *httpClientOpts,
-			TagsAsTasks:       true,
-			TagsAsTasksRegex:  `^CPT\-\w+$`,
+			HTTPClientOpts:   *httpClientOpts,
+			TagsAsTasks:      true,
+			TagsAsTasksRegex: `^CPT\-\w+$`,
 		},
 		Workspace: 123456789,
 	})

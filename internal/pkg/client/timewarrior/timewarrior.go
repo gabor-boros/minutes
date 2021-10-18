@@ -28,7 +28,7 @@ type FetchEntry struct {
 
 // ClientOpts is the client specific options, extending client.BaseClientOpts.
 // Since Timewarrior is a CLI tool, hence it has no API we could call on HTTP.
-// Although client.HTTPClientOptions is part of client.BaseClientOpts, we are
+// Although client.HTTPClientOpts is part of client.BaseClientOpts, we are
 // not using that as part of this integration, instead we are defining the path
 // of the executable (Command) and the command arguments used for export
 // (CommandArguments).
