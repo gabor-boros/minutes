@@ -1,0 +1,26 @@
+name: PR Welcome
+
+'on':
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - reopened
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-cool/pr-welcome@v1
+        with:
+          token: '${{ secrets.PR_WELCOME_TOKEN }}'
+          refuse-issue-label: invalid
+          need-creator-authority: write
+          comment: |
+            Hey :wave:,
+            
+            Thank you for your contribution! Your PR will be reviewed soon.
+          pr-emoji: 'hooray, heart'
+          reviewers: 'gabor-boros'
+          review-creator: false
+          close: false
