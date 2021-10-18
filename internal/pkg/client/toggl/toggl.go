@@ -130,6 +130,31 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 	return entries, nil
 }
 
+func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasksRegex *regexp.Regexp) ([]worklog.Entry, *PaginatedResponse, error) {
+	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
+		Method:     http.MethodGet,
+		Path:       path,
+		ClientOpts: &c.opts.HTTPClientOpts,
+		Data:       nil,
+	})
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
+	var paginatedResponse PaginatedResponse
+	if err = json.NewDecoder(resp.Body).Decode(&paginatedResponse); err != nil {
+		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
+	parsedEntries, err := c.parseEntries(paginatedResponse.Data, tagsAsTasksRegex)
+	if err != nil {
+		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
+	return parsedEntries, &paginatedResponse, err
+}
+
 func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
 	var err error
 	var entries []worklog.Entry
@@ -159,25 +184,9 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
-		resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
-			Method:     http.MethodGet,
-			Path:       searchURL,
-			ClientOpts: &c.opts.HTTPClientOpts,
-			Data:       nil,
-		})
-
+		parsedEntries, paginatedResponse, err := c.fetchEntries(ctx, searchURL, tagsAsTasksRegex)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		var paginatedResponse PaginatedResponse
-		if err = json.NewDecoder(resp.Body).Decode(&paginatedResponse); err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		parsedEntries, err := c.parseEntries(paginatedResponse.Data, tagsAsTasksRegex)
-		if err != nil {
-			return nil, err
 		}
 
 		entries = append(entries, parsedEntries...)
