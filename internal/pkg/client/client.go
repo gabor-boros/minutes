@@ -180,5 +180,5 @@ func SendRequest(ctx context.Context, opts *SendRequestOpts) (*http.Response, er
 		return nil, fmt.Errorf("%d: %s", resp.StatusCode, string(errBody))
 	}
 
-	return resp, err
+	return resp, nil
 }
