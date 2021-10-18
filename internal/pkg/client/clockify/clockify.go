@@ -88,6 +88,69 @@ func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) 
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
+func (c *clockifyClient) fetchEntries(ctx context.Context, path string) ([]FetchEntry, error) {
+	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
+		Method:     http.MethodGet,
+		Path:       path,
+		ClientOpts: &c.opts.HTTPClientOpts,
+		Data:       nil,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
+	var fetchedEntries []FetchEntry
+	if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
+	return fetchedEntries, err
+}
+
+func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) []worklog.Entry {
+	var entries []worklog.Entry
+
+	for _, entry := range fetchedEntries {
+		billableDuration := entry.TimeInterval.End.Sub(entry.TimeInterval.Start)
+		unbillableDuration := time.Duration(0)
+
+		if !entry.Billable {
+			unbillableDuration = billableDuration
+			billableDuration = 0
+		}
+
+		worklogEntry := worklog.Entry{
+			Client: worklog.IDNameField{
+				ID:   entry.Project.ClientID,
+				Name: entry.Project.ClientName,
+			},
+			Project: worklog.IDNameField{
+				ID:   entry.Project.ID,
+				Name: entry.Project.Name,
+			},
+			Task: worklog.IDNameField{
+				ID:   entry.Task.ID,
+				Name: entry.Task.Name,
+			},
+			Summary:            entry.Task.Name,
+			Notes:              entry.Description,
+			Start:              entry.TimeInterval.Start,
+			BillableDuration:   billableDuration,
+			UnbillableDuration: unbillableDuration,
+		}
+
+		if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
+			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, tagsAsTasksRegex, entry.Tags)
+			entries = append(entries, pageEntries...)
+		} else {
+			entries = append(entries, worklogEntry)
+		}
+	}
+
+	return entries
+}
+
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
 	var err error
 	var entries []worklog.Entry
@@ -118,13 +181,8 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
-		resp, err := client.SendRequest(ctx, http.MethodGet, searchURL, nil, &c.opts.HTTPClientOptions)
+		fetchedEntries, err := c.fetchEntries(ctx, searchURL)
 		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		var fetchedEntries []FetchEntry
-		if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
@@ -133,43 +191,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			break
 		}
 
-		for _, entry := range fetchedEntries {
-			billableDuration := entry.TimeInterval.End.Sub(entry.TimeInterval.Start)
-			unbillableDuration := time.Duration(0)
-
-			if !entry.Billable {
-				unbillableDuration = billableDuration
-				billableDuration = 0
-			}
-
-			worklogEntry := worklog.Entry{
-				Client: worklog.IDNameField{
-					ID:   entry.Project.ClientID,
-					Name: entry.Project.ClientName,
-				},
-				Project: worklog.IDNameField{
-					ID:   entry.Project.ID,
-					Name: entry.Project.Name,
-				},
-				Task: worklog.IDNameField{
-					ID:   entry.Task.ID,
-					Name: entry.Task.Name,
-				},
-				Summary:            entry.Task.Name,
-				Notes:              entry.Description,
-				Start:              entry.TimeInterval.Start,
-				BillableDuration:   billableDuration,
-				UnbillableDuration: unbillableDuration,
-			}
-
-			if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
-				pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, tagsAsTasksRegex, entry.Tags)
-				entries = append(entries, pageEntries...)
-			} else {
-				entries = append(entries, worklogEntry)
-			}
-		}
-
+		entries = append(entries, c.parseEntries(fetchedEntries, tagsAsTasksRegex)...)
 		currentPage++
 	}
 

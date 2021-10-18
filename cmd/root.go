@@ -230,7 +230,7 @@ func validateFlags() {
 
 func getClientOpts(urlFlag string, usernameFlag string, passwordFlag string, tokenFlag string, tokenHeader string) (*client.BaseClientOpts, error) {
 	opts := &client.BaseClientOpts{
-		HTTPClientOptions: client.HTTPClientOptions{
+		HTTPClientOpts: client.HTTPClientOpts{
 			HTTPClient:  http.DefaultClient,
 			TokenHeader: tokenHeader,
 		},
@@ -309,7 +309,7 @@ func getFetcher() (client.Fetcher, error) {
 			UnbillableTag:      viper.GetString("timewarrior-unbillable-tag"),
 			ClientTagRegex:     viper.GetString("timewarrior-client-tag-regex"),
 			ProjectTagRegex:    viper.GetString("timewarrior-project-tag-regex"),
-		}), nil
+		})
 	case "toggl":
 		opts, err := getClientOpts(
 			"toggl-url",

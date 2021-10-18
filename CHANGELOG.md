@@ -43,6 +43,7 @@ All notable changes to this project will be documented in this file.
 - Add virtualenv to gitignore ([466aa6d](https://github.com/gabor-boros/minutes/commit/466aa6d7d3cba1aba26185873c606d16c3e59483))
 - Refactor and add badges ([72f091f](https://github.com/gabor-boros/minutes/commit/72f091f8fcfb18584e51e9064d7691de2abc5217))
 - Add pull request template ([21ce60a](https://github.com/gabor-boros/minutes/commit/21ce60a68125fe3bf22e6505becda6249b9cdcdf))
+- Create PR welcome messages ([76f99b6](https://github.com/gabor-boros/minutes/commit/76f99b635f0ced3bfe64012454138a9fe5a75cf9))
 
 **Refactor**
 
@@ -60,6 +61,12 @@ All notable changes to this project will be documented in this file.
 - Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
 - Simplify worklog creation ([15bdad7](https://github.com/gabor-boros/minutes/commit/15bdad721f648586f1175b403ca987daa114f400))
+- Rename HTTPClientOptions to HTTPClientOpts ([a2342ff](https://github.com/gabor-boros/minutes/commit/a2342ff0b555629e3c7ff75a3654a147ce669c66))
+- Move SendRequest parameters to its own struct ([e486f6e](https://github.com/gabor-boros/minutes/commit/e486f6e3e82f384fc1a2b0b7730e1b8a86942da6))
+- Return explicit `nil` for err in SendRequest when no error happened ([7d0ea5f](https://github.com/gabor-boros/minutes/commit/7d0ea5fcf7bfcc7b52abb6f29352ddc9fa2a6be3))
+- Split FetchEntries to smaller pieces ([e135044](https://github.com/gabor-boros/minutes/commit/e135044b3a72e708f8842d5b5eaffec30ee9d0e7))
+- Split FetchEntries to smaller pieces ([1678fd1](https://github.com/gabor-boros/minutes/commit/1678fd126c254db16c5f4d2a0ab4b18112ebe495))
+- Split FetchEntries to smaller pieces ([4d6c222](https://github.com/gabor-boros/minutes/commit/4d6c2222f9474d4a82cac76ea648c02cf912c542))
 
 **Testing**
 

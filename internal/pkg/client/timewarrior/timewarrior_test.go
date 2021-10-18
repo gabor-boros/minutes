@@ -117,7 +117,7 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		},
 	}
 
-	timewarriorClient := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
 		BaseClientOpts:     client.BaseClientOpts{},
 		Command:            "timewarrior-command",
 		CommandArguments:   []string{},
@@ -126,6 +126,8 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		ClientTagRegex:     "^(client|otherclient)$",
 		ProjectTagRegex:    "^(project)$",
 	})
+
+	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
 		Start: start,
@@ -207,7 +209,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		},
 	}
 
-	timewarriorClient := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      false,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
@@ -219,6 +221,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		ClientTagRegex:     "^(client|otherclient)$",
 		ProjectTagRegex:    "^(project)$",
 	})
+
+	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
 		Start: start,
@@ -319,7 +323,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		},
 	}
 
-	timewarriorClient := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
@@ -331,6 +335,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		ClientTagRegex:     "^(client|otherclient)$",
 		ProjectTagRegex:    "^(project)$",
 	})
+
+	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
 		Start: start,
