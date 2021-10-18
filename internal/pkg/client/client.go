@@ -119,44 +119,54 @@ type FetchUploader interface {
 	Uploader
 }
 
+// SendRequestOpts represents the parameters needed for sending a request.
+// Since SendRequest is for sending requests to HTTP based APIs, it receives
+// the HTTPClientOpts as well for its options.
+type SendRequestOpts struct {
+	Method     string
+	Path       string
+	ClientOpts *HTTPClientOpts
+	Data       interface{}
+}
+
 // SendRequest is a helper for any Fetcher and Uploader that must APIs.
 // The SendRequest function prepares a new HTTP request, sends it and returns
 // the response for further parsing. If the response status is not 200 or 201,
 // the function returns an error.
-func SendRequest(ctx context.Context, method string, path string, data interface{}, opts *HTTPClientOpts) (*http.Response, error) {
+func SendRequest(ctx context.Context, opts *SendRequestOpts) (*http.Response, error) {
 	var err error
 	var marshalledData []byte
 
-	requestURL, err := url.Parse(opts.BaseURL + path)
+	requestURL, err := url.Parse(opts.ClientOpts.BaseURL + opts.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	if data != nil {
-		marshalledData, err = json.Marshal(data)
+	if opts.Data != nil {
+		marshalledData, err = json.Marshal(opts.Data)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, requestURL.String(), bytes.NewBuffer(marshalledData))
+	req, err := http.NewRequestWithContext(ctx, opts.Method, requestURL.String(), bytes.NewBuffer(marshalledData))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
 
-	if opts.Token != "" {
-		if opts.TokenHeader == "" {
+	if opts.ClientOpts.Token != "" {
+		if opts.ClientOpts.TokenHeader == "" {
 			return nil, errors.New("no token header name")
 		}
 
-		req.Header.Add(opts.TokenHeader, opts.Token)
+		req.Header.Add(opts.ClientOpts.TokenHeader, opts.ClientOpts.Token)
 	} else {
-		req.SetBasicAuth(opts.Username, opts.Password)
+		req.SetBasicAuth(opts.ClientOpts.Username, opts.ClientOpts.Password)
 	}
 
-	resp, err := opts.HTTPClient.Do(req)
+	resp, err := opts.ClientOpts.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

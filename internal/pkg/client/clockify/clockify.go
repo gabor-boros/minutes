@@ -118,7 +118,13 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
 
-		resp, err := client.SendRequest(ctx, http.MethodGet, searchURL, nil, &c.opts.HTTPClientOpts)
+		resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
+			Method:     http.MethodGet,
+			Path:       searchURL,
+			ClientOpts: &c.opts.HTTPClientOpts,
+			Data:       nil,
+		})
+
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}

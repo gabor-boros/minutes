@@ -87,9 +87,14 @@ func TestSendRequest_GET(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method: http.MethodGet,
+		Path:   "/endpoint",
+		ClientOpts: &client.HTTPClientOpts{
+			HTTPClient: http.DefaultClient,
+			BaseURL:    mockServer.URL,
+		},
+		Data: nil,
 	})
 
 	require.Nil(t, err, "request failed")
@@ -114,7 +119,12 @@ func TestSendRequest_POST(t *testing.T) {
 		BaseURL:    mockServer.URL,
 	}
 
-	resp, err := client.SendRequest(context.Background(), http.MethodPost, "/endpoint", data, requestOpts)
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method:     http.MethodPost,
+		Path:       "/endpoint",
+		ClientOpts: requestOpts,
+		Data:       data,
+	})
 
 	require.Nil(t, err, "request failed")
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -130,11 +140,16 @@ func TestSendRequest_BasicAuth(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   "Thor",
-		Password:   "The strongest Avenger",
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method: http.MethodGet,
+		Path:   "/endpoint",
+		ClientOpts: &client.HTTPClientOpts{
+			HTTPClient: http.DefaultClient,
+			BaseURL:    mockServer.URL,
+			Username:   "Thor",
+			Password:   "The strongest Avenger",
+		},
+		Data: nil,
 	})
 
 	require.Nil(t, err, "request failed")
@@ -151,11 +166,16 @@ func TestSendRequest_TokenAuth(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
-		HTTPClient:  http.DefaultClient,
-		BaseURL:     mockServer.URL,
-		Token:       "t-o-k-e-n",
-		TokenHeader: "X-API-Token",
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method: http.MethodGet,
+		Path:   "/endpoint",
+		ClientOpts: &client.HTTPClientOpts{
+			HTTPClient:  http.DefaultClient,
+			BaseURL:     mockServer.URL,
+			Token:       "t-o-k-e-n",
+			TokenHeader: "X-API-Token",
+		},
+		Data: nil,
 	})
 
 	require.Nil(t, err, "request failed")
@@ -170,11 +190,16 @@ func TestSendRequest_TokenAuth_NoHeader(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
-		HTTPClient:  http.DefaultClient,
-		BaseURL:     mockServer.URL,
-		Token:       "t-o-k-e-n",
-		TokenHeader: "",
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method: http.MethodGet,
+		Path:   "/endpoint",
+		ClientOpts: &client.HTTPClientOpts{
+			HTTPClient:  http.DefaultClient,
+			BaseURL:     mockServer.URL,
+			Token:       "t-o-k-e-n",
+			TokenHeader: "",
+		},
+		Data: nil,
 	})
 
 	require.Nil(t, resp, "request unexpectedly sent")
@@ -189,9 +214,14 @@ func TestSendRequest_Error(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	resp, err := client.SendRequest(context.Background(), http.MethodGet, "/endpoint", nil, &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
+	resp, err := client.SendRequest(context.Background(), &client.SendRequestOpts{
+		Method: http.MethodGet,
+		Path:   "/endpoint",
+		ClientOpts: &client.HTTPClientOpts{
+			HTTPClient: http.DefaultClient,
+			BaseURL:    mockServer.URL,
+		},
+		Data: nil,
 	})
 
 	require.Nil(t, resp, "response unexpectedly succeeded")
