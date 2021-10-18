@@ -309,7 +309,7 @@ func getFetcher() (client.Fetcher, error) {
 			UnbillableTag:      viper.GetString("timewarrior-unbillable-tag"),
 			ClientTagRegex:     viper.GetString("timewarrior-client-tag-regex"),
 			ProjectTagRegex:    viper.GetString("timewarrior-project-tag-regex"),
-		}), nil
+		})
 	case "toggl":
 		opts, err := getClientOpts(
 			"toggl-url",
