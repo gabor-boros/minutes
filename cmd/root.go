@@ -132,6 +132,9 @@ func initCommonFlags() {
 	rootCmd.Flags().BoolP("round-to-closest-minute", "", false, "round time to closest minute")
 	rootCmd.Flags().BoolP("force-billed-duration", "", false, "treat every second spent as billed")
 
+	rootCmd.Flags().StringP("filter-client", "", "", "filter for client name after fetching")
+	rootCmd.Flags().StringP("filter-project", "", "", "filter for project name after fetching")
+
 	rootCmd.Flags().BoolP("dry-run", "", false, "fetch entries, but do not sync them")
 	rootCmd.Flags().BoolP("version", "", false, "show command version")
 }
@@ -164,6 +167,7 @@ func initTogglFlags() {
 }
 
 func validateFlags() {
+	var err error
 	source := viper.GetString("source")
 	target := viper.GetString("target")
 
@@ -186,7 +190,7 @@ func validateFlags() {
 			cobra.CheckErr("tags-as-tasks-regex cannot be empty if tags-as-tasks is set")
 		}
 
-		_, err := regexp.Compile(tasksAsTagsRegex)
+		_, err = regexp.Compile(tasksAsTagsRegex)
 		cobra.CheckErr(err)
 	}
 
@@ -207,6 +211,12 @@ func validateFlags() {
 			cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the hideable columns %v\n", column, utils.HideableColumns))
 		}
 	}
+
+	_, err = regexp.Compile(viper.GetString("filter-client"))
+	cobra.CheckErr(err)
+
+	_, err = regexp.Compile(viper.GetString("filter-project"))
+	cobra.CheckErr(err)
 
 	switch source {
 	case "timewarrior":
@@ -396,7 +406,13 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	})
 	cobra.CheckErr(err)
 
-	wl := worklog.NewWorklog(entries)
+	// It is safe to use MustCompile when compiling regex as we already
+	// validated its correctness
+	wl := worklog.NewWorklog(entries, &worklog.FilterOpts{
+		Client:  regexp.MustCompile(viper.GetString("filter-client")),
+		Project: regexp.MustCompile(viper.GetString("filter-project")),
+	})
+
 	completeEntries := wl.CompleteEntries()
 	incompleteEntries := wl.IncompleteEntries()
 

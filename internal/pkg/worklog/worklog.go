@@ -1,5 +1,18 @@
 package worklog
 
+import "regexp"
+
+// FilterOpts represents the worklog creation filtering options.
+// When filtering options are set, the entries are matching the regex will be
+// part of the worklog, and the rest of them will be dropped. The filtering
+// could be part of the fetching process, though that would be less flexible as
+// some APIs are not allowing filtering. Also, this way, we can filter results
+// using regex.
+type FilterOpts struct {
+	Client   *regexp.Regexp
+	Project  *regexp.Regexp
+}
+
 // Worklog is the collection of multiple Entries.
 type Worklog struct {
 	completeEntries   []Entry
@@ -16,12 +29,28 @@ func (w *Worklog) IncompleteEntries() []Entry {
 	return w.incompleteEntries
 }
 
+// isEntryMatching returns true if the entry matching the filter options.
+func isEntryMatching(entry Entry, opts *FilterOpts) bool {
+	isClientMatching := opts.Client == nil || opts.Client.MatchString(entry.Client.Name)
+	isProjectMatching := opts.Project == nil || opts.Project.MatchString(entry.Project.Name)
+
+	return isClientMatching && isProjectMatching
+}
+
 // NewWorklog creates a worklog from the given set of entries and merges them.
-func NewWorklog(entries []Entry) Worklog {
+func NewWorklog(entries []Entry, opts *FilterOpts) Worklog {
+	var filteredEntries []Entry
+
 	worklog := Worklog{}
 	mergedEntries := map[string]Entry{}
 
 	for _, entry := range entries {
+		if isEntryMatching(entry, opts) {
+			filteredEntries = append(filteredEntries, entry)
+		}
+	}
+
+	for _, entry := range filteredEntries {
 		key := entry.Key()
 		storedEntry, isStored := mergedEntries[key]
 

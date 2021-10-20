@@ -1,6 +1,7 @@
 package worklog_test
 
 import (
+	"regexp"
 	"testing"
 	"time"
 
@@ -28,7 +29,7 @@ func benchNewWorklog(b *testing.B, entryCount int) {
 	for n := 0; n != b.N; n++ {
 		// always store the result to a package level variable
 		// so the compiler cannot eliminate the Benchmark itself.
-		newWorklogBenchResult = worklog.NewWorklog(entries)
+		newWorklogBenchResult = worklog.NewWorklog(entries, &worklog.FilterOpts{})
 	}
 }
 
@@ -43,7 +44,7 @@ func benchmarkCompleteEntries(b *testing.B, entryCount int) {
 		entries = append(entries, entry)
 	}
 
-	wl := worklog.NewWorklog(entries)
+	wl := worklog.NewWorklog(entries, &worklog.FilterOpts{})
 
 	b.StartTimer()
 
@@ -65,7 +66,7 @@ func benchmarkIncompleteEntries(b *testing.B, entryCount int) {
 		entries = append(entries, entry)
 	}
 
-	wl := worklog.NewWorklog(entries)
+	wl := worklog.NewWorklog(entries, &worklog.FilterOpts{})
 
 	b.StartTimer()
 
@@ -119,7 +120,7 @@ func TestWorklogCompleteEntries(t *testing.T) {
 		completeEntry,
 		otherCompleteEntry,
 		incompleteEntry,
-	})
+	}, &worklog.FilterOpts{})
 
 	entry := wl.CompleteEntries()[0]
 	assert.Equal(t, "It is a lot easier than expected; Really", entry.Notes)
@@ -140,9 +141,41 @@ func TestWorklogIncompleteEntries(t *testing.T) {
 		completeEntry,
 		incompleteEntry,
 		otherIncompleteEntry,
-	})
+	}, &worklog.FilterOpts{})
 
 	entry := wl.IncompleteEntries()[0]
 	assert.Equal(t, "It is a lot easier than expected; Well, not that easy", entry.Notes)
 	assert.Equal(t, []worklog.Entry{entry}, wl.IncompleteEntries())
+}
+
+func TestWorklogFilterEntries(t *testing.T) {
+	entry1 := getCompleteTestEntry()
+	entry1.Client.Name = "ACME Inc."
+	entry1.Project.Name = "redesign website"
+
+	entry2 := getCompleteTestEntry()
+	entry2.Client.Name = "ACME Incorporation"
+	entry2.Project.Name = "website development"
+
+	entry3 := getCompleteTestEntry()
+	entry3.Client.Name = "Other Inc."
+	entry3.Project.Name = "redesign website"
+
+	entry4 := getCompleteTestEntry()
+	entry4.Client.Name = "Another Inc."
+	entry4.Project.Name = "website development"
+
+	filterOpts := &worklog.FilterOpts{
+		Client:   regexp.MustCompile(`^ACME Inc\.?(orporation)?$`),
+		Project:  regexp.MustCompile(`.*(website).*`),
+	}
+
+	wl := worklog.NewWorklog([]worklog.Entry{
+		entry1,
+		entry2,
+		entry3,
+		entry4,
+	}, filterOpts)
+
+	assert.Equal(t, []worklog.Entry{entry1, entry2}, wl.CompleteEntries())
 }
