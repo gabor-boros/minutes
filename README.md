@@ -57,12 +57,14 @@ Usage:
 
 Flags:
       --clockify-api-key string                set the API key
-      --clockify-url string                    set the base URL
+      --clockify-url string                    set the base URL (default "https://api.clockify.me")
       --clockify-workspace string              set the workspace ID
       --config string                          config file (default is $HOME/.minutes.yaml)
       --date-format string                     set start and end date format (in Go style) (default "2006-01-02 15:04:05")
       --dry-run                                fetch entries, but do not sync them
       --end string                             set the end date (defaults to now)
+      --filter-client string                   filter for client name after fetching
+      --filter-project string                  filter for project name after fetching
       --force-billed-duration                  treat every second spent as billed
   -h, --help                                   help for minutes
       --round-to-closest-minute                round time to closest minute

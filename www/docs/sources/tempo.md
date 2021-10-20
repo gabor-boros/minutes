@@ -34,7 +34,7 @@ The source provides the following extra configuration options.
 
 ## Limitations
 
-- It is not possible to filter for projects when fetching, though it is a [planned](https://github.com/gabor-boros/minutes/issues/1) feature.
+No known limitations.
 
 ## Example configuration
 

@@ -41,11 +41,7 @@ The source provides the following extra configuration options.
 
 ## Limitations
 
-- It is not possible to filter for projects when fetching, though it is a [planned](https://github.com/gabor-boros/minutes/issues/1) feature.
 - No precise start and end date filtering is accepted by Toggl Track **report API** that is used for this source, therefore only ISO 8601 (`YYYY-MM-DD`) date format can be used. In Go it is translated to `2006-01-02` when setting `date-format` in config or flags.
-
-[^1]: The API key can be generated as described in their [documentation](https://support.toggl.com/en/articles/3116844-where-is-my-api-key-located).
-[^2]: The URL defaults to `https://api.track.toggl.com` and Toggl Track cannot be installed privately, though they are changing domains nowadays, so if Toggl track changes domain again or start offering private hosting, it can be set easily.
 
 ## Example configuration
 
@@ -77,3 +73,6 @@ tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
 ```
+
+[^1]: The API key can be generated as described in their [documentation](https://support.toggl.com/en/articles/3116844-where-is-my-api-key-located).
+[^2]: The URL defaults to `https://api.track.toggl.com` and Toggl Track cannot be installed privately, though they are changing domains nowadays, so if Toggl track changes domain again or start offering private hosting, it can be set easily.

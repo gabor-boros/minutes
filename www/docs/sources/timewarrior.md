@@ -17,10 +17,6 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 
     To extract tasks from tags, set the `tags-as-tasks-regex` regardless the value of `tags-as-tasks`.
 
-!!! info
-
-    Timewarrior integration unexplicitly supports filtering by tags, clients and projects if `timewarrior-arguments` is set.
-
 ## Field mappings
 
 The source makes the following special mappings.
