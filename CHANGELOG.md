@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+**Features**
+
+- Add filtering for projects and clients (#29) ([ea5031f](https://github.com/gabor-boros/minutes/commit/ea5031f565780ab8476543c0f52a3a22d1ec543c))
+
 ## [0.1.0] - 2021-10-20
 
 **Bug Fixes**
