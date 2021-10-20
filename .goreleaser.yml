@@ -25,9 +25,4 @@ milestones:
   - close: true
     fail_on_error: true
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^chore:'
-      - '^docs:'
-      - '^test:'
+  skip: true

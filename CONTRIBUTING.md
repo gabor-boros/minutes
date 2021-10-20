@@ -111,4 +111,5 @@ executed `make prerequisites`.
 7. Compare the CHANGELOG.md changes and push to master
 8. Cut a new tag for the next release version 
 9. Run `GITHUB_TOKEN="<TOKEN>" make release` to package the tool and create a GitHub release
-10. Create a new milestone following the `v<NEXT RELEASE VERSION>` pattern
+10. Provide a changelog for the release using CHANGELOG.md
+11. Create a new milestone following the `v<NEXT RELEASE VERSION>` pattern
