@@ -68,6 +68,9 @@ nav:
   - Toggl Track: sources/toggl.md
 - Targets:
   - targets/tempo.md
+- Migrations:
+  - From "Tempoit": migrations/tempoit.md
+  - From "Toggl to Jira": migrations/toggl-tempo-worklog-transfer.md
 - Contributing: CONTRIBUTING.md
 - Changelog: CHANGELOG.md
 - License: LICENSE.md
