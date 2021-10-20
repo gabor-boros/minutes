@@ -107,6 +107,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 			"page":         {"1"},
 			"since":        {start.Format(toggl.DateFormat)},
 			"until":        {end.Format(toggl.DateFormat)},
+			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},
 		},
@@ -162,7 +163,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	})
 
 	entries, err := togglClient.FetchEntries(context.Background(), &client.FetchOpts{
-		User:  "steve-rogers",
+		User:  "987654321",
 		Start: start,
 		End:   end,
 	})
@@ -244,6 +245,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 			"page":         {"1"},
 			"since":        {start.Format(toggl.DateFormat)},
 			"until":        {end.Format(toggl.DateFormat)},
+			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},
 		},
@@ -303,7 +305,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	})
 
 	entries, err := togglClient.FetchEntries(context.Background(), &client.FetchOpts{
-		User:  "steve-rogers",
+		User:  "987654321",
 		Start: start,
 		End:   end,
 	})

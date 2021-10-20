@@ -1,5 +1,15 @@
 Source documentation for [Toggl Track](https://track.toggl.com/).
 
+!!! warning
+
+    To get the available User IDs, please follow [this instruction](https://github.com/toggl/toggl_api_docs/blob/master/chapters/workspaces.md#get-workspace-users).
+    Only **workspace admins** can get the User IDs.
+
+!!! info
+
+    Toggl Track's detailed report API does support filtering, and `minutes` unexplicitly supports filtering by setting,
+    the source-user to the desired user ID, however it is not officially supported yet.
+
 ## Field mappings
 
 The source makes the following special mappings.
@@ -36,3 +46,34 @@ The source provides the following extra configuration options.
 
 [^1]: The API key can be generated as described in their [documentation](https://support.toggl.com/en/articles/3116844-where-is-my-api-key-located).
 [^2]: The URL defaults to `https://api.track.toggl.com` and Toggl Track cannot be installed privately, though they are changing domains nowadays, so if Toggl track changes domain again or start offering private hosting, it can be set easily.
+
+## Example configuration
+
+```toml
+# Source config
+source = "toggl"
+
+# To retrieve your user ID, please follow the instructions listed here:
+# https://github.com/toggl/toggl_api_docs/blob/master/chapters/workspaces.md#get-workspace-users
+source-user = "<YOUR TOGGL USER ID>"
+
+# Toggl config
+toggl-api-key = "<YOUR API KEY>"
+toggl-url = "https://api.track.toggl.com"
+toggl-workspace = "<YOUR WORKSPACE ID>"
+
+# Target config
+target = "tempo"
+target-user = "<jira username>"
+
+# Tempo config
+tempo-url = "https://tasks.opencraft.com"
+tempo-username = "<jira username>"
+tempo-password = "<jira password>"
+
+# General config
+tags-as-tasks = true
+tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
+round-to-closest-minute = true
+force-billed-duration = true
+```

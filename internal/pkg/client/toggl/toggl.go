@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
@@ -49,6 +50,7 @@ type WorklogSearchParams struct {
 	Since       string
 	Until       string
 	Page        int
+	UserID      int
 	WorkspaceID int
 }
 
@@ -72,6 +74,7 @@ func (c *togglClient) getSearchURL(params *WorklogSearchParams) (string, error) 
 	queryParams.Add("since", params.Since)
 	queryParams.Add("until", params.Until)
 	queryParams.Add("page", strconv.Itoa(params.Page))
+	queryParams.Add("user_id", strconv.Itoa(params.UserID))
 	queryParams.Add("workspace_id", strconv.Itoa(params.WorkspaceID))
 	queryParams.Add("user_agent", "github.com/gabor-boros/minutes")
 	worklogURL.RawQuery = queryParams.Encode()
@@ -171,11 +174,17 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	currentPage := 1
 	paginationNeeded := true
 
+	userID, err := strconv.Atoi(strings.Split(opts.User, ",")[0])
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	}
+
 	for paginationNeeded {
 		searchParams := &WorklogSearchParams{
 			Since:       opts.Start.Format(DateFormat),
 			Until:       opts.End.Format(DateFormat),
 			Page:        currentPage,
+			UserID:      userID,
 			WorkspaceID: c.opts.Workspace,
 		}
 
