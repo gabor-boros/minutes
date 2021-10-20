@@ -32,10 +32,7 @@ The source provides the following extra configuration options.
 
 ## Limitations
 
-- It is not possible to filter for projects when fetching, though it is a [planned](https://github.com/gabor-boros/minutes/issues/1) feature.
-
-[^1]: As described in the [API documentation](https://clockify.me/developers-api), visit the [settings](https://clockify.me/user/settings) page to get your API token.
-[^2]: To get your workspace ID, navigate to workspace settings and copy the ID from the URL.
+No known limitations.
 
 ## Example configuration
 
@@ -63,3 +60,6 @@ tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
 ```
+
+[^1]: As described in the [API documentation](https://clockify.me/developers-api), visit the [settings](https://clockify.me/user/settings) page to get your API token.
+[^2]: To get your workspace ID, navigate to workspace settings and copy the ID from the URL.
