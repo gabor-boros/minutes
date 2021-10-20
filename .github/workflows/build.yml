@@ -31,14 +31,14 @@ jobs:
         run: make lint
       - name: Test
         run: make test
-      - name: Build
-        run: make build
       - name: Stash test results
         uses: actions/upload-artifact@master
         with:
           name: "Test results"
           path: .coverage.out
           retention-days: 7
+      - name: Build
+        run: make build
 
   coverage:
     name: coverage
