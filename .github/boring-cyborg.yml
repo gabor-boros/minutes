@@ -1,0 +1,28 @@
+##### Labeler ##########################################################################################################
+# Enable "labeler" for your PR that would add labels to PRs based on the paths that are modified in the PR.
+labelPRBasedOnFilePath:
+  documentation:
+    - www/**/*
+    - README.md
+
+  clockify:
+    - internal/pkg/client/clockify/**/*
+
+  tempo:
+    - internal/pkg/client/tempo/**/*
+
+  timewarrior:
+    - internal/pkg/client/timewarrior/**/*
+
+  toggl:
+    - internal/pkg/client/toggl/**/*
+
+##### Greetings ########################################################################################################
+firstPRWelcomeComment: >
+  Thanks for opening this pull request! While we review your pull request, please check out our contributing guidelines.
+
+firstPRMergeComment: >
+  Awesome work, congrats on your first merged pull request! :tada:
+
+firstIssueWelcomeComment: >
+  Thanks for opening your first issue here! Be sure to follow the issue template and provide as much information as you can.
