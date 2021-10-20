@@ -4,7 +4,7 @@ This guide show you the basics `minutes`, walks through the available flags, and
 
 ## Installation
 
-To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have `go` installed, you can simply run `go install github.com/gabor-boros/minutes@latest` as well.
+To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have `go` installed, you can build from source as well.
 
 `minutes` has numerous flags and there will be more when other sources or targets are added. Therefore, `minutes` comes with a config file, that can be placed to the user's home directory or the config directory.
 
