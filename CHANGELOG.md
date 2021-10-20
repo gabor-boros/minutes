@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Solve time parsing issue when start or end date is defined ([3d9c7be](https://github.com/gabor-boros/minutes/commit/3d9c7be5fc5df0d259a3faca8976f42c38d83845))
 - Upload related task entries sequentially (#14) ([55ffaed](https://github.com/gabor-boros/minutes/commit/55ffaed56218b9c7738bcc1c3d6217cb7a6c8ea6))
+- Add missing user filtering for Toggl integration ([649f873](https://github.com/gabor-boros/minutes/commit/649f8738eb6f590df012d4967757ede9476a002e))
 
 **Documentation**
 
@@ -22,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Fix configuration option kind ([7da72a9](https://github.com/gabor-boros/minutes/commit/7da72a9300572c9bb4caeaa57d6839cabe60ccfd))
 - Update bug report and feature request links ([fb79d57](https://github.com/gabor-boros/minutes/commit/fb79d57ec297bc535521e52e94b20ea1e20f7ab8))
 - Update documentation generation path triggers ([cabc5d9](https://github.com/gabor-boros/minutes/commit/cabc5d9ec03533881d1c7fc5fcc65c832adb8449))
+- Add migration guides ([aaebe2c](https://github.com/gabor-boros/minutes/commit/aaebe2c548ab5ddee972d9757d592a38c0dc361b))
+- Change installation instructions ([b7a644f](https://github.com/gabor-boros/minutes/commit/b7a644f600682996ce7a6fe692b1f4bda577b4ea))
+- Add example configuration for all sources ([d0ad17d](https://github.com/gabor-boros/minutes/commit/d0ad17d429c7e220ed108e5bb6eb054cb2e1009e))
 
 **Features**
 
@@ -61,12 +65,7 @@ All notable changes to this project will be documented in this file.
 - Use outsourced entry duration splitting ([7be81c2](https://github.com/gabor-boros/minutes/commit/7be81c2431468679a753547a2a225c3b9560c8fb))
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
 - Simplify worklog creation ([15bdad7](https://github.com/gabor-boros/minutes/commit/15bdad721f648586f1175b403ca987daa114f400))
-- Rename HTTPClientOptions to HTTPClientOpts ([a2342ff](https://github.com/gabor-boros/minutes/commit/a2342ff0b555629e3c7ff75a3654a147ce669c66))
-- Move SendRequest parameters to its own struct ([e486f6e](https://github.com/gabor-boros/minutes/commit/e486f6e3e82f384fc1a2b0b7730e1b8a86942da6))
-- Return explicit `nil` for err in SendRequest when no error happened ([7d0ea5f](https://github.com/gabor-boros/minutes/commit/7d0ea5fcf7bfcc7b52abb6f29352ddc9fa2a6be3))
-- Split FetchEntries to smaller pieces ([e135044](https://github.com/gabor-boros/minutes/commit/e135044b3a72e708f8842d5b5eaffec30ee9d0e7))
-- Split FetchEntries to smaller pieces ([1678fd1](https://github.com/gabor-boros/minutes/commit/1678fd126c254db16c5f4d2a0ab4b18112ebe495))
-- Split FetchEntries to smaller pieces ([4d6c222](https://github.com/gabor-boros/minutes/commit/4d6c2222f9474d4a82cac76ea648c02cf912c542))
+- Fix multiple quality issues (#27) ([08dff13](https://github.com/gabor-boros/minutes/commit/08dff13aa2dc28bfdf811339612dd95f33b8f70e))
 
 **Testing**
 

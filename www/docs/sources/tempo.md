@@ -35,3 +35,30 @@ The source provides the following extra configuration options.
 ## Limitations
 
 - It is not possible to filter for projects when fetching, though it is a [planned](https://github.com/gabor-boros/minutes/issues/1) feature.
+
+## Example configuration
+
+!!! warning
+
+    At the moment only one target is supported, Tempo, hence tempo cannot be used as a source yet.
+
+```toml
+# Source config
+source = "tempo"
+source-user = "<jira username>"
+
+# Target config
+target = "<TARGET>"
+target-user = "<jira username>"
+
+# Tempo config
+tempo-url = "https://<org>.atlassian.net"
+tempo-username = "<jira username>"
+tempo-password = "<jira password>"
+
+# General config
+tags-as-tasks = true
+tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
+round-to-closest-minute = true
+force-billed-duration = true
+```

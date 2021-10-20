@@ -67,7 +67,7 @@ target = "tempo"
 target-user = "<jira username>"
 
 # Tempo config
-tempo-url = "https://tasks.opencraft.com"
+tempo-url = "https://<org>.atlassian.net"
 tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 

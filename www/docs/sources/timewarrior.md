@@ -6,7 +6,8 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 
 !!! warning
 
-    Timewarrior has no built-in support for marking an entry billable/unbillable. Therefore, every entry will be treated as billable unless it is not forced by `force-billed-duration` or a matching tag for `timewarrior-unbillable-tag`.
+    Timewarrior has no built-in support for marking an entry billable/unbillable. Therefore, every entry will be treated
+    as billable unless it is not forced by `force-billed-duration` or a matching tag for `timewarrior-unbillable-tag`.
 
 !!! warning
 
@@ -57,3 +58,31 @@ The source provides the following extra configuration options.
 ## Limitations
 
 No known limitations.
+
+## Example configuration
+
+```toml
+# Source config
+source = "timewarrior"
+source-user = "-"  # Timewarrior does not support multiple users
+
+# Timewarrior config
+timewarrior-arguments = ["log"]
+timewarrior-client-tag-regex = "^(oc)$"
+timewarrior-project-tag-regex = "^(log)$"
+
+# Target config
+target = "tempo"
+target-user = "<jira username>"
+
+# Tempo config
+tempo-url = "https://<org>.atlassian.net"
+tempo-username = "<jira username>"
+tempo-password = "<jira password>"
+
+# General config
+tags-as-tasks = true
+tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
+round-to-closest-minute = true
+force-billed-duration = true
+```

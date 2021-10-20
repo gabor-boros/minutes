@@ -68,7 +68,7 @@ clockify-workspace = "<clockify workspace ID>"
 target = "tempo"
 target-user = "<jira username>"
 
-tempo-url = "https://tasks.opencraft.com"
+tempo-url = "https://<org>.atlassian.net"
 tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
