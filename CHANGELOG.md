@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.1.0] - 2021-10-20
 
 **Bug Fixes**
 
@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 - Update documentation generation path triggers ([cabc5d9](https://github.com/gabor-boros/minutes/commit/cabc5d9ec03533881d1c7fc5fcc65c832adb8449))
 - Add migration guides ([aaebe2c](https://github.com/gabor-boros/minutes/commit/aaebe2c548ab5ddee972d9757d592a38c0dc361b))
 - Change installation instructions ([b7a644f](https://github.com/gabor-boros/minutes/commit/b7a644f600682996ce7a6fe692b1f4bda577b4ea))
-- Add example configuration for all sources ([d0ad17d](https://github.com/gabor-boros/minutes/commit/d0ad17d429c7e220ed108e5bb6eb054cb2e1009e))
+- Add example configuration for all sources ([693bf6a](https://github.com/gabor-boros/minutes/commit/693bf6afaf06f3f19de6c620467d2a877aa7a317))
 
 **Features**
 
@@ -66,6 +66,7 @@ All notable changes to this project will be documented in this file.
 - Wrap errors into client.ErrFetchEntries ([90f3f2b](https://github.com/gabor-boros/minutes/commit/90f3f2bfe008e8c1d6e82ef0d8255dd50ba4ed0f))
 - Simplify worklog creation ([15bdad7](https://github.com/gabor-boros/minutes/commit/15bdad721f648586f1175b403ca987daa114f400))
 - Fix multiple quality issues (#27) ([08dff13](https://github.com/gabor-boros/minutes/commit/08dff13aa2dc28bfdf811339612dd95f33b8f70e))
+- Adjust release workflow ([6854d9a](https://github.com/gabor-boros/minutes/commit/6854d9ad41006d414527ed9e088af5597c44cdcc))
 
 **Testing**
 
@@ -81,6 +82,8 @@ All notable changes to this project will be documented in this file.
 - User .Version in snapshot name ([d3299d3](https://github.com/gabor-boros/minutes/commit/d3299d3416836439a4400be3819ab152b19c322f))
 - Add coverage reporting ([5911595](https://github.com/gabor-boros/minutes/commit/5911595e2c71b348eac7972bc52864e0140e7b76))
 - Add several Makefile improvements ([291bc75](https://github.com/gabor-boros/minutes/commit/291bc754cdb2feb644a4d0733c0675ceddcaee05))
+- Remove upx for now ([a05c010](https://github.com/gabor-boros/minutes/commit/a05c0101c35bc819e2b459df07f9a708b5ca13e3))
+- Fix build removing test output ([d861564](https://github.com/gabor-boros/minutes/commit/d861564d9f467d86d17f2064139a76474c3b1eab))
 
 **Ci**
 
@@ -92,4 +95,5 @@ All notable changes to this project will be documented in this file.
 - Checkout code before coverage reporting ([ecb3edb](https://github.com/gabor-boros/minutes/commit/ecb3edbeafa98f0ec8a5214747ec4c18ba1ac398))
 - Fine-tune artifact stashing ([8e05ab3](https://github.com/gabor-boros/minutes/commit/8e05ab35c86d47c1da1369c08e51ebf40316fd25))
 - Do not run docs deploy on pull requests ([637bb6e](https://github.com/gabor-boros/minutes/commit/637bb6ebbb7e7a3800ca07ce7d23353b3ef60a48))
+- Replace PR welcome bot ([b4b7291](https://github.com/gabor-boros/minutes/commit/b4b729126fa6f068e2680f71e1172c08d938caf4))
 
