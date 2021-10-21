@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+**Documentation**
+
+- Fix regex value string quotation marks ([fd3aaf5](https://github.com/gabor-boros/minutes/commit/fd3aaf502c644d96fe76ffbf916101385fa8a0e1))
+
 ## [0.1.0] - 2021-10-20
 
 **Bug Fixes**
