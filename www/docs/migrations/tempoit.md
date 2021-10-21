@@ -9,8 +9,8 @@ source-user = "-"
 
 # Timewarrior config
 timewarrior-arguments = ["log"]
-timewarrior-client-tag-regex = "^(oc)$"
-timewarrior-project-tag-regex = "^(log)$"
+timewarrior-client-tag-regex = '^(oc)$'
+timewarrior-project-tag-regex = '^(log)$'
 
 # Target config
 target = "tempo"
