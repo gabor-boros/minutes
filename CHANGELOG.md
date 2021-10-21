@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+**Documentation**
+
+- Fix regex value string quotation marks ([f2a9051](https://github.com/gabor-boros/minutes/commit/f2a9051bcdd5f69ddef0dae39f616182d329ff35))
+
 **Features**
 
 - Add filtering for projects and clients (#29) ([ea5031f](https://github.com/gabor-boros/minutes/commit/ea5031f565780ab8476543c0f52a3a22d1ec543c))
