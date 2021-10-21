@@ -50,9 +50,9 @@ The source provides the following extra configuration options.
 | Config option                 | Kind    | Description                                                         | Example                                          |
 | ----------------------------- | ------- | ------------------------------------------------------------------- | ------------------------------------------------ |
 | timewarrior-arguments         | []string | Set additional arguments for the export command                    | timewarrior-arguments = "reviewed"               |
-| timewarrior-client-tag-regex  | string  | Set the regular expression for extracting Client names from tags    | timewarrior-client-tag-regex = "^(CLIENT-\w+)$"  |
+| timewarrior-client-tag-regex  | string  | Set the regular expression for extracting Client names from tags    | timewarrior-client-tag-regex = '^(CLIENT-\w+)$'  |
 | timewarrior-command           | string  | Set the timewarrior command                                         | timewarrior-command = "timew"                    |
-| timewarrior-project-tag-regex | string  | Set the regular expression for extracting Project names from tags   | timewarrior-project-tag-regex = "^PROJ-DEV-\w+$" |
+| timewarrior-project-tag-regex | string  | Set the regular expression for extracting Project names from tags   | timewarrior-project-tag-regex = '^PROJ-DEV-\w+$' |
 | timewarrior-unbillable-tag    | string  | Set the regular expression to identify which entries are unbillable | timewarrior-unbillable-tag = "unbillable"        |
 
 ## Limitations
@@ -68,8 +68,8 @@ source-user = "-"  # Timewarrior does not support multiple users
 
 # Timewarrior config
 timewarrior-arguments = ["log"]
-timewarrior-client-tag-regex = "^(oc)$"
-timewarrior-project-tag-regex = "^(log)$"
+timewarrior-client-tag-regex = '^(oc)$'
+timewarrior-project-tag-regex = '^(log)$'
 
 # Target config
 target = "tempo"
