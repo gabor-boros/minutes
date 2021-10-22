@@ -122,80 +122,70 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	return entries, nil
 }
 
-func (c *tempoClient) uploadEntry(ctx context.Context, entries worklog.Entries, opts *client.UploadOpts, errChan chan error) {
-	for _, entry := range entries {
-		var tracker *progress.Tracker
-		if opts.ProgressWriter != nil {
-			tracker = &progress.Tracker{
-				Message: entry.Summary,
-				Total:   1,
-				Units:   progress.UnitsDefault,
-			}
-
-			opts.ProgressWriter.AppendTracker(tracker)
-		}
-
-		billableDuration := entry.BillableDuration
-		unbillableDuration := entry.UnbillableDuration
-		totalTimeSpent := billableDuration + unbillableDuration
-
-		if opts.TreatDurationAsBilled {
-			billableDuration = entry.UnbillableDuration + entry.BillableDuration
-			unbillableDuration = 0
-		}
-
-		if opts.RoundToClosestMinute {
-			billableDuration = time.Second * time.Duration(math.Round(billableDuration.Minutes())*60)
-			unbillableDuration = time.Second * time.Duration(math.Round(unbillableDuration.Minutes())*60)
-			totalTimeSpent = billableDuration + unbillableDuration
-		}
-
-		uploadEntry := &UploadEntry{
-			Comment:               entry.Summary,
-			IncludeNonWorkingDays: true,
-			OriginTaskID:          entry.Task.Name,
-			Started:               entry.Start.Local().Format("2006-01-02"),
-			BillableSeconds:       int(billableDuration.Seconds()),
-			TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
-			Worker:                opts.User,
-		}
-
-		_, err := client.SendRequest(ctx, &client.SendRequestOpts{
-			Method:     http.MethodPost,
-			Path:       PathWorklogCreate,
-			ClientOpts: &c.opts.HTTPClientOpts,
-			Data:       uploadEntry,
-		})
-
-		if err != nil {
-			if tracker != nil {
-				tracker.MarkAsErrored()
-			}
-
-			errChan <- fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
-			return
-		}
-
-		if tracker != nil {
-			tracker.Increment(1)
-			tracker.MarkAsDone()
-		}
-
-		errChan <- nil
-	}
-}
-
 func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
-	uploadGroups := map[string]worklog.Entries{}
+	for _, groupEntries := range entries.GroupByTask() {
+		go func(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
+			for _, entry := range entries {
+				var tracker *progress.Tracker
+				if opts.ProgressWriter != nil {
+					tracker = &progress.Tracker{
+						Message: entry.Summary,
+						Total:   1,
+						Units:   progress.UnitsDefault,
+					}
 
-	for _, entry := range entries {
-		key := entry.Task.ID
-		groupEntries := uploadGroups[key]
-		uploadGroups[key] = append(groupEntries, entry)
-	}
+					opts.ProgressWriter.AppendTracker(tracker)
+				}
 
-	for _, groupEntries := range uploadGroups {
-		go c.uploadEntry(ctx, groupEntries, opts, errChan)
+				billableDuration := entry.BillableDuration
+				unbillableDuration := entry.UnbillableDuration
+				totalTimeSpent := billableDuration + unbillableDuration
+
+				if opts.TreatDurationAsBilled {
+					billableDuration = entry.UnbillableDuration + entry.BillableDuration
+					unbillableDuration = 0
+				}
+
+				if opts.RoundToClosestMinute {
+					billableDuration = time.Second * time.Duration(math.Round(billableDuration.Minutes())*60)
+					unbillableDuration = time.Second * time.Duration(math.Round(unbillableDuration.Minutes())*60)
+					totalTimeSpent = billableDuration + unbillableDuration
+				}
+
+				uploadEntry := &UploadEntry{
+					Comment:               entry.Summary,
+					IncludeNonWorkingDays: true,
+					OriginTaskID:          entry.Task.Name,
+					Started:               entry.Start.Local().Format("2006-01-02"),
+					BillableSeconds:       int(billableDuration.Seconds()),
+					TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
+					Worker:                opts.User,
+				}
+
+				_, err := client.SendRequest(ctx, &client.SendRequestOpts{
+					Method:     http.MethodPost,
+					Path:       PathWorklogCreate,
+					ClientOpts: &c.opts.HTTPClientOpts,
+					Data:       uploadEntry,
+				})
+
+				if err != nil {
+					if tracker != nil {
+						tracker.MarkAsErrored()
+					}
+
+					errChan <- fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
+					return
+				}
+
+				if tracker != nil {
+					tracker.Increment(1)
+					tracker.MarkAsDone()
+				}
+
+				errChan <- nil
+			}
+		}(ctx, groupEntries, errChan, opts)
 	}
 }
 
