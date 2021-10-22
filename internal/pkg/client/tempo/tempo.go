@@ -12,6 +12,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/progress"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
@@ -75,8 +76,8 @@ type tempoClient struct {
 
 func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	searchParams := &SearchParams{
-		From:   opts.Start.Local().Format("2006-01-02"),
-		To:     opts.End.Local().Format("2006-01-02"),
+		From:   utils.DateFormatISO8601.Format(opts.Start.Local()),
+		To:     utils.DateFormatISO8601.Format(opts.End.Local()),
 		Worker: opts.User,
 	}
 
@@ -156,7 +157,7 @@ func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries
 					Comment:               entry.Summary,
 					IncludeNonWorkingDays: true,
 					OriginTaskID:          entry.Task.Name,
-					Started:               entry.Start.Local().Format("2006-01-02"),
+					Started:               utils.DateFormatISO8601.Format(entry.Start.Local()),
 					BillableSeconds:       int(billableDuration.Seconds()),
 					TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
 					Worker:                opts.User,

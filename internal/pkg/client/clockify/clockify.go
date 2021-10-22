@@ -12,12 +12,11 @@ import (
 	"strconv"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
 const (
-	// DateFormat is the specific format used by Clockify to parse time.
-	DateFormat string = "2006-01-02T15:04:05Z"
 	// MaxPageLength is the maximum page length defined by Clockify.
 	MaxPageLength int = 5000
 	// PathWorklog is the API endpoint used to search and create worklogs.
@@ -168,8 +167,8 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 	// Naive pagination as the API does not return the number of total entries
 	for currentPage*pageSize < MaxPageLength {
 		searchParams := &WorklogSearchParams{
-			Start:      opts.Start.Format(DateFormat),
-			End:        opts.End.Format(DateFormat),
+			Start:      utils.DateFormatRFC3339.Format(opts.Start.Local()),
+			End:        utils.DateFormatRFC3339.Format(opts.End.Local()),
 			Page:       currentPage,
 			PageSize:   pageSize,
 			Hydrated:   true,

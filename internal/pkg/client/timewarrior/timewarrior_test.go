@@ -11,6 +11,7 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/require"
 )
@@ -47,8 +48,8 @@ func TestExecCommandHelper(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[
@@ -139,8 +140,8 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[
@@ -234,8 +235,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[

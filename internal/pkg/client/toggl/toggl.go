@@ -12,12 +12,11 @@ import (
 	"time"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
 const (
-	// DateFormat is the ISO 8601 format used by Toggl to parse time.
-	DateFormat string = "2006-01-02"
 	// PathWorklog is the endpoint used to search existing worklogs.
 	PathWorklog string = "/reports/api/v2/details"
 )
@@ -181,8 +180,8 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 
 	for paginationNeeded {
 		searchParams := &WorklogSearchParams{
-			Since:       opts.Start.Format(DateFormat),
-			Until:       opts.End.Format(DateFormat),
+			Since:       utils.DateFormatISO8601.Format(opts.Start),
+			Until:       utils.DateFormatISO8601.Format(opts.End),
 			Page:        currentPage,
 			UserID:      userID,
 			WorkspaceID: c.opts.Workspace,

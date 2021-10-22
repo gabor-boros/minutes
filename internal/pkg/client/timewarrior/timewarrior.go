@@ -9,12 +9,8 @@ import (
 	"time"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
-)
-
-const (
-	dateFormat      string = "2006-01-02T15:04:05"
-	ParseDateFormat string = "20060102T150405Z"
 )
 
 // FetchEntry represents the entry exported from Timewarrior.
@@ -55,8 +51,8 @@ func (c *timewarriorClient) executeCommand(ctx context.Context, subcommand strin
 	arguments = append(
 		arguments,
 		[]string{
-			"from", opts.Start.Format(dateFormat),
-			"to", opts.End.Format(dateFormat),
+			"from", utils.DateFormatRFC3339Local.Format(opts.Start),
+			"to", utils.DateFormatRFC3339Local.Format(opts.End),
 		}...,
 	)
 
@@ -77,12 +73,12 @@ func (c *timewarriorClient) executeCommand(ctx context.Context, subcommand strin
 func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error) {
 	var entries worklog.Entries
 
-	startDate, err := time.ParseInLocation(ParseDateFormat, entry.Start, time.Local)
+	startDate, err := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), entry.Start, time.Local)
 	if err != nil {
 		return nil, err
 	}
 
-	endDate, err := time.ParseInLocation(ParseDateFormat, entry.End, time.Local)
+	endDate, err := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), entry.End, time.Local)
 	if err != nil {
 		return nil, err
 	}

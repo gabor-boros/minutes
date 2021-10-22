@@ -12,6 +12,7 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/require"
 )
@@ -105,8 +106,8 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
-			"since":        {start.Format(toggl.DateFormat)},
-			"until":        {end.Format(toggl.DateFormat)},
+			"since":        {utils.DateFormatISO8601.Format(start)},
+			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},
@@ -243,8 +244,8 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
-			"since":        {start.Format(toggl.DateFormat)},
-			"until":        {end.Format(toggl.DateFormat)},
+			"since":        {utils.DateFormatISO8601.Format(start)},
+			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},

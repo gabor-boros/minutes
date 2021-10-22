@@ -10,11 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gabor-boros/minutes/internal/cmd/utils"
+	cmdUtils "github.com/gabor-boros/minutes/internal/cmd/utils"
 	"github.com/jedib0t/go-pretty/v6/progress"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/require"
 )
@@ -179,8 +180,8 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 		Username:   clientUsername,
 		Password:   clientPassword,
 		RequestData: &tempo.SearchParams{
-			From:   start.Format("2006-01-02"),
-			To:     end.Format("2006-01-02"),
+			From:   utils.DateFormatISO8601.Format(start),
+			To:     utils.DateFormatISO8601.Format(end),
 			Worker: "steve-rogers",
 		},
 		ResponseData: &[]tempo.FetchEntry{
@@ -265,7 +266,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
 
-	progressWriter := utils.NewProgressWriter(progress.DefaultUpdateFrequency)
+	progressWriter := cmdUtils.NewProgressWriter(progress.DefaultUpdateFrequency)
 	uploadOpts := &client.UploadOpts{
 		User:           "steve-rogers",
 		ProgressWriter: progressWriter,
@@ -318,7 +319,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 			Comment:               entry.Notes,
 			IncludeNonWorkingDays: true,
 			OriginTaskID:          entry.Task.ID,
-			Started:               entry.Start.Local().Format("2006-01-02"),
+			Started:               utils.DateFormatISO8601.Format(entry.Start.Local()),
 			BillableSeconds:       int(entry.BillableDuration.Seconds()),
 			TimeSpentSeconds:      int((entry.BillableDuration + entry.UnbillableDuration).Seconds()),
 			Worker:                uploadOpts.User,
@@ -547,7 +548,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 			Comment:               entries[0].Notes,
 			IncludeNonWorkingDays: true,
 			OriginTaskID:          entries[0].Task.ID,
-			Started:               entries[0].Start.Local().Format("2006-01-02"),
+			Started:               utils.DateFormatISO8601.Format(entries[0].Start.Local()),
 			BillableSeconds:       60,
 			TimeSpentSeconds:      60,
 			Worker:                uploadOpts.User,
@@ -556,7 +557,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 			Comment:               entries[1].Notes,
 			IncludeNonWorkingDays: true,
 			OriginTaskID:          entries[1].Task.ID,
-			Started:               entries[1].Start.Local().Format("2006-01-02"),
+			Started:               utils.DateFormatISO8601.Format(entries[1].Start.Local()),
 			BillableSeconds:       0,
 			TimeSpentSeconds:      0,
 			Worker:                uploadOpts.User,
@@ -565,7 +566,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 			Comment:               entries[2].Notes,
 			IncludeNonWorkingDays: true,
 			OriginTaskID:          entries[2].Task.ID,
-			Started:               entries[2].Start.Local().Format("2006-01-02"),
+			Started:               utils.DateFormatISO8601.Format(entries[2].Start.Local()),
 			BillableSeconds:       1,
 			TimeSpentSeconds:      60,
 			Worker:                uploadOpts.User,
@@ -574,7 +575,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 			Comment:               entries[3].Notes,
 			IncludeNonWorkingDays: true,
 			OriginTaskID:          entries[3].Task.ID,
-			Started:               entries[3].Start.Local().Format("2006-01-02"),
+			Started:               utils.DateFormatISO8601.Format(entries[3].Start.Local()),
 			BillableSeconds:       0,
 			TimeSpentSeconds:      60,
 			Worker:                uploadOpts.User,
