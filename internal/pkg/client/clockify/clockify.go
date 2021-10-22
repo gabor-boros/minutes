@@ -108,8 +108,8 @@ func (c *clockifyClient) fetchEntries(ctx context.Context, path string) ([]Fetch
 	return fetchedEntries, err
 }
 
-func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) []worklog.Entry {
-	var entries []worklog.Entry
+func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) worklog.Entries {
+	var entries worklog.Entries
 
 	for _, entry := range fetchedEntries {
 		billableDuration := entry.TimeInterval.End.Sub(entry.TimeInterval.Start)
@@ -151,9 +151,9 @@ func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRe
 	return entries
 }
 
-func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
+func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	var err error
-	var entries []worklog.Entry
+	var entries worklog.Entries
 	currentPage := 1
 	pageSize := 100
 

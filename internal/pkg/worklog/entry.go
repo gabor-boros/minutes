@@ -19,6 +19,22 @@ func (f IDNameField) IsComplete() bool {
 	return f.ID != "" && f.Name != ""
 }
 
+// Entries defines a collection of entries.
+type Entries []Entry
+
+// GroupByTask groups the entries by task IDs and returns the grouped entries.
+func (e *Entries) GroupByTask() map[string]Entries {
+	groups := make(map[string]Entries)
+
+	for _, entry := range *e {
+		key := entry.Task.ID
+		entries := groups[key]
+		groups[key] = append(entries, entry)
+	}
+
+	return groups
+}
+
 // Entry represents the worklog entry and contains all the necessary data.
 type Entry struct {
 	Client             IDNameField
@@ -59,7 +75,7 @@ func (e *Entry) SplitDuration(parts int) (splitBillableDuration time.Duration, s
 // SplitByTagsAsTasks splits the entry into pieces treating tags as tasks.
 // Not matching tags won't be treated as a new entry should be created,
 // therefore that tag will be skipped and the returned entries will lack that.
-func (e *Entry) SplitByTagsAsTasks(summary string, regex *regexp.Regexp, tags []IDNameField) []Entry {
+func (e *Entry) SplitByTagsAsTasks(summary string, regex *regexp.Regexp, tags []IDNameField) Entries {
 	var tasks []IDNameField
 	for _, tag := range tags {
 		if taskName := regex.FindString(tag.Name); taskName != "" {
@@ -67,7 +83,7 @@ func (e *Entry) SplitByTagsAsTasks(summary string, regex *regexp.Regexp, tags []
 		}
 	}
 
-	var entries []Entry
+	var entries Entries
 	totalTasks := len(tasks)
 
 	for _, task := range tasks {

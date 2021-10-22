@@ -82,8 +82,8 @@ func (c *togglClient) getSearchURL(params *WorklogSearchParams) (string, error) 
 	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
 }
 
-func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) ([]worklog.Entry, error) {
-	var entries []worklog.Entry
+func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, error) {
+	var entries worklog.Entries
 
 	for _, fetchedEntry := range fetchedEntries {
 		billableDuration := time.Millisecond * time.Duration(fetchedEntry.Duration)
@@ -133,7 +133,7 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 	return entries, nil
 }
 
-func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasksRegex *regexp.Regexp) ([]worklog.Entry, *PaginatedResponse, error) {
+func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, *PaginatedResponse, error) {
 	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
 		Method:     http.MethodGet,
 		Path:       path,
@@ -158,9 +158,9 @@ func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasks
 	return parsedEntries, &paginatedResponse, err
 }
 
-func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
+func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	var err error
-	var entries []worklog.Entry
+	var entries worklog.Entries
 	var tagsAsTasksRegex *regexp.Regexp
 
 	if c.opts.TagsAsTasks {

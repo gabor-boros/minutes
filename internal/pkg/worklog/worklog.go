@@ -9,23 +9,23 @@ import "regexp"
 // some APIs are not allowing filtering. Also, this way, we can filter results
 // using regex.
 type FilterOpts struct {
-	Client   *regexp.Regexp
-	Project  *regexp.Regexp
+	Client  *regexp.Regexp
+	Project *regexp.Regexp
 }
 
 // Worklog is the collection of multiple Entries.
 type Worklog struct {
-	completeEntries   []Entry
-	incompleteEntries []Entry
+	completeEntries   Entries
+	incompleteEntries Entries
 }
 
 // CompleteEntries returns those entries which necessary fields were filled.
-func (w *Worklog) CompleteEntries() []Entry {
+func (w *Worklog) CompleteEntries() Entries {
 	return w.completeEntries
 }
 
 // IncompleteEntries is the opposite of CompleteEntries.
-func (w *Worklog) IncompleteEntries() []Entry {
+func (w *Worklog) IncompleteEntries() Entries {
 	return w.incompleteEntries
 }
 
@@ -38,8 +38,8 @@ func isEntryMatching(entry Entry, opts *FilterOpts) bool {
 }
 
 // NewWorklog creates a worklog from the given set of entries and merges them.
-func NewWorklog(entries []Entry, opts *FilterOpts) Worklog {
-	var filteredEntries []Entry
+func NewWorklog(entries Entries, opts *FilterOpts) Worklog {
+	var filteredEntries Entries
 
 	worklog := Worklog{}
 	mergedEntries := map[string]Entry{}

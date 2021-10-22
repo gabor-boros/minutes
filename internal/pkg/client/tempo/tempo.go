@@ -73,7 +73,7 @@ type tempoClient struct {
 	opts *ClientOpts
 }
 
-func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
+func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	searchParams := &SearchParams{
 		From:   opts.Start.Local().Format("2006-01-02"),
 		To:     opts.End.Local().Format("2006-01-02"),
@@ -96,7 +96,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 	for _, entry := range fetchedEntries {
 		entries = append(entries, worklog.Entry{
 			Client: worklog.IDNameField{
@@ -122,7 +122,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	return entries, nil
 }
 
-func (c *tempoClient) uploadEntry(ctx context.Context, entries []worklog.Entry, opts *client.UploadOpts, errChan chan error) {
+func (c *tempoClient) uploadEntry(ctx context.Context, entries worklog.Entries, opts *client.UploadOpts, errChan chan error) {
 	for _, entry := range entries {
 		var tracker *progress.Tracker
 		if opts.ProgressWriter != nil {
@@ -185,8 +185,8 @@ func (c *tempoClient) uploadEntry(ctx context.Context, entries []worklog.Entry, 
 	}
 }
 
-func (c *tempoClient) UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *client.UploadOpts) {
-	uploadGroups := map[string][]worklog.Entry{}
+func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
+	uploadGroups := map[string]worklog.Entries{}
 
 	for _, entry := range entries {
 		key := entry.Task.ID

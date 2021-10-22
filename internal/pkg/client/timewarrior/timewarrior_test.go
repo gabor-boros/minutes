@@ -57,7 +57,7 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",
@@ -149,7 +149,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",
@@ -244,7 +244,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled split"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",

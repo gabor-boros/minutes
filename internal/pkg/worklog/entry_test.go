@@ -59,6 +59,18 @@ func TestIDNameFieldIsComplete(t *testing.T) {
 	assert.True(t, field.IsComplete())
 }
 
+func TestEntries_GroupByTask(t *testing.T) {
+	entries := worklog.Entries{
+		getCompleteTestEntry(),
+		getCompleteTestEntry(),
+		getCompleteTestEntry(),
+	}
+
+	groups := entries.GroupByTask()
+
+	assert.Equal(t, 1, len(groups))
+}
+
 func TestEntryKey(t *testing.T) {
 	entry := getCompleteTestEntry()
 	assert.Equal(t, "Internal projects:TASK-0123:Write worklog transfer CLI tool:2021-10-02", entry.Key())
@@ -119,7 +131,7 @@ func TestEntry_SplitByTag(t *testing.T) {
 	regex, err := regexp.Compile(`^TASK-\d+$`)
 	require.Nil(t, err)
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client:  entry.Client,
 			Project: entry.Project,

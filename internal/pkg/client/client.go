@@ -76,7 +76,7 @@ type Fetcher interface {
 	// FetchEntries from a given source and return the list of worklog entries
 	// If the fetching resulted in an error, the list of worklog entries will be
 	// nil and an error will return.
-	FetchEntries(ctx context.Context, opts *FetchOpts) ([]worklog.Entry, error)
+	FetchEntries(ctx context.Context, opts *FetchOpts) (worklog.Entries, error)
 }
 
 // UploadOpts specifies the only options for the Uploader. In contrast to the
@@ -109,7 +109,7 @@ type Uploader interface {
 	// UploadEntries to a given target.
 	// If the upload resulted in an error, the upload will stop and an error
 	// will return.
-	UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *UploadOpts)
+	UploadEntries(ctx context.Context, entries worklog.Entries, errChan chan error, opts *UploadOpts)
 }
 
 // FetchUploader is the combination of Fetcher and Uploader.

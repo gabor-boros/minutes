@@ -60,7 +60,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	clientUsername := "token-of-the-day"
 	clientPassword := "api_token"
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -179,7 +179,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	clientUsername := "token-of-the-day"
 	clientPassword := "api_token"
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",

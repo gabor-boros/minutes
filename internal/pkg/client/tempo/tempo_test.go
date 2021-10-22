@@ -112,7 +112,7 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	clientUsername := "Thor"
 	clientPassword := "The strongest Avenger"
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -271,7 +271,7 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 		ProgressWriter: progressWriter,
 	}
 
-	entries := []worklog.Entry{
+	entries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -369,7 +369,7 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 		TreatDurationAsBilled: true,
 	}
 
-	entries := []worklog.Entry{
+	entries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -463,7 +463,7 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 		RoundToClosestMinute: true,
 	}
 
-	entries := []worklog.Entry{
+	entries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",

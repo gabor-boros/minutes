@@ -74,8 +74,8 @@ func (c *timewarriorClient) executeCommand(ctx context.Context, subcommand strin
 	return nil
 }
 
-func (c *timewarriorClient) parseEntry(entry FetchEntry) ([]worklog.Entry, error) {
-	var entries []worklog.Entry
+func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error) {
+	var entries worklog.Entries
 
 	startDate, err := time.ParseInLocation(ParseDateFormat, entry.Start, time.Local)
 	if err != nil {
@@ -143,13 +143,13 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) ([]worklog.Entry, error
 	return entries, nil
 }
 
-func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
+func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	var fetchedEntries []FetchEntry
 	if err := c.executeCommand(ctx, "export", &fetchedEntries, opts); err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 	for _, entry := range fetchedEntries {
 		parsedEntries, err := c.parseEntry(entry)
 		if err != nil {

@@ -60,7 +60,7 @@ type TableColumnConfig struct {
 type Printer interface {
 	// Print prints out the list of complete and incomplete entries.
 	// The output location must be set through `BasePrinterOpts`.
-	Print(completeEntries []worklog.Entry, incompleteEntries []worklog.Entry) error
+	Print(completeEntries worklog.Entries, incompleteEntries worklog.Entries) error
 }
 
 // BasePrinterOpts represents the configuration for common printer options.
@@ -111,7 +111,7 @@ func (p *tablePrinter) convertEntryToRow(entry *worklog.Entry) table.Row {
 	}
 }
 
-func (p *tablePrinter) generateRows(entries []worklog.Entry, billable *time.Duration, unbillable *time.Duration) {
+func (p *tablePrinter) generateRows(entries worklog.Entries, billable *time.Duration, unbillable *time.Duration) {
 	for i := range entries {
 		entry := entries[i]
 		*billable += entry.BillableDuration
@@ -120,7 +120,7 @@ func (p *tablePrinter) generateRows(entries []worklog.Entry, billable *time.Dura
 	}
 }
 
-func (p *tablePrinter) Print(completeEntries []worklog.Entry, incompleteEntries []worklog.Entry) error {
+func (p *tablePrinter) Print(completeEntries worklog.Entries, incompleteEntries worklog.Entries) error {
 	var totalBillable time.Duration
 	var totalUnbillable time.Duration
 
