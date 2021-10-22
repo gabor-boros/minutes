@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/jedib0t/go-pretty/v6/progress"
-
 	"github.com/gabor-boros/minutes/internal/pkg/client"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
@@ -67,24 +67,36 @@ type SearchParams struct {
 // ClientOpts is the client specific options, extending client.BaseClientOpts.
 type ClientOpts struct {
 	client.BaseClientOpts
+	client.BasicAuth
+	BaseURL string
 }
 
 type tempoClient struct {
-	opts *ClientOpts
+	*client.BaseClientOpts
+	*client.HTTPClient
+	*client.DefaultUploader
+	authenticator client.Authenticator
 }
 
-func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) ([]worklog.Entry, error) {
-	searchParams := &SearchParams{
-		From:   opts.Start.Local().Format("2006-01-02"),
-		To:     opts.End.Local().Format("2006-01-02"),
-		Worker: opts.User,
+func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
+	searchURL, err := c.URL(PathWorklogSearch, map[string]string{})
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
-		Method:     http.MethodPost,
-		Path:       PathWorklogSearch,
-		ClientOpts: &c.opts.HTTPClientOpts,
-		Data:       searchParams,
+	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
+		Method:  http.MethodPost,
+		Url:     searchURL,
+		Auth:    c.authenticator,
+		Timeout: c.Timeout,
+		Data: &SearchParams{
+			From:   utils.DateFormatISO8601.Format(opts.Start.Local()),
+			To:     utils.DateFormatISO8601.Format(opts.End.Local()),
+			Worker: opts.User,
+		},
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
 	})
 
 	if err != nil {
@@ -92,11 +104,11 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	}
 
 	var fetchedEntries []FetchEntry
-	if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
+	if err = json.Unmarshal(resp, &fetchedEntries); err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 	for _, entry := range fetchedEntries {
 		entries = append(entries, worklog.Entry{
 			Client: worklog.IDNameField{
@@ -122,86 +134,89 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	return entries, nil
 }
 
-func (c *tempoClient) uploadEntry(ctx context.Context, entries []worklog.Entry, opts *client.UploadOpts, errChan chan error) {
-	for _, entry := range entries {
-		var tracker *progress.Tracker
-		if opts.ProgressWriter != nil {
-			tracker = &progress.Tracker{
-				Message: entry.Summary,
-				Total:   1,
-				Units:   progress.UnitsDefault,
+func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
+	createURL, err := c.URL(PathWorklogCreate, map[string]string{})
+	if err != nil {
+		errChan <- fmt.Errorf("%v: %v", client.ErrUploadEntries, err)
+		return
+	}
+
+	for _, groupEntries := range entries.GroupByTask() {
+		go func(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
+			for _, entry := range entries {
+				billableDuration := entry.BillableDuration
+				unbillableDuration := entry.UnbillableDuration
+				totalTimeSpent := billableDuration + unbillableDuration
+
+				if opts.TreatDurationAsBilled {
+					billableDuration = entry.UnbillableDuration + entry.BillableDuration
+					unbillableDuration = 0
+				}
+
+				if opts.RoundToClosestMinute {
+					billableDuration = time.Second * time.Duration(math.Round(billableDuration.Minutes())*60)
+					unbillableDuration = time.Second * time.Duration(math.Round(unbillableDuration.Minutes())*60)
+					totalTimeSpent = billableDuration + unbillableDuration
+				}
+
+				uploadEntry := &UploadEntry{
+					Comment:               entry.Summary,
+					IncludeNonWorkingDays: true,
+					OriginTaskID:          entry.Task.Name,
+					Started:               utils.DateFormatISO8601.Format(entry.Start.Local()),
+					BillableSeconds:       int(billableDuration.Seconds()),
+					TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
+					Worker:                opts.User,
+				}
+
+				tracker := c.StartTracking(entry, opts.ProgressWriter)
+
+				_, err := c.Call(ctx, &client.HTTPRequestOpts{
+					Method:  http.MethodPost,
+					Url:     createURL,
+					Auth:    c.authenticator,
+					Timeout: c.Timeout,
+					Data:    uploadEntry,
+					Headers: map[string]string{
+						"Content-Type": "application/json",
+					},
+				})
+
+				if err != nil {
+					err = fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
+				}
+
+				c.StopTracking(tracker, err)
+				errChan <- err
 			}
-
-			opts.ProgressWriter.AppendTracker(tracker)
-		}
-
-		billableDuration := entry.BillableDuration
-		unbillableDuration := entry.UnbillableDuration
-		totalTimeSpent := billableDuration + unbillableDuration
-
-		if opts.TreatDurationAsBilled {
-			billableDuration = entry.UnbillableDuration + entry.BillableDuration
-			unbillableDuration = 0
-		}
-
-		if opts.RoundToClosestMinute {
-			billableDuration = time.Second * time.Duration(math.Round(billableDuration.Minutes())*60)
-			unbillableDuration = time.Second * time.Duration(math.Round(unbillableDuration.Minutes())*60)
-			totalTimeSpent = billableDuration + unbillableDuration
-		}
-
-		uploadEntry := &UploadEntry{
-			Comment:               entry.Summary,
-			IncludeNonWorkingDays: true,
-			OriginTaskID:          entry.Task.Name,
-			Started:               entry.Start.Local().Format("2006-01-02"),
-			BillableSeconds:       int(billableDuration.Seconds()),
-			TimeSpentSeconds:      int(totalTimeSpent.Seconds()),
-			Worker:                opts.User,
-		}
-
-		_, err := client.SendRequest(ctx, &client.SendRequestOpts{
-			Method:     http.MethodPost,
-			Path:       PathWorklogCreate,
-			ClientOpts: &c.opts.HTTPClientOpts,
-			Data:       uploadEntry,
-		})
-
-		if err != nil {
-			if tracker != nil {
-				tracker.MarkAsErrored()
-			}
-
-			errChan <- fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
-			return
-		}
-
-		if tracker != nil {
-			tracker.Increment(1)
-			tracker.MarkAsDone()
-		}
-
-		errChan <- nil
+		}(ctx, groupEntries, errChan, opts)
 	}
 }
 
-func (c *tempoClient) UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *client.UploadOpts) {
-	uploadGroups := map[string][]worklog.Entry{}
-
-	for _, entry := range entries {
-		key := entry.Task.ID
-		groupEntries := uploadGroups[key]
-		uploadGroups[key] = append(groupEntries, entry)
+func newClient(opts *ClientOpts) (*tempoClient, error) {
+	baseURL, err := url.Parse(opts.BaseURL)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, groupEntries := range uploadGroups {
-		go c.uploadEntry(ctx, groupEntries, opts, errChan)
+	authenticator, err := client.NewBasicAuth(opts.Username, opts.Password)
+	if err != nil {
+		return nil, err
 	}
-}
 
-// NewClient returns a new Tempo client.
-func NewClient(opts *ClientOpts) client.FetchUploader {
 	return &tempoClient{
-		opts: opts,
-	}
+		authenticator:  authenticator,
+		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
+		BaseClientOpts: &opts.BaseClientOpts,
+	}, nil
+}
+
+// NewFetcher returns a new Tempo client for fetching entries.
+func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
+	return newClient(opts)
+}
+
+// NewUploader returns a new Tempo client for uploading entries.
+func NewUploader(opts *ClientOpts) (client.Uploader, error) {
+	return newClient(opts)
 }

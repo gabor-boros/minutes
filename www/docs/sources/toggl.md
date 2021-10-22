@@ -36,7 +36,6 @@ The source provides the following extra configuration options.
 | Config option   | Kind   | Description                                                   | Example                                   |
 | --------------- | ------ | ------------------------------------------------------------- | ----------------------------------------- |
 | toggl-api-key   | string | API key gathered from Toggl Track[^1]                         | toggl-api-key = "<API KEY>"               |
-| toggl-url       | string | Set the base URL for Toggl Track without a trailing slash[^2] | toggl-url = "https://api.track.toggl.com" |
 | toggl-workspace | int    | Set the workspace ID                                          | toggl-workspace = 123456789               |
 
 ## Limitations
@@ -75,4 +74,3 @@ force-billed-duration = true
 ```
 
 [^1]: The API key can be generated as described in their [documentation](https://support.toggl.com/en/articles/3116844-where-is-my-api-key-located).
-[^2]: The URL defaults to `https://api.track.toggl.com` and Toggl Track cannot be installed privately, though they are changing domains nowadays, so if Toggl track changes domain again or start offering private hosting, it can be set easily.

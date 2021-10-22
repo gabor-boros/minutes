@@ -10,13 +10,13 @@ import (
 )
 
 var newWorklogBenchResult worklog.Worklog
-var completeEntriesBenchResult []worklog.Entry
-var incompleteEntriesBenchResult []worklog.Entry
+var completeEntriesBenchResult worklog.Entries
+var incompleteEntriesBenchResult worklog.Entries
 
 func benchNewWorklog(b *testing.B, entryCount int) {
 	b.StopTimer()
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 
 	for i := 0; i != entryCount; i++ {
 		entry := getCompleteTestEntry()
@@ -36,7 +36,7 @@ func benchNewWorklog(b *testing.B, entryCount int) {
 func benchmarkCompleteEntries(b *testing.B, entryCount int) {
 	b.StopTimer()
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 
 	for i := 0; i != entryCount; i++ {
 		entry := getCompleteTestEntry()
@@ -58,7 +58,7 @@ func benchmarkCompleteEntries(b *testing.B, entryCount int) {
 func benchmarkIncompleteEntries(b *testing.B, entryCount int) {
 	b.StopTimer()
 
-	var entries []worklog.Entry
+	var entries worklog.Entries
 
 	for i := 0; i != entryCount; i++ {
 		entry := getIncompleteTestEntry()
@@ -116,7 +116,7 @@ func TestWorklogCompleteEntries(t *testing.T) {
 	incompleteEntry := getCompleteTestEntry()
 	incompleteEntry.Task = worklog.IDNameField{}
 
-	wl := worklog.NewWorklog([]worklog.Entry{
+	wl := worklog.NewWorklog(worklog.Entries{
 		completeEntry,
 		otherCompleteEntry,
 		incompleteEntry,
@@ -124,7 +124,7 @@ func TestWorklogCompleteEntries(t *testing.T) {
 
 	entry := wl.CompleteEntries()[0]
 	assert.Equal(t, "It is a lot easier than expected; Really", entry.Notes)
-	assert.Equal(t, []worklog.Entry{entry}, wl.CompleteEntries())
+	assert.Equal(t, worklog.Entries{entry}, wl.CompleteEntries())
 }
 
 func TestWorklogIncompleteEntries(t *testing.T) {
@@ -137,7 +137,7 @@ func TestWorklogIncompleteEntries(t *testing.T) {
 	otherIncompleteEntry.Task = worklog.IDNameField{}
 	otherIncompleteEntry.Notes = "Well, not that easy"
 
-	wl := worklog.NewWorklog([]worklog.Entry{
+	wl := worklog.NewWorklog(worklog.Entries{
 		completeEntry,
 		incompleteEntry,
 		otherIncompleteEntry,
@@ -145,7 +145,7 @@ func TestWorklogIncompleteEntries(t *testing.T) {
 
 	entry := wl.IncompleteEntries()[0]
 	assert.Equal(t, "It is a lot easier than expected; Well, not that easy", entry.Notes)
-	assert.Equal(t, []worklog.Entry{entry}, wl.IncompleteEntries())
+	assert.Equal(t, worklog.Entries{entry}, wl.IncompleteEntries())
 }
 
 func TestWorklogFilterEntries(t *testing.T) {
@@ -166,16 +166,16 @@ func TestWorklogFilterEntries(t *testing.T) {
 	entry4.Project.Name = "website development"
 
 	filterOpts := &worklog.FilterOpts{
-		Client:   regexp.MustCompile(`^ACME Inc\.?(orporation)?$`),
-		Project:  regexp.MustCompile(`.*(website).*`),
+		Client:  regexp.MustCompile(`^ACME Inc\.?(orporation)?$`),
+		Project: regexp.MustCompile(`.*(website).*`),
 	}
 
-	wl := worklog.NewWorklog([]worklog.Entry{
+	wl := worklog.NewWorklog(worklog.Entries{
 		entry1,
 		entry2,
 		entry3,
 		entry4,
 	}, filterOpts)
 
-	assert.Equal(t, []worklog.Entry{entry1, entry2}, wl.CompleteEntries())
+	assert.ElementsMatch(t, worklog.Entries{entry1, entry2}, wl.CompleteEntries())
 }

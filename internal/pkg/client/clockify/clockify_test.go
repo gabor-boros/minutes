@@ -62,7 +62,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 	remainingCalls := 1
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "456",
@@ -187,19 +187,16 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient:  http.DefaultClient,
-		BaseURL:     mockServer.URL,
-		Token:       "t-o-k-e-n",
-		TokenHeader: "X-Api-Key",
-	}
-
-	clockifyClient := clockify.NewClient(&clockify.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
+		TokenAuth: client.TokenAuth{
+			Header: "X-Api-Key",
+			Token:  "t-o-k-e-n",
 		},
+		BaseURL:   mockServer.URL,
 		Workspace: "marvel-studios",
 	})
+
+	require.Nil(t, err)
 
 	entries, err := clockifyClient.FetchEntries(context.Background(), &client.FetchOpts{
 		User:  "steve-rogers",
@@ -216,7 +213,7 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 	remainingCalls := 1
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "456",
@@ -354,21 +351,20 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient:  http.DefaultClient,
-		BaseURL:     mockServer.URL,
-		Token:       "t-o-k-e-n",
-		TokenHeader: "X-Api-Key",
-	}
-
-	clockifyClient := clockify.NewClient(&clockify.ClientOpts{
+	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts:   *httpClientOpts,
 			TagsAsTasks:      true,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
+		TokenAuth: client.TokenAuth{
+			Header: "X-Api-Key",
+			Token:  "t-o-k-e-n",
+		},
+		BaseURL:   mockServer.URL,
 		Workspace: "marvel-studios",
 	})
+
+	require.Nil(t, err)
 
 	entries, err := clockifyClient.FetchEntries(context.Background(), &client.FetchOpts{
 		User:  "steve-rogers",

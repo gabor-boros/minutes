@@ -7,47 +7,34 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
-	"net/url"
+	netURL "net/url"
+	"os/exec"
 	"time"
+)
 
-	"github.com/jedib0t/go-pretty/v6/progress"
-
-	"github.com/gabor-boros/minutes/internal/pkg/worklog"
+const (
+	// DefaultRequestTimeout sets the timeout for the HTTP requests or command
+	// executions.
+	DefaultRequestTimeout = time.Second * 30
 )
 
 var (
-	// ErrFetchEntries wraps the error when fetch failed.
-	ErrFetchEntries = errors.New("failed to fetch entries")
-	// ErrUploadEntries wraps the error when upload failed.
-	ErrUploadEntries = errors.New("failed to upload entries")
+	// ErrNoBaseURL returns when HTTP based clients has no BaseURL set, but its
+	// `URL()` method was called.
+	ErrNoBaseURL = errors.New("no BaseURL provided")
+	// ErrInvalidBasicAuth returns if any of the provided basic auth parameters
+	// are empty.
+	ErrInvalidBasicAuth = errors.New("invalid basic auth params provided")
+	// ErrInvalidTokenAuth returns if the provided token is empty.
+	ErrInvalidTokenAuth = errors.New("invalid token auth params provided")
 )
-
-// HTTPClientOpts specifies all options that are required for HTTP clients.
-type HTTPClientOpts struct {
-	HTTPClient *http.Client
-	// BaseURL for the API, without a trailing slash.
-	BaseURL string
-	// Username used for authentication.
-	Username string
-	// Password used for authentication.
-	//
-	// If both Password and Token are set, Token takes precedence.
-	Password string
-	// Token is the API token used by the source our target API.
-	//
-	// If Token is set, TokenHeader must not be empty.
-	// If both Password and Token are set, Token takes precedence.
-	Token string
-	// TokenHeader is the header name that contains the auth token.
-	TokenHeader string
-}
 
 // BaseClientOpts specifies the common options the clients are using.
 // When a client needs other options as well, it composes a new set of options
 // using BaseClientOpts.
 type BaseClientOpts struct {
-	HTTPClientOpts
 	// TagsAsTasks defines to use tag names to determine the task.
 	// Using TagsAsTasks can be useful if the user's workflow involves
 	// splitting activity across multiple tasks, or when the user has no option
@@ -60,118 +47,195 @@ type BaseClientOpts struct {
 	//
 	// This option must be used in conjunction with TagsAsTasks option.
 	TagsAsTasksRegex string
+	// Timeout sets the timeout for the client to execute a request.
+	// In the case of HTTP clients, the timeout is applied on the HTTP request,
+	// while in the case of CLI based clients it will be applied on the command
+	// execution.
+	Timeout time.Duration
 }
 
-// FetchOpts specifies the only options for Fetchers.
-// In contract to the BaseClientOpts, these options shall not be extended or
-// overridden.
-type FetchOpts struct {
-	User  string
-	Start time.Time
-	End   time.Time
+// Authenticator is responsible for setting the necessary parameters for
+// authentication on the request.
+type Authenticator interface {
+	// SetAuthHeader sets the auth header on HTTP requests before the HTTPClient
+	// sends it.
+	SetAuthHeader(req *http.Request)
 }
 
-// Fetcher specifies the functions used to fetch worklog entries.
-type Fetcher interface {
-	// FetchEntries from a given source and return the list of worklog entries
-	// If the fetching resulted in an error, the list of worklog entries will be
-	// nil and an error will return.
-	FetchEntries(ctx context.Context, opts *FetchOpts) ([]worklog.Entry, error)
+// BasicAuth represents the required parameters for username and password based
+// authentication
+type BasicAuth struct {
+	Username string
+	Password string
 }
 
-// UploadOpts specifies the only options for the Uploader. In contrast to the
-// BaseClientOpts, these options shall not be extended or overridden.
-type UploadOpts struct {
-	// RoundToClosestMinute indicates to round the billed and unbilled duration
-	// separately to the closest minute.
-	// If the elapsed time is 30 seconds or more, the closest minute is the
-	// next minute, otherwise the previous one. In case the previous minute is
-	// 0 (zero), then 0 (zero) will be used for the billed and/or unbilled
-	// duration.
-	RoundToClosestMinute bool
-	// TreatDurationAsBilled indicates to use every time spent as billed.
-	TreatDurationAsBilled bool
-	// CreateMissingResources indicates the need of resource creation if the
-	// resource is missing.
-	// In the case of some Uploader, the resources must exist to be able to
-	// use them by their ID or name.
-	CreateMissingResources bool
-	// User represents the user in which name the time log will be uploaded.
-	User string
-	// ProgressWriter represents a writer that tracks the upload progress.
-	// In case the ProgressWriter is nil, that means the upload progress should
-	// not be tracked, hence, that's not an error.
-	ProgressWriter progress.Writer
+func (a *BasicAuth) SetAuthHeader(req *http.Request) {
+	req.SetBasicAuth(a.Username, a.Password)
 }
 
-// Uploader specifies the functions used to upload worklog entries.
-type Uploader interface {
-	// UploadEntries to a given target.
-	// If the upload resulted in an error, the upload will stop and an error
-	// will return.
-	UploadEntries(ctx context.Context, entries []worklog.Entry, errChan chan error, opts *UploadOpts)
+// NewBasicAuth returns a new BasicAuth that implements Authenticator.
+func NewBasicAuth(username string, password string) (Authenticator, error) {
+	if username == "" || password == "" {
+		return nil, ErrInvalidBasicAuth
+	}
+
+	return &BasicAuth{
+		Username: username,
+		Password: password,
+	}, nil
 }
 
-// FetchUploader is the combination of Fetcher and Uploader.
-// The FetchUploader can to fetch entries from and upload to a given resource.
-type FetchUploader interface {
-	Fetcher
-	Uploader
+// TokenAuth represents the required parameters for token based  authentication.
+type TokenAuth struct {
+	Header string
+	Token  string
 }
 
-// SendRequestOpts represents the parameters needed for sending a request.
-// Since SendRequest is for sending requests to HTTP based APIs, it receives
-// the HTTPClientOpts as well for its options.
-type SendRequestOpts struct {
-	Method     string
-	Path       string
-	ClientOpts *HTTPClientOpts
-	Data       interface{}
+func (a *TokenAuth) SetAuthHeader(req *http.Request) {
+	req.Header.Set(a.Header, a.Token)
 }
 
-// SendRequest is a helper for any Fetcher and Uploader that must APIs.
-// The SendRequest function prepares a new HTTP request, sends it and returns
-// the response for further parsing. If the response status is not 200 or 201,
-// the function returns an error.
-func SendRequest(ctx context.Context, opts *SendRequestOpts) (*http.Response, error) {
-	var err error
-	var marshalledData []byte
+// NewTokenAuth returns a new TokenAuth that implements Authenticator. If the
+// header name is not set, the standard "Authorization" header will be used.
+func NewTokenAuth(header string, token string) (Authenticator, error) {
+	if token == "" {
+		return nil, ErrInvalidTokenAuth
+	}
 
-	requestURL, err := url.Parse(opts.ClientOpts.BaseURL + opts.Path)
+	if header == "" {
+		header = "Authorization"
+	}
+
+	return &TokenAuth{
+		Header: header,
+		Token:  token,
+	}, nil
+}
+
+// CLIExecuteOpts represents the options that CLI client's Execute method
+// receives.
+type CLIExecuteOpts struct {
+	Timeout time.Duration
+}
+
+// CLIClient implements a client that communicates with a CLI tool.
+// The CommandArguments parameter is not used by CLIClient, but those structs
+// that uses it for composition.
+type CLIClient struct {
+	Command            string
+	CommandArguments   []string
+	CommandCtxExecutor func(ctx context.Context, name string, arg ...string) *exec.Cmd
+}
+
+// Execute runs the given CLI command with the specified arguments.
+func (c *CLIClient) Execute(ctx context.Context, arguments []string, opts *CLIExecuteOpts) ([]byte, error) {
+	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	defer cancel()
+
+	return c.CommandCtxExecutor(ctxWithTimeout, c.Command, arguments...).Output() // #nosec G204
+}
+
+// HTTPRequestOpts represents the call options for an HTTP request, fired by the
+// HTTPClient when `Call` method is called.
+type HTTPRequestOpts struct {
+	Method  string
+	Url     string
+	Data    interface{}
+	Headers map[string]string
+	Auth    Authenticator
+	Timeout time.Duration
+}
+
+// HTTPClient implements a client that communicates with the server over HTTP.
+type HTTPClient struct {
+	Client  *http.Client
+	BaseURL *netURL.URL
+}
+
+// URL returns the BaseURL combined with the provided params as query params if
+// the BaseURL is set. Otherwise, it returns an `ErrNoBaseURL` error.
+func (c *HTTPClient) URL(path string, params map[string]string) (string, error) {
+	if c.BaseURL == nil {
+		return "", ErrNoBaseURL
+	}
+
+	urlPath, err := netURL.Parse(path)
+	if err != nil {
+		return "", err
+	}
+
+	url := c.BaseURL.ResolveReference(urlPath)
+
+	query := url.Query()
+
+	for key, val := range params {
+		query.Add(key, val)
+	}
+
+	url.RawQuery = query.Encode()
+	return url.String(), nil
+}
+
+// Call fires an HTTP request with the given method and body (in its body) to
+// the API URL returned by the `URL` method.
+func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, error) {
+	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	defer cancel()
+
+	req, err := c.newRequest(ctxWithTimeout, opts)
 	if err != nil {
 		return nil, err
 	}
 
+	resp, err := c.sendRequest(c.Client, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return ioutil.ReadAll(resp.Body)
+}
+
+func (c *HTTPClient) newRequest(ctx context.Context, opts *HTTPRequestOpts) (*http.Request, error) {
+	var err error
+	var body []byte
+
 	if opts.Data != nil {
-		marshalledData, err = json.Marshal(opts.Data)
+		body, err = json.Marshal(opts.Data)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, opts.Method, requestURL.String(), bytes.NewBuffer(marshalledData))
+	req, err := http.NewRequestWithContext(ctx, opts.Method, opts.Url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", "application/json")
-
-	if opts.ClientOpts.Token != "" {
-		if opts.ClientOpts.TokenHeader == "" {
-			return nil, errors.New("no token header name")
-		}
-
-		req.Header.Add(opts.ClientOpts.TokenHeader, opts.ClientOpts.Token)
-	} else {
-		req.SetBasicAuth(opts.ClientOpts.Username, opts.ClientOpts.Password)
+	for key, val := range opts.Headers {
+		req.Header.Set(key, val)
 	}
 
-	resp, err := opts.ClientOpts.HTTPClient.Do(req)
+	if opts.Auth != nil {
+		opts.Auth.SetAuthHeader(req)
+	}
+
+	return req, err
+}
+
+func (c *HTTPClient) sendRequest(httpClient *http.Client, req *http.Request) (*http.Response, error) {
+	// Set a default HTTP client if no clients were set
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if !(resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
+	// If the response wasn't successful, return an error containing the error code
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
 		errBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
@@ -181,4 +245,13 @@ func SendRequest(ctx context.Context, opts *SendRequestOpts) (*http.Response, er
 	}
 
 	return resp, nil
+}
+
+func ctxWithTimeout(ctx context.Context, timeout time.Duration) (context.Context, func()) {
+	ctxTimeout := DefaultRequestTimeout
+	if timeout > 0 {
+		ctxTimeout = timeout
+	}
+
+	return context.WithTimeout(ctx, ctxTimeout)
 }

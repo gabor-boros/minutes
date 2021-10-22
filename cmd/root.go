@@ -4,20 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
-
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 
-	"github.com/gabor-boros/minutes/internal/cmd/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
+
+	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
+
+	"github.com/gabor-boros/minutes/internal/cmd/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/client/tempo"
 
 	"github.com/jedib0t/go-pretty/v6/progress"
@@ -161,7 +160,6 @@ func initTimewarriorFlags() {
 }
 
 func initTogglFlags() {
-	rootCmd.Flags().StringP("toggl-url", "", "https://api.track.toggl.com", "set the base URL")
 	rootCmd.Flags().StringP("toggl-api-key", "", "", "set the API key")
 	rootCmd.Flags().IntP("toggl-workspace", "", 0, "set the workspace ID")
 }
@@ -238,109 +236,65 @@ func validateFlags() {
 	}
 }
 
-func getClientOpts(urlFlag string, usernameFlag string, passwordFlag string, tokenFlag string, tokenHeader string) (*client.BaseClientOpts, error) {
-	opts := &client.BaseClientOpts{
-		HTTPClientOpts: client.HTTPClientOpts{
-			HTTPClient:  http.DefaultClient,
-			TokenHeader: tokenHeader,
-		},
-		TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-		TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-	}
-
-	baseURL, err := url.Parse(viper.GetString(urlFlag))
-	if err != nil {
-		return opts, err
-	}
-
-	if usernameFlag != "" {
-		opts.Username = viper.GetString(usernameFlag)
-	}
-
-	if passwordFlag != "" {
-		opts.Password = viper.GetString(passwordFlag)
-	}
-
-	if tokenFlag != "" {
-		opts.Token = viper.GetString(tokenFlag)
-	}
-
-	opts.BaseURL = baseURL.String()
-
-	return opts, nil
-}
-
 func getFetcher() (client.Fetcher, error) {
 	switch viper.GetString("source") {
 	case "clockify":
-		opts, err := getClientOpts(
-			"clockify-url",
-			"",
-			"",
-			"clockify-api-key",
-			"X-Api-Key",
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return clockify.NewClient(&clockify.ClientOpts{
-			BaseClientOpts: *opts,
-			Workspace:      viper.GetString("clockify-workspace"),
-		}), nil
+		return clockify.NewFetcher(&clockify.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+				Timeout:          0,
+			},
+			TokenAuth: client.TokenAuth{
+				Header: "X-Api-Key",
+				Token:  viper.GetString("clockify-api-key"),
+			},
+			BaseURL:   viper.GetString("clockify-url"),
+			Workspace: viper.GetString("clockify-workspace"),
+		})
 	case "tempo":
-		opts, err := getClientOpts(
-			"tempo-url",
-			"tempo-username",
-			"tempo-password",
-			"",
-			"",
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return tempo.NewClient(&tempo.ClientOpts{
-			BaseClientOpts: *opts,
-		}), nil
+		return tempo.NewFetcher(&tempo.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+				Timeout:          0,
+			},
+			BasicAuth: client.BasicAuth{
+				Username: viper.GetString("tempo-username"),
+				Password: viper.GetString("tempo-password"),
+			},
+			BaseURL: viper.GetString("tempo-url"),
+		})
 	case "timewarrior":
-		opts := &client.BaseClientOpts{
-			TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-			TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-		}
-
-		return timewarrior.NewClient(&timewarrior.ClientOpts{
-			BaseClientOpts:     *opts,
-			Command:            viper.GetString("timewarrior-command"),
-			CommandArguments:   viper.GetStringSlice("timewarrior-arguments"),
-			CommandCtxExecutor: exec.CommandContext,
-			UnbillableTag:      viper.GetString("timewarrior-unbillable-tag"),
-			ClientTagRegex:     viper.GetString("timewarrior-client-tag-regex"),
-			ProjectTagRegex:    viper.GetString("timewarrior-project-tag-regex"),
+		return timewarrior.NewFetcher(&timewarrior.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+				Timeout:          0,
+			},
+			CLIClient: client.CLIClient{
+				Command:            viper.GetString("timewarrior-command"),
+				CommandArguments:   viper.GetStringSlice("timewarrior-arguments"),
+				CommandCtxExecutor: exec.CommandContext,
+			},
+			UnbillableTag:   viper.GetString("timewarrior-unbillable-tag"),
+			ClientTagRegex:  viper.GetString("timewarrior-client-tag-regex"),
+			ProjectTagRegex: viper.GetString("timewarrior-project-tag-regex"),
 		})
 	case "toggl":
-		opts, err := getClientOpts(
-			"toggl-url",
-			"toggl-api-key",
-			"",
-			"",
-			"",
-		)
-
-		// Toggl requires basic auth with the token set as the username and
-		// "api_token" set for password as a fix value to access their APIs
-		opts.Password = "api_token"
-
-		if err != nil {
-			return nil, err
-		}
-
-		return toggl.NewClient(&toggl.ClientOpts{
-			BaseClientOpts: *opts,
-			Workspace:      viper.GetInt("toggl-workspace"),
-		}), nil
+		return toggl.NewFetcher(&toggl.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+				Timeout:          0,
+			},
+			BasicAuth: client.BasicAuth{
+				Username: viper.GetString("toggl-api-key"),
+				Password: "api_token",
+			},
+			BaseURL:   "https://api.track.toggl.com",
+			Workspace: viper.GetInt("toggl-workspace"),
+		})
 	default:
 		return nil, ErrNoSourceImplementation
 	}
@@ -349,21 +303,18 @@ func getFetcher() (client.Fetcher, error) {
 func getUploader() (client.Uploader, error) {
 	switch viper.GetString("target") {
 	case "tempo":
-		opts, err := getClientOpts(
-			"tempo-url",
-			"tempo-username",
-			"tempo-password",
-			"",
-			"",
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return tempo.NewClient(&tempo.ClientOpts{
-			BaseClientOpts: *opts,
-		}), nil
+		return tempo.NewUploader(&tempo.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
+				Timeout:          0,
+			},
+			BasicAuth: client.BasicAuth{
+				Username: viper.GetString("tempo-username"),
+				Password: viper.GetString("tempo-password"),
+			},
+			BaseURL: viper.GetString("tempo-url"),
+		})
 	default:
 		return nil, ErrNoTargetImplementation
 	}

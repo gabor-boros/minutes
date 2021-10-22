@@ -12,6 +12,7 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/require"
 )
@@ -60,7 +61,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	clientUsername := "token-of-the-day"
 	clientPassword := "api_token"
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -105,8 +106,8 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
-			"since":        {start.Format(toggl.DateFormat)},
-			"until":        {end.Format(toggl.DateFormat)},
+			"since":        {utils.DateFormatISO8601.Format(start)},
+			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},
@@ -148,19 +149,15 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	togglClient := toggl.NewClient(&toggl.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
 		},
+		BaseURL:   mockServer.URL,
 		Workspace: 123456789,
 	})
+	require.Nil(t, err)
 
 	entries, err := togglClient.FetchEntries(context.Background(), &client.FetchOpts{
 		User:  "987654321",
@@ -179,7 +176,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	clientUsername := "token-of-the-day"
 	clientPassword := "api_token"
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "My Awesome Company",
@@ -243,8 +240,8 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
-			"since":        {start.Format(toggl.DateFormat)},
-			"until":        {end.Format(toggl.DateFormat)},
+			"since":        {utils.DateFormatISO8601.Format(start)},
+			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
 			"workspace_id": {"123456789"},
 			"user_agent":   {"github.com/gabor-boros/minutes"},
@@ -288,21 +285,19 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	togglClient := toggl.NewClient(&toggl.ClientOpts{
+	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts:   *httpClientOpts,
 			TagsAsTasks:      true,
 			TagsAsTasksRegex: `^CPT\-\w+$`,
 		},
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
+		},
+		BaseURL:   mockServer.URL,
 		Workspace: 123456789,
 	})
+	require.Nil(t, err)
 
 	entries, err := togglClient.FetchEntries(context.Background(), &client.FetchOpts{
 		User:  "987654321",

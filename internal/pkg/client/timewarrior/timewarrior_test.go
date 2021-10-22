@@ -11,6 +11,7 @@ import (
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
+	"github.com/gabor-boros/minutes/internal/pkg/utils"
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 	"github.com/stretchr/testify/require"
 )
@@ -47,8 +48,8 @@ func TestExecCommandHelper(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[
@@ -57,7 +58,7 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",
@@ -117,14 +118,16 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
-		BaseClientOpts:     client.BaseClientOpts{},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{},
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)
@@ -139,8 +142,8 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[
@@ -149,7 +152,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",
@@ -209,17 +212,19 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      false,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)
@@ -234,8 +239,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 }
 
 func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
-	start, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054408Z", time.Local)
-	end, _ := time.ParseInLocation(timewarrior.ParseDateFormat, "20211012T054420Z", time.Local)
+	start, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054408Z", time.Local)
+	end, _ := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), "20211012T054420Z", time.Local)
 
 	mockedExitCode = 0
 	mockedStdout = `[
@@ -244,7 +249,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		{"id":1,"start":"20211012T054408Z","end":"20211012T054420Z","tags":["TASK-123","TASK-456","project","client","unbillable"],"annotation":"working unbilled split"}
 	]`
 
-	expectedEntries := []worklog.Entry{
+	expectedEntries := worklog.Entries{
 		{
 			Client: worklog.IDNameField{
 				ID:   "otherclient",
@@ -323,17 +328,19 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)
