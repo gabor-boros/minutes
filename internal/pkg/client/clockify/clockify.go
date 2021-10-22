@@ -61,50 +61,16 @@ type WorklogSearchParams struct {
 // ClientOpts is the client specific options, extending client.BaseClientOpts.
 type ClientOpts struct {
 	client.BaseClientOpts
+	client.TokenAuth
+	BaseURL   string
 	Workspace string
 }
 
 type clockifyClient struct {
-	opts *ClientOpts
-}
-
-func (c *clockifyClient) getSearchURL(user string, params *WorklogSearchParams) (string, error) {
-	searchPath := fmt.Sprintf(PathWorklog, c.opts.Workspace, user)
-	worklogURL, err := url.Parse(c.opts.BaseURL + searchPath)
-	if err != nil {
-		return "", err
-	}
-
-	queryParams := worklogURL.Query()
-	queryParams.Add("start", params.Start)
-	queryParams.Add("end", params.End)
-	queryParams.Add("page", strconv.Itoa(params.Page))
-	queryParams.Add("page-size", strconv.Itoa(params.PageSize))
-	queryParams.Add("hydrated", strconv.FormatBool(params.Hydrated))
-	queryParams.Add("in-progress", strconv.FormatBool(params.InProgress))
-	worklogURL.RawQuery = queryParams.Encode()
-
-	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
-}
-
-func (c *clockifyClient) fetchEntries(ctx context.Context, path string) ([]FetchEntry, error) {
-	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
-		Method:     http.MethodGet,
-		Path:       path,
-		ClientOpts: &c.opts.HTTPClientOpts,
-		Data:       nil,
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-	}
-
-	var fetchedEntries []FetchEntry
-	if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
-		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-	}
-
-	return fetchedEntries, err
+	*client.BaseClientOpts
+	*client.HTTPClient
+	authenticator client.Authenticator
+	workspace     string
 }
 
 func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) worklog.Entries {
@@ -139,7 +105,7 @@ func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRe
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.opts.TagsAsTasks && len(entry.Tags) > 0 {
+		if c.TagsAsTasks && len(entry.Tags) > 0 {
 			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, tagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)
 		} else {
@@ -150,6 +116,26 @@ func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRe
 	return entries
 }
 
+func (c *clockifyClient) fetchEntries(ctx context.Context, searchURL string) ([]FetchEntry, error) {
+	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
+		Method:  http.MethodGet,
+		Url:     searchURL,
+		Auth:    c.authenticator,
+		Timeout: c.Timeout,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var fetchedEntries []FetchEntry
+	if err = json.Unmarshal(resp, &fetchedEntries); err != nil {
+		return nil, err
+	}
+
+	return fetchedEntries, nil
+}
+
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
 	var err error
 	var entries worklog.Entries
@@ -157,8 +143,8 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 	pageSize := 100
 
 	var tagsAsTasksRegex *regexp.Regexp
-	if c.opts.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(c.opts.TagsAsTasksRegex)
+	if c.TagsAsTasks {
+		tagsAsTasksRegex, err = regexp.Compile(c.TagsAsTasksRegex)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
@@ -166,16 +152,14 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 
 	// Naive pagination as the API does not return the number of total entries
 	for currentPage*pageSize < MaxPageLength {
-		searchParams := &WorklogSearchParams{
-			Start:      utils.DateFormatRFC3339.Format(opts.Start.Local()),
-			End:        utils.DateFormatRFC3339.Format(opts.End.Local()),
-			Page:       currentPage,
-			PageSize:   pageSize,
-			Hydrated:   true,
-			InProgress: false,
-		}
-
-		searchURL, err := c.getSearchURL(opts.User, searchParams)
+		searchURL, err := c.URL(fmt.Sprintf(PathWorklog, c.workspace, opts.User), map[string]string{
+			"start":       utils.DateFormatRFC3339UTC.Format(opts.Start.Local()),
+			"end":         utils.DateFormatRFC3339UTC.Format(opts.End.Local()),
+			"page":        strconv.Itoa(currentPage),
+			"page-size":   strconv.Itoa(pageSize),
+			"hydrated":    strconv.FormatBool(true),
+			"in-progress": strconv.FormatBool(false),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
@@ -197,9 +181,22 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 	return entries, nil
 }
 
-// NewClient returns a new Clockify client.
-func NewClient(opts *ClientOpts) client.Fetcher {
-	return &clockifyClient{
-		opts: opts,
+// NewFetcher returns a new Clockify client for fetching entries.
+func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
+	baseURL, err := url.Parse(opts.BaseURL)
+	if err != nil {
+		return nil, err
 	}
+
+	authenticator, err := client.NewTokenAuth(opts.Header, opts.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &clockifyClient{
+		authenticator:  authenticator,
+		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
+		BaseClientOpts: &opts.BaseClientOpts,
+		workspace:      opts.Workspace,
+	}, nil
 }

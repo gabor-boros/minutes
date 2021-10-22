@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/jedib0t/go-pretty/v6/progress"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
 	"github.com/gabor-boros/minutes/internal/pkg/utils"
@@ -68,24 +67,33 @@ type SearchParams struct {
 // ClientOpts is the client specific options, extending client.BaseClientOpts.
 type ClientOpts struct {
 	client.BaseClientOpts
+	client.BasicAuth
+	BaseURL string
 }
 
 type tempoClient struct {
-	opts *ClientOpts
+	*client.BaseClientOpts
+	*client.HTTPClient
+	*client.DefaultUploader
+	authenticator client.Authenticator
 }
 
 func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
-	searchParams := &SearchParams{
-		From:   utils.DateFormatISO8601.Format(opts.Start.Local()),
-		To:     utils.DateFormatISO8601.Format(opts.End.Local()),
-		Worker: opts.User,
+	searchURL, err := c.URL(PathWorklogSearch, map[string]string{})
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
-		Method:     http.MethodPost,
-		Path:       PathWorklogSearch,
-		ClientOpts: &c.opts.HTTPClientOpts,
-		Data:       searchParams,
+	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
+		Method:  http.MethodPost,
+		Url:     searchURL,
+		Auth:    c.authenticator,
+		Timeout: c.Timeout,
+		Data: &SearchParams{
+			From:   utils.DateFormatISO8601.Format(opts.Start.Local()),
+			To:     utils.DateFormatISO8601.Format(opts.End.Local()),
+			Worker: opts.User,
+		},
 	})
 
 	if err != nil {
@@ -93,7 +101,7 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	}
 
 	var fetchedEntries []FetchEntry
-	if err = json.NewDecoder(resp.Body).Decode(&fetchedEntries); err != nil {
+	if err = json.Unmarshal(resp, &fetchedEntries); err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
@@ -124,20 +132,15 @@ func (c *tempoClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 }
 
 func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
+	createURL, err := c.URL(PathWorklogCreate, map[string]string{})
+	if err != nil {
+		errChan <- fmt.Errorf("%v: %v", client.ErrUploadEntries, err)
+		return
+	}
+
 	for _, groupEntries := range entries.GroupByTask() {
 		go func(ctx context.Context, entries worklog.Entries, errChan chan error, opts *client.UploadOpts) {
 			for _, entry := range entries {
-				var tracker *progress.Tracker
-				if opts.ProgressWriter != nil {
-					tracker = &progress.Tracker{
-						Message: entry.Summary,
-						Total:   1,
-						Units:   progress.UnitsDefault,
-					}
-
-					opts.ProgressWriter.AppendTracker(tracker)
-				}
-
 				billableDuration := entry.BillableDuration
 				unbillableDuration := entry.UnbillableDuration
 				totalTimeSpent := billableDuration + unbillableDuration
@@ -163,36 +166,51 @@ func (c *tempoClient) UploadEntries(ctx context.Context, entries worklog.Entries
 					Worker:                opts.User,
 				}
 
-				_, err := client.SendRequest(ctx, &client.SendRequestOpts{
-					Method:     http.MethodPost,
-					Path:       PathWorklogCreate,
-					ClientOpts: &c.opts.HTTPClientOpts,
-					Data:       uploadEntry,
+				tracker := c.StartTracking(entry, opts.ProgressWriter)
+
+				_, err := c.Call(ctx, &client.HTTPRequestOpts{
+					Method:  http.MethodPost,
+					Url:     createURL,
+					Auth:    c.authenticator,
+					Timeout: c.Timeout,
+					Data:    uploadEntry,
 				})
 
 				if err != nil {
-					if tracker != nil {
-						tracker.MarkAsErrored()
-					}
-
-					errChan <- fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
-					return
+					err = fmt.Errorf("%v: %+v: %v", client.ErrUploadEntries, uploadEntry, err)
 				}
 
-				if tracker != nil {
-					tracker.Increment(1)
-					tracker.MarkAsDone()
-				}
-
-				errChan <- nil
+				c.StopTracking(tracker, err)
+				errChan <- err
 			}
 		}(ctx, groupEntries, errChan, opts)
 	}
 }
 
-// NewClient returns a new Tempo client.
-func NewClient(opts *ClientOpts) client.FetchUploader {
-	return &tempoClient{
-		opts: opts,
+func newClient(opts *ClientOpts) (*tempoClient, error) {
+	baseURL, err := url.Parse(opts.BaseURL)
+	if err != nil {
+		return nil, err
 	}
+
+	authenticator, err := client.NewBasicAuth(opts.Username, opts.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tempoClient{
+		authenticator:  authenticator,
+		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
+		BaseClientOpts: &opts.BaseClientOpts,
+	}, nil
+}
+
+// NewFetcher returns a new Tempo client for fetching entries.
+func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
+	return newClient(opts)
+}
+
+// NewUploader returns a new Tempo client for uploading entries.
+func NewUploader(opts *ClientOpts) (client.Uploader, error) {
+	return newClient(opts)
 }

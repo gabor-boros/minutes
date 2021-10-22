@@ -10,7 +10,8 @@ type DateFormat int
 const (
 	// DateFormatISO8601 represents the ISO 8601 date format.
 	DateFormatISO8601 DateFormat = iota
-	DateFormatRFC3339
+	// DateFormatRFC3339UTC is similar to RFC3339, but has no offset, in UTC.
+	DateFormatRFC3339UTC
 	// DateFormatRFC3339Compact is similar to RFC3339, but has no separation.
 	// This is not a standard date time format, it is used by Timewarrior.
 	DateFormatRFC3339Compact
@@ -22,10 +23,10 @@ const (
 // String returns the string representation of the format.
 func (d DateFormat) String() string {
 	return []string{
-		"2006-01-02",          // DateFormatISO8601
-		time.RFC3339,          // DateFormatRFC3339
-		"20060102T150405Z",    // DateFormatRFC3339Compact
-		"2006-01-02T15:04:05", // DateFormatRFC3339Local
+		"2006-01-02",           // DateFormatISO8601
+		"2006-01-02T15:04:05Z", // DateFormatRFC3339UTC
+		"20060102T150405Z",     // DateFormatRFC3339Compact
+		"2006-01-02T15:04:05",  // DateFormatRFC3339Local
 	}[d]
 }
 

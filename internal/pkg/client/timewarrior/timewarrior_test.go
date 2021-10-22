@@ -118,14 +118,16 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
-		BaseClientOpts:     client.BaseClientOpts{},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{},
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)
@@ -210,17 +212,19 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      false,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)
@@ -324,17 +328,19 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		},
 	}
 
-	timewarriorClient, err := timewarrior.NewClient(&timewarrior.ClientOpts{
+	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
 			TagsAsTasksRegex: `^TASK\-\d+$`,
 		},
-		Command:            "timewarrior-command",
-		CommandArguments:   []string{},
-		CommandCtxExecutor: mockedExecCommand,
-		UnbillableTag:      "unbillable",
-		ClientTagRegex:     "^(client|otherclient)$",
-		ProjectTagRegex:    "^(project)$",
+		CLIClient: client.CLIClient{
+			Command:            "timewarrior-command",
+			CommandArguments:   []string{},
+			CommandCtxExecutor: mockedExecCommand,
+		},
+		UnbillableTag:   "unbillable",
+		ClientTagRegex:  "^(client|otherclient)$",
+		ProjectTagRegex: "^(project)$",
 	})
 
 	require.Nil(t, err)

@@ -44,41 +44,19 @@ type PaginatedResponse struct {
 	Data       []FetchEntry `json:"data"`
 }
 
-// WorklogSearchParams represents the parameters used to filter search results.
-type WorklogSearchParams struct {
-	Since       string
-	Until       string
-	Page        int
-	UserID      int
-	WorkspaceID int
-}
-
 // ClientOpts is the client specific options, extending client.BaseClientOpts.
 type ClientOpts struct {
 	client.BaseClientOpts
+	client.BasicAuth
+	BaseURL   string
 	Workspace int
 }
 
 type togglClient struct {
-	opts *ClientOpts
-}
-
-func (c *togglClient) getSearchURL(params *WorklogSearchParams) (string, error) {
-	worklogURL, err := url.Parse(c.opts.BaseURL + PathWorklog)
-	if err != nil {
-		return "", err
-	}
-
-	queryParams := worklogURL.Query()
-	queryParams.Add("since", params.Since)
-	queryParams.Add("until", params.Until)
-	queryParams.Add("page", strconv.Itoa(params.Page))
-	queryParams.Add("user_id", strconv.Itoa(params.UserID))
-	queryParams.Add("workspace_id", strconv.Itoa(params.WorkspaceID))
-	queryParams.Add("user_agent", "github.com/gabor-boros/minutes")
-	worklogURL.RawQuery = queryParams.Encode()
-
-	return fmt.Sprintf("%s?%s", worklogURL.Path, worklogURL.Query().Encode()), nil
+	*client.BaseClientOpts
+	*client.HTTPClient
+	authenticator client.Authenticator
+	workspace     int
 }
 
 func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, error) {
@@ -113,7 +91,7 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.opts.TagsAsTasks && len(fetchedEntry.Tags) > 0 {
+		if c.TagsAsTasks && len(fetchedEntry.Tags) > 0 {
 			var tags []worklog.IDNameField
 			for _, tag := range fetchedEntry.Tags {
 				tags = append(tags, worklog.IDNameField{
@@ -132,12 +110,12 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 	return entries, nil
 }
 
-func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, *PaginatedResponse, error) {
-	resp, err := client.SendRequest(ctx, &client.SendRequestOpts{
-		Method:     http.MethodGet,
-		Path:       path,
-		ClientOpts: &c.opts.HTTPClientOpts,
-		Data:       nil,
+func (c *togglClient) fetchEntries(ctx context.Context, reqURL string, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, *PaginatedResponse, error) {
+	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
+		Method:  http.MethodGet,
+		Url:     reqURL,
+		Auth:    c.authenticator,
+		Timeout: c.Timeout,
 	})
 
 	if err != nil {
@@ -145,7 +123,7 @@ func (c *togglClient) fetchEntries(ctx context.Context, path string, tagsAsTasks
 	}
 
 	var paginatedResponse PaginatedResponse
-	if err = json.NewDecoder(resp.Body).Decode(&paginatedResponse); err != nil {
+	if err = json.Unmarshal(resp, &paginatedResponse); err != nil {
 		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
@@ -162,8 +140,8 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	var entries worklog.Entries
 	var tagsAsTasksRegex *regexp.Regexp
 
-	if c.opts.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(c.opts.TagsAsTasksRegex)
+	if c.TagsAsTasks {
+		tagsAsTasksRegex, err = regexp.Compile(c.TagsAsTasksRegex)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
@@ -179,15 +157,15 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	}
 
 	for paginationNeeded {
-		searchParams := &WorklogSearchParams{
-			Since:       utils.DateFormatISO8601.Format(opts.Start),
-			Until:       utils.DateFormatISO8601.Format(opts.End),
-			Page:        currentPage,
-			UserID:      userID,
-			WorkspaceID: c.opts.Workspace,
-		}
+		searchURL, err := c.URL(PathWorklog, map[string]string{
+			"since":        utils.DateFormatISO8601.Format(opts.Start),
+			"until":        utils.DateFormatISO8601.Format(opts.End),
+			"page":         strconv.Itoa(currentPage),
+			"user_id":      strconv.Itoa(userID),
+			"workspace_id": strconv.Itoa(c.workspace),
+			"user_agent":   "github.com/gabor-boros/minutes",
+		})
 
-		searchURL, err := c.getSearchURL(searchParams)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}
@@ -207,9 +185,22 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	return entries, nil
 }
 
-// NewClient returns a new Toggl client.
-func NewClient(opts *ClientOpts) client.Fetcher {
-	return &togglClient{
-		opts: opts,
+// NewFetcher returns a new Toggl client for fetching entries.
+func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
+	baseURL, err := url.Parse(opts.BaseURL)
+	if err != nil {
+		return nil, err
 	}
+
+	authenticator, err := client.NewBasicAuth(opts.Username, opts.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &togglClient{
+		authenticator:  authenticator,
+		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
+		BaseClientOpts: &opts.BaseClientOpts,
+		workspace:      opts.Workspace,
+	}, nil
 }

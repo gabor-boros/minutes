@@ -237,18 +237,14 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	tempoClient := tempo.NewClient(&tempo.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	tempoClient, err := tempo.NewFetcher(&tempo.ClientOpts{
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
 		},
+		BaseURL: mockServer.URL,
 	})
+	require.Nil(t, err)
 
 	entries, err := tempoClient.FetchEntries(context.Background(), &client.FetchOpts{
 		User:  "steve-rogers",
@@ -336,18 +332,14 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	tempoClient := tempo.NewClient(&tempo.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
 		},
+		BaseURL: mockServer.URL,
 	})
+	require.Nil(t, err)
 
 	errChan := make(chan error)
 	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
@@ -434,18 +426,14 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	tempoClient := tempo.NewClient(&tempo.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
 		},
+		BaseURL: mockServer.URL,
 	})
+	require.Nil(t, err)
 
 	errChan := make(chan error)
 	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
@@ -592,18 +580,14 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	httpClientOpts := &client.HTTPClientOpts{
-		HTTPClient: http.DefaultClient,
-		BaseURL:    mockServer.URL,
-		Username:   clientUsername,
-		Password:   clientPassword,
-	}
-
-	tempoClient := tempo.NewClient(&tempo.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{
-			HTTPClientOpts: *httpClientOpts,
+	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BasicAuth: client.BasicAuth{
+			Username: clientUsername,
+			Password: clientPassword,
 		},
+		BaseURL: mockServer.URL,
 	})
+	require.Nil(t, err)
 
 	errChan := make(chan error)
 	tempoClient.UploadEntries(context.Background(), entries, errChan, uploadOpts)
