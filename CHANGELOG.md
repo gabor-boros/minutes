@@ -11,6 +11,15 @@ All notable changes to this project will be documented in this file.
 **Features**
 
 - Add filtering for projects and clients (#29) ([ea5031f](https://github.com/gabor-boros/minutes/commit/ea5031f565780ab8476543c0f52a3a22d1ec543c))
+- Add token name option for token auth ([cff5e53](https://github.com/gabor-boros/minutes/commit/cff5e53a677e66fc475aaf328307c00b438c1ed5))
+
+**Miscellaneous Tasks**
+
+- Update changelog target ([bce0418](https://github.com/gabor-boros/minutes/commit/bce04188d00affa16725d7dfd02f156d7e0b915c))
+
+**Refactor**
+
+- Rework client composition logic and remove unnecessary Toggl flag (#30) ([6658984](https://github.com/gabor-boros/minutes/commit/6658984618f7e3c156110f1ac2527390b468d0a8))
 
 ## [0.1.0] - 2021-10-20
 
