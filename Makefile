@@ -46,7 +46,7 @@ release: ## Release a new version on GitHub
 	goreleaser release --rm-dist
 
 changelog: ## Generate changelog
-	git-cliff --unreleased --prepend CHANGELOG.md
+	git-cliff > CHANGELOG.md
 
 docs: ## Serve the documentation site locally
 	@cd www && mkdocs serve
