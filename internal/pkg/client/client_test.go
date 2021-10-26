@@ -152,7 +152,7 @@ func TestTokenAuth(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, req.Header.Get(header), "")
 
-	auth, err := client.NewTokenAuth(header, "the-strongest-avenger")
+	auth, err := client.NewTokenAuth(header, "", "the-strongest-avenger")
 	require.Nil(t, err)
 
 	auth.SetAuthHeader(req)
@@ -166,7 +166,7 @@ func TestTokenAuth_FallbackHeader(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, req.Header.Get(header), "")
 
-	auth, err := client.NewTokenAuth("", "the-strongest-avenger")
+	auth, err := client.NewTokenAuth("", "", "the-strongest-avenger")
 	require.Nil(t, err)
 
 	auth.SetAuthHeader(req)
@@ -176,7 +176,7 @@ func TestTokenAuth_FallbackHeader(t *testing.T) {
 func TestTokenAuth_Invalid(t *testing.T) {
 	var err error
 
-	_, err = client.NewTokenAuth("", "")
+	_, err = client.NewTokenAuth("", "", "")
 	require.ErrorIs(t, err, client.ErrInvalidTokenAuth)
 }
 

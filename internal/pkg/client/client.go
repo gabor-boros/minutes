@@ -29,6 +29,8 @@ var (
 	ErrInvalidBasicAuth = errors.New("invalid basic auth params provided")
 	// ErrInvalidTokenAuth returns if the provided token is empty.
 	ErrInvalidTokenAuth = errors.New("invalid token auth params provided")
+	// ErrOauth2Callback returns if the Oauth2 provider returned an error.
+	ErrOauth2Callback = errors.New("the Oauth2 callback returned with error")
 )
 
 // BaseClientOpts specifies the common options the clients are using.
@@ -85,19 +87,26 @@ func NewBasicAuth(username string, password string) (Authenticator, error) {
 	}, nil
 }
 
-// TokenAuth represents the required parameters for token based  authentication.
+// TokenAuth represents the required parameters for token based authentication.
 type TokenAuth struct {
-	Header string
-	Token  string
+	Header    string
+	TokenName string
+	Token     string
 }
 
 func (a *TokenAuth) SetAuthHeader(req *http.Request) {
-	req.Header.Set(a.Header, a.Token)
+	token := a.Token
+
+	if a.TokenName != "" {
+		token = a.TokenName + " " + token
+	}
+
+	req.Header.Set(a.Header, token)
 }
 
 // NewTokenAuth returns a new TokenAuth that implements Authenticator. If the
 // header name is not set, the standard "Authorization" header will be used.
-func NewTokenAuth(header string, token string) (Authenticator, error) {
+func NewTokenAuth(header string, tokenName string, token string) (Authenticator, error) {
 	if token == "" {
 		return nil, ErrInvalidTokenAuth
 	}
@@ -108,6 +117,7 @@ func NewTokenAuth(header string, token string) (Authenticator, error) {
 
 	return &TokenAuth{
 		Header: header,
+		TokenName: tokenName,
 		Token:  token,
 	}, nil
 }

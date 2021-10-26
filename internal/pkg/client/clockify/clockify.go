@@ -188,7 +188,7 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		return nil, err
 	}
 
-	authenticator, err := client.NewTokenAuth(opts.Header, opts.Token)
+	authenticator, err := client.NewTokenAuth(opts.Header, "", opts.Token)
 	if err != nil {
 		return nil, err
 	}
