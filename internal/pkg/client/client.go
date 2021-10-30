@@ -29,8 +29,6 @@ var (
 	ErrInvalidBasicAuth = errors.New("invalid basic auth params provided")
 	// ErrInvalidTokenAuth returns if the provided token is empty.
 	ErrInvalidTokenAuth = errors.New("invalid token auth params provided")
-	// ErrOauth2Callback returns if the Oauth2 provider returned an error.
-	ErrOauth2Callback = errors.New("the Oauth2 callback returned with error")
 )
 
 // BaseClientOpts specifies the common options the clients are using.
@@ -116,9 +114,9 @@ func NewTokenAuth(header string, tokenName string, token string) (Authenticator,
 	}
 
 	return &TokenAuth{
-		Header: header,
+		Header:    header,
 		TokenName: tokenName,
-		Token:  token,
+		Token:     token,
 	}, nil
 }
 
