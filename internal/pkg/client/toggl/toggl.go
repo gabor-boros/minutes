@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -57,9 +56,6 @@ type togglClient struct {
 	*client.HTTPClient
 	authenticator client.Authenticator
 	workspace     int
-
-	// TODO: opts.TagsAsTasksRegex should be a regexp to avoid this
-	tagsAsTasksRegex *regexp.Regexp
 }
 
 func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
@@ -108,7 +104,7 @@ func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, err
 				})
 			}
 
-			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, c.tagsAsTasksRegex, tags)
+			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, c.TagsAsTasksRegex, tags)
 			entries = append(entries, splitEntries...)
 		} else {
 			entries = append(entries, entry)
@@ -180,15 +176,6 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		return nil, err
 	}
 
-	// TODO: Remove this after opt.TagsAsTasksRegex is refactored
-	var tagsAsTasksRegex *regexp.Regexp
-	if opts.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(opts.TagsAsTasksRegex)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-	}
-
 	return &togglClient{
 		authenticator: authenticator,
 		HTTPClient: &client.HTTPClient{
@@ -196,7 +183,5 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		},
 		BaseClientOpts: &opts.BaseClientOpts,
 		workspace:      opts.Workspace,
-		// TODO: Remove this after opt.TagsAsTasksRegex is refactored
-		tagsAsTasksRegex: tagsAsTasksRegex,
 	}, nil
 }

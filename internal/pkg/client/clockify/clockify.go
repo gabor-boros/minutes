@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"time"
 
 	"strconv"
@@ -17,8 +16,6 @@ import (
 )
 
 const (
-	// MaxPageLength is the maximum page length defined by Clockify.
-	MaxPageLength int = 5000
 	// PathWorklog is the API endpoint used to search and create worklogs.
 	PathWorklog string = "/api/v1/workspaces/%s/user/%s/time-entries"
 )
@@ -71,9 +68,6 @@ type clockifyClient struct {
 	*client.HTTPClient
 	authenticator client.Authenticator
 	workspace     string
-
-	// TODO: opts.TagsAsTasksRegex should be a regexp to avoid this
-	tagsAsTasksRegex *regexp.Regexp
 }
 
 func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
@@ -114,7 +108,7 @@ func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, 
 		}
 
 		if c.TagsAsTasks && len(entry.Tags) > 0 {
-			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, c.tagsAsTasksRegex, entry.Tags)
+			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, c.TagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)
 		} else {
 			entries = append(entries, worklogEntry)
@@ -176,21 +170,10 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		return nil, err
 	}
 
-	// TODO: Remove this after opt.TagsAsTasksRegex is refactored
-	var tagsAsTasksRegex *regexp.Regexp
-	if opts.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(opts.TagsAsTasksRegex)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-	}
-
 	return &clockifyClient{
 		authenticator:  authenticator,
 		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
 		BaseClientOpts: &opts.BaseClientOpts,
 		workspace:      opts.Workspace,
-		// TODO: Remove this after opt.TagsAsTasksRegex is refactored
-		tagsAsTasksRegex: tagsAsTasksRegex,
 	}, nil
 }

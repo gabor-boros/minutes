@@ -337,6 +337,7 @@ func TestHTTPClient_Call(t *testing.T) {
 		Auth:    nil,
 		Headers: headers,
 		Data:    nil,
+		Timeout: client.DefaultRequestTimeout,
 	})
 
 	require.Nil(t, err, err)
@@ -374,6 +375,7 @@ func TestHTTPClient_Call_NoClientSet(t *testing.T) {
 		Auth:    nil,
 		Headers: headers,
 		Data:    nil,
+		Timeout: client.DefaultRequestTimeout,
 	})
 
 	require.Nil(t, err)
@@ -413,6 +415,7 @@ func TestHTTPClient_Call_POST(t *testing.T) {
 		Data: testData{
 			Message: "Test",
 		},
+		Timeout: client.DefaultRequestTimeout,
 	})
 
 	require.Nil(t, err)
@@ -454,6 +457,7 @@ func TestHTTPClient_Call_Auth(t *testing.T) {
 		Auth:    authMethod,
 		Headers: headers,
 		Data:    nil,
+		Timeout: client.DefaultRequestTimeout,
 	})
 
 	require.Nil(t, err)
@@ -488,6 +492,7 @@ func TestHTTPClient_Call_Failure(t *testing.T) {
 		Auth:    nil,
 		Headers: map[string]string{},
 		Data:    nil,
+		Timeout: client.DefaultRequestTimeout,
 	})
 
 	require.Error(t, err)

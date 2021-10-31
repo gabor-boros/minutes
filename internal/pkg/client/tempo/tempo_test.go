@@ -242,6 +242,9 @@ func TestTempoClient_FetchEntries(t *testing.T) {
 	defer mockServer.Close()
 
 	tempoClient, err := tempo.NewFetcher(&tempo.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
 			Password: clientPassword,
@@ -337,6 +340,9 @@ func TestTempoClient_UploadEntries(t *testing.T) {
 	defer mockServer.Close()
 
 	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
 			Password: clientPassword,
@@ -431,6 +437,9 @@ func TestTempoClient_UploadEntries_TreatDurationAsBilled(t *testing.T) {
 	defer mockServer.Close()
 
 	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
 			Password: clientPassword,
@@ -585,6 +594,9 @@ func TestTempoClient_UploadEntries_RoundToClosestMinute(t *testing.T) {
 	defer mockServer.Close()
 
 	tempoClient, err := tempo.NewUploader(&tempo.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
 			Password: clientPassword,

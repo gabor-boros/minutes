@@ -38,10 +38,9 @@ type ClientOpts struct {
 type timewarriorClient struct {
 	*client.BaseClientOpts
 	*client.CLIClient
-	clientTagRegex   *regexp.Regexp
-	projectTagRegex  *regexp.Regexp
-	tagsAsTasksRegex *regexp.Regexp
-	unbillableTag    string
+	clientTagRegex  *regexp.Regexp
+	projectTagRegex *regexp.Regexp
+	unbillableTag   string
 }
 
 func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error) {
@@ -79,7 +78,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.tagsAsTasksRegex.String() != "" && c.tagsAsTasksRegex.MatchString(tag) {
+		} else if c.TagsAsTasksRegex.String() != "" && c.TagsAsTasksRegex.MatchString(tag) {
 			worklogEntry.Task = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
@@ -104,7 +103,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 			})
 		}
 
-		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, c.tagsAsTasksRegex, tags)
+		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, c.TagsAsTasksRegex, tags)
 		entries = append(entries, splitEntries...)
 	} else {
 		entries = append(entries, worklogEntry)
@@ -172,17 +171,11 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	tagsAsTasksRegex, err := regexp.Compile(opts.TagsAsTasksRegex)
-	if err != nil {
-		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-	}
-
 	return &timewarriorClient{
-		BaseClientOpts:   &opts.BaseClientOpts,
-		CLIClient:        &opts.CLIClient,
-		unbillableTag:    opts.UnbillableTag,
-		clientTagRegex:   clientTagRegex,
-		projectTagRegex:  projectTagRegex,
-		tagsAsTasksRegex: tagsAsTasksRegex,
+		BaseClientOpts:  &opts.BaseClientOpts,
+		CLIClient:       &opts.CLIClient,
+		unbillableTag:   opts.UnbillableTag,
+		clientTagRegex:  clientTagRegex,
+		projectTagRegex: projectTagRegex,
 	}, nil
 }

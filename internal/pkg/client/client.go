@@ -12,6 +12,7 @@ import (
 	netURL "net/url"
 	"os/exec"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -50,7 +51,7 @@ type BaseClientOpts struct {
 	// from the list of tags.
 	//
 	// This option must be used in conjunction with TagsAsTasks option.
-	TagsAsTasksRegex string
+	TagsAsTasksRegex *regexp.Regexp
 	// Timeout sets the timeout for the client to execute a request.
 	// In the case of HTTP clients, the timeout is applied on the HTTP request,
 	// while in the case of CLI based clients it will be applied on the command
@@ -141,7 +142,7 @@ type CLIClient struct {
 
 // Execute runs the given CLI command with the specified arguments.
 func (c *CLIClient) Execute(ctx context.Context, arguments []string, opts *CLIExecuteOpts) ([]byte, error) {
-	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, opts.Timeout)
 	defer cancel()
 
 	return c.CommandCtxExecutor(ctxWithTimeout, c.Command, arguments...).Output() // #nosec G204
@@ -191,7 +192,7 @@ func (c *HTTPClient) URL(path string, params map[string]string) (string, error) 
 // Call fires an HTTP request with the given method and body (in its body) to
 // the API URL returned by the `URL` method.
 func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, error) {
-	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, opts.Timeout)
 	defer cancel()
 
 	req, err := c.newRequest(ctxWithTimeout, opts)
@@ -325,13 +326,4 @@ func (c *HTTPClient) sendRequest(httpClient *http.Client, req *http.Request) (*h
 	}
 
 	return resp, nil
-}
-
-func ctxWithTimeout(ctx context.Context, timeout time.Duration) (context.Context, func()) {
-	ctxTimeout := DefaultRequestTimeout
-	if timeout > 0 {
-		ctxTimeout = timeout
-	}
-
-	return context.WithTimeout(ctx, ctxTimeout)
 }

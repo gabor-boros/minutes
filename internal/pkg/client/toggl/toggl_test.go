@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strconv"
 	"testing"
 	"time"
@@ -153,6 +154,9 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 	defer mockServer.Close()
 
 	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
 			Password: clientPassword,
@@ -294,7 +298,8 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
-			TagsAsTasksRegex: `^CPT\-\w+$`,
+			TagsAsTasksRegex: regexp.MustCompile(`^CPT-\w+$`),
+			Timeout:          client.DefaultRequestTimeout,
 		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
