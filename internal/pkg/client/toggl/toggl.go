@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gabor-boros/minutes/internal/pkg/client"
@@ -140,15 +139,10 @@ func (c *togglClient) fetchEntries(ctx context.Context, reqURL string) (interfac
 }
 
 func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
-	userID, err := strconv.Atoi(strings.Split(opts.User, ",")[0])
-	if err != nil {
-		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-	}
-
 	fetchURL, err := c.URL(PathWorklog, map[string]string{
 		"since":        utils.DateFormatISO8601.Format(opts.Start),
 		"until":        utils.DateFormatISO8601.Format(opts.End),
-		"user_id":      strconv.Itoa(userID),
+		"user_id":      opts.User,
 		"workspace_id": strconv.Itoa(c.workspace),
 		"user_agent":   "github.com/gabor-boros/minutes",
 	})
