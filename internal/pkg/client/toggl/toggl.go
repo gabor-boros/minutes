@@ -36,9 +36,9 @@ type FetchEntry struct {
 	TaskID      int       `json:"tid"`
 }
 
-// PaginatedResponse represents the response of Toggl Track report APIs.
+// FetchResponse represents the response of Toggl Track report APIs.
 // The response would have more fields, but those are not relevant for us.
-type PaginatedResponse struct {
+type FetchResponse struct {
 	TotalCount int          `json:"total_count"`
 	PerPage    int          `json:"per_page"`
 	Data       []FetchEntry `json:"data"`
@@ -57,10 +57,18 @@ type togglClient struct {
 	*client.HTTPClient
 	authenticator client.Authenticator
 	workspace     int
+
+	// TODO: opts.TagsAsTasksRegex should be a regexp to avoid this
+	tagsAsTasksRegex *regexp.Regexp
 }
 
-func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, error) {
+func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
 	var entries worklog.Entries
+
+	fetchedEntries, ok := rawEntries.([]FetchEntry)
+	if !ok {
+		return nil, fmt.Errorf("%v: %s", client.ErrFetchEntries, "cannot parse returned entries")
+	}
 
 	for _, fetchedEntry := range fetchedEntries {
 		billableDuration := time.Millisecond * time.Duration(fetchedEntry.Duration)
@@ -100,7 +108,7 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 				})
 			}
 
-			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, tagsAsTasksRegex, tags)
+			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, c.tagsAsTasksRegex, tags)
 			entries = append(entries, splitEntries...)
 		} else {
 			entries = append(entries, entry)
@@ -110,7 +118,7 @@ func (c *togglClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex
 	return entries, nil
 }
 
-func (c *togglClient) fetchEntries(ctx context.Context, reqURL string, tagsAsTasksRegex *regexp.Regexp) (worklog.Entries, *PaginatedResponse, error) {
+func (c *togglClient) fetchEntries(ctx context.Context, reqURL string) (interface{}, *client.PaginatedFetchResponse, error) {
 	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
 		Method:  http.MethodGet,
 		Url:     reqURL,
@@ -122,67 +130,42 @@ func (c *togglClient) fetchEntries(ctx context.Context, reqURL string, tagsAsTas
 		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	var paginatedResponse PaginatedResponse
-	if err = json.Unmarshal(resp, &paginatedResponse); err != nil {
+	var fetchResponse FetchResponse
+	if err = json.Unmarshal(resp, &fetchResponse); err != nil {
 		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	parsedEntries, err := c.parseEntries(paginatedResponse.Data, tagsAsTasksRegex)
-	if err != nil {
-		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+	paginatedResponse := &client.PaginatedFetchResponse{
+		EntriesPerPage: fetchResponse.PerPage,
+		TotalEntries:   fetchResponse.TotalCount,
 	}
 
-	return parsedEntries, &paginatedResponse, err
+	return fetchResponse.Data, paginatedResponse, err
 }
 
 func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
-	var err error
-	var entries worklog.Entries
-	var tagsAsTasksRegex *regexp.Regexp
-
-	if c.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(c.TagsAsTasksRegex)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-	}
-
-	var pageSize int
-	currentPage := 1
-	paginationNeeded := true
-
 	userID, err := strconv.Atoi(strings.Split(opts.User, ",")[0])
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	for paginationNeeded {
-		searchURL, err := c.URL(PathWorklog, map[string]string{
-			"since":        utils.DateFormatISO8601.Format(opts.Start),
-			"until":        utils.DateFormatISO8601.Format(opts.End),
-			"page":         strconv.Itoa(currentPage),
-			"user_id":      strconv.Itoa(userID),
-			"workspace_id": strconv.Itoa(c.workspace),
-			"user_agent":   "github.com/gabor-boros/minutes",
-		})
+	fetchURL, err := c.URL(PathWorklog, map[string]string{
+		"since":        utils.DateFormatISO8601.Format(opts.Start),
+		"until":        utils.DateFormatISO8601.Format(opts.End),
+		"user_id":      strconv.Itoa(userID),
+		"workspace_id": strconv.Itoa(c.workspace),
+		"user_agent":   "github.com/gabor-boros/minutes",
+	})
 
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		parsedEntries, paginatedResponse, err := c.fetchEntries(ctx, searchURL, tagsAsTasksRegex)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		entries = append(entries, parsedEntries...)
-
-		pageSize = paginatedResponse.PerPage
-		paginationNeeded = (paginatedResponse.TotalCount - pageSize*currentPage) > 0
-		currentPage++
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	return entries, nil
+	return c.PaginatedFetch(ctx, &client.PaginatedFetchOpts{
+		URL:       fetchURL,
+		FetchFunc: c.fetchEntries,
+		ParseFunc: c.parseEntries,
+	})
 }
 
 // NewFetcher returns a new Toggl client for fetching entries.
@@ -197,10 +180,23 @@ func NewFetcher(opts *ClientOpts) (client.Fetcher, error) {
 		return nil, err
 	}
 
+	// TODO: Remove this after opt.TagsAsTasksRegex is refactored
+	var tagsAsTasksRegex *regexp.Regexp
+	if opts.TagsAsTasks {
+		tagsAsTasksRegex, err = regexp.Compile(opts.TagsAsTasksRegex)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
+		}
+	}
+
 	return &togglClient{
-		authenticator:  authenticator,
-		HTTPClient:     &client.HTTPClient{BaseURL: baseURL},
+		authenticator: authenticator,
+		HTTPClient: &client.HTTPClient{
+			BaseURL: baseURL,
+		},
 		BaseClientOpts: &opts.BaseClientOpts,
 		workspace:      opts.Workspace,
+		// TODO: Remove this after opt.TagsAsTasksRegex is refactored
+		tagsAsTasksRegex: tagsAsTasksRegex,
 	}, nil
 }

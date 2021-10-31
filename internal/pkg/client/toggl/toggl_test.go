@@ -24,7 +24,7 @@ type mockServerOpts struct {
 	StatusCode   int
 	Username     string
 	Password     string
-	ResponseData *toggl.PaginatedResponse
+	ResponseData *toggl.FetchResponse
 }
 
 func mockServer(t *testing.T, e *mockServerOpts) *httptest.Server {
@@ -106,6 +106,7 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
+			"per_page":     {"50"},
 			"since":        {utils.DateFormatISO8601.Format(start)},
 			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
@@ -116,7 +117,9 @@ func TestTogglClient_FetchEntries(t *testing.T) {
 		StatusCode: http.StatusOK,
 		Username:   clientUsername,
 		Password:   clientPassword,
-		ResponseData: &toggl.PaginatedResponse{
+		ResponseData: &toggl.FetchResponse{
+			TotalCount: 2,
+			PerPage:    50,
 			Data: []toggl.FetchEntry{
 				{
 					Client:      "My Awesome Company",
@@ -240,6 +243,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		Path: toggl.PathWorklog,
 		QueryParams: url.Values{
 			"page":         {"1"},
+			"per_page":     {"50"},
 			"since":        {utils.DateFormatISO8601.Format(start)},
 			"until":        {utils.DateFormatISO8601.Format(end)},
 			"user_id":      {"987654321"},
@@ -250,7 +254,9 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 		StatusCode: http.StatusOK,
 		Username:   clientUsername,
 		Password:   clientPassword,
-		ResponseData: &toggl.PaginatedResponse{
+		ResponseData: &toggl.FetchResponse{
+			TotalCount: 2,
+			PerPage:    50,
 			Data: []toggl.FetchEntry{
 				{
 					Client:      "My Awesome Company",
