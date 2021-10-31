@@ -16,10 +16,19 @@ All notable changes to this project will be documented in this file.
 **Miscellaneous Tasks**
 
 - Update changelog target ([bce0418](https://github.com/gabor-boros/minutes/commit/bce04188d00affa16725d7dfd02f156d7e0b915c))
+- Update dependencies ([f1029a7](https://github.com/gabor-boros/minutes/commit/f1029a7da35c646f29750fef0ba8ae3b9056a2a6))
 
 **Refactor**
 
 - Rework client composition logic and remove unnecessary Toggl flag (#30) ([6658984](https://github.com/gabor-boros/minutes/commit/6658984618f7e3c156110f1ac2527390b468d0a8))
+- Add paginated API call helpers ([4e88bec](https://github.com/gabor-boros/minutes/commit/4e88bec04964c42a79329f311cb7bc3f53dadaca))
+- Use paginated call helpers ([901800f](https://github.com/gabor-boros/minutes/commit/901800f5fbc37f3702e7e6413c508db59966be78))
+- Use paginated call helpers ([6ddca80](https://github.com/gabor-boros/minutes/commit/6ddca804799e65525d7d913deeeb463d0e93bb32))
+- Parse TagsAsTasks as regexp ([bf32537](https://github.com/gabor-boros/minutes/commit/bf32537fa39efe3f6c93f9c7056c49115d3f5eb8))
+
+**Revert**
+
+- Remove unnecessary error ([1120133](https://github.com/gabor-boros/minutes/commit/112013353c6e5cb4478f1c44294790c304b1885c))
 
 ## [0.1.0] - 2021-10-20
 
