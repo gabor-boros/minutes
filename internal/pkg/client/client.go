@@ -11,7 +11,11 @@ import (
 	"net/http"
 	netURL "net/url"
 	"os/exec"
+	"reflect"
+	"strconv"
 	"time"
+
+	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
 const (
@@ -177,7 +181,7 @@ func (c *HTTPClient) URL(path string, params map[string]string) (string, error) 
 	query := url.Query()
 
 	for key, val := range params {
-		query.Add(key, val)
+		query.Set(key, val)
 	}
 
 	url.RawQuery = query.Encode()
@@ -201,6 +205,74 @@ func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, e
 	}
 
 	return ioutil.ReadAll(resp.Body)
+}
+
+// PaginatedFetch fetches the entries from the given paginated API.
+// I helps working with paginated APIs and gives a unified entrypoint
+// to fetch and parse entries.
+// TODO: Write separate unit tests
+func (c *HTTPClient) PaginatedFetch(ctx context.Context, opts *PaginatedFetchOpts) (worklog.Entries, error) {
+	var entries worklog.Entries
+
+	currentPage := 1
+
+	pageSize := opts.PageSize
+	if pageSize <= 0 {
+		pageSize = DefaultPageSize
+	}
+
+	pageSizeParam := opts.PageSizeParam
+	if pageSizeParam == "" {
+		pageSizeParam = DefaultPageSizeParam
+	}
+
+	pageParam := opts.PageParam
+	if pageParam == "" {
+		pageParam = DefaultPageParam
+	}
+
+	for {
+		url, err := c.URL(opts.URL, map[string]string{
+			pageParam:     strconv.Itoa(currentPage),
+			pageSizeParam: strconv.Itoa(pageSize),
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		rawEntries, paginatedResponse, err := opts.FetchFunc(ctx, url)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		// No entries were returned, no need to parse entries
+		if reflect.ValueOf(rawEntries).Len() == 0 {
+			break
+		}
+
+		parsedEntries, err := opts.ParseFunc(rawEntries)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		entries = append(entries, parsedEntries...)
+
+		if paginatedResponse.EntriesPerPage > 0 {
+			pageSize = paginatedResponse.EntriesPerPage
+		}
+
+		// If the number of entries known, break the loop if all entries are fetched
+		if paginatedResponse.TotalEntries > 0 {
+			if paginatedResponse.TotalEntries-pageSize*currentPage <= 0 {
+				break
+			}
+		}
+
+		currentPage++
+	}
+
+	return entries, nil
 }
 
 func (c *HTTPClient) newRequest(ctx context.Context, opts *HTTPRequestOpts) (*http.Request, error) {
