@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"testing"
 	"time"
@@ -119,7 +120,10 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 	}
 
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
-		BaseClientOpts: client.BaseClientOpts{},
+		BaseClientOpts: client.BaseClientOpts{
+			TagsAsTasksRegex: regexp.MustCompile(""),
+			Timeout:          client.DefaultRequestTimeout,
+		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",
 			CommandArguments:   []string{},
@@ -215,7 +219,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      false,
-			TagsAsTasksRegex: `^TASK\-\d+$`,
+			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
+			Timeout:          client.DefaultRequestTimeout,
 		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",
@@ -331,7 +336,8 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
-			TagsAsTasksRegex: `^TASK\-\d+$`,
+			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
+			Timeout:          client.DefaultRequestTimeout,
 		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",

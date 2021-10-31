@@ -11,7 +11,12 @@ import (
 	"net/http"
 	netURL "net/url"
 	"os/exec"
+	"reflect"
+	"regexp"
+	"strconv"
 	"time"
+
+	"github.com/gabor-boros/minutes/internal/pkg/worklog"
 )
 
 const (
@@ -29,8 +34,6 @@ var (
 	ErrInvalidBasicAuth = errors.New("invalid basic auth params provided")
 	// ErrInvalidTokenAuth returns if the provided token is empty.
 	ErrInvalidTokenAuth = errors.New("invalid token auth params provided")
-	// ErrOauth2Callback returns if the Oauth2 provider returned an error.
-	ErrOauth2Callback = errors.New("the Oauth2 callback returned with error")
 )
 
 // BaseClientOpts specifies the common options the clients are using.
@@ -48,7 +51,7 @@ type BaseClientOpts struct {
 	// from the list of tags.
 	//
 	// This option must be used in conjunction with TagsAsTasks option.
-	TagsAsTasksRegex string
+	TagsAsTasksRegex *regexp.Regexp
 	// Timeout sets the timeout for the client to execute a request.
 	// In the case of HTTP clients, the timeout is applied on the HTTP request,
 	// while in the case of CLI based clients it will be applied on the command
@@ -116,9 +119,9 @@ func NewTokenAuth(header string, tokenName string, token string) (Authenticator,
 	}
 
 	return &TokenAuth{
-		Header: header,
+		Header:    header,
 		TokenName: tokenName,
-		Token:  token,
+		Token:     token,
 	}, nil
 }
 
@@ -139,7 +142,7 @@ type CLIClient struct {
 
 // Execute runs the given CLI command with the specified arguments.
 func (c *CLIClient) Execute(ctx context.Context, arguments []string, opts *CLIExecuteOpts) ([]byte, error) {
-	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, opts.Timeout)
 	defer cancel()
 
 	return c.CommandCtxExecutor(ctxWithTimeout, c.Command, arguments...).Output() // #nosec G204
@@ -179,7 +182,7 @@ func (c *HTTPClient) URL(path string, params map[string]string) (string, error) 
 	query := url.Query()
 
 	for key, val := range params {
-		query.Add(key, val)
+		query.Set(key, val)
 	}
 
 	url.RawQuery = query.Encode()
@@ -189,7 +192,7 @@ func (c *HTTPClient) URL(path string, params map[string]string) (string, error) 
 // Call fires an HTTP request with the given method and body (in its body) to
 // the API URL returned by the `URL` method.
 func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, error) {
-	ctxWithTimeout, cancel := ctxWithTimeout(ctx, opts.Timeout)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, opts.Timeout)
 	defer cancel()
 
 	req, err := c.newRequest(ctxWithTimeout, opts)
@@ -203,6 +206,74 @@ func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, e
 	}
 
 	return ioutil.ReadAll(resp.Body)
+}
+
+// PaginatedFetch fetches the entries from the given paginated API.
+// I helps working with paginated APIs and gives a unified entrypoint
+// to fetch and parse entries.
+// TODO: Write separate unit tests
+func (c *HTTPClient) PaginatedFetch(ctx context.Context, opts *PaginatedFetchOpts) (worklog.Entries, error) {
+	var entries worklog.Entries
+
+	currentPage := 1
+
+	pageSize := opts.PageSize
+	if pageSize <= 0 {
+		pageSize = DefaultPageSize
+	}
+
+	pageSizeParam := opts.PageSizeParam
+	if pageSizeParam == "" {
+		pageSizeParam = DefaultPageSizeParam
+	}
+
+	pageParam := opts.PageParam
+	if pageParam == "" {
+		pageParam = DefaultPageParam
+	}
+
+	for {
+		url, err := c.URL(opts.URL, map[string]string{
+			pageParam:     strconv.Itoa(currentPage),
+			pageSizeParam: strconv.Itoa(pageSize),
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		rawEntries, paginatedResponse, err := opts.FetchFunc(ctx, url)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		// No entries were returned, no need to parse entries
+		if reflect.ValueOf(rawEntries).Len() == 0 {
+			break
+		}
+
+		parsedEntries, err := opts.ParseFunc(rawEntries)
+		if err != nil {
+			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
+		}
+
+		entries = append(entries, parsedEntries...)
+
+		if paginatedResponse.EntriesPerPage > 0 {
+			pageSize = paginatedResponse.EntriesPerPage
+		}
+
+		// If the number of entries known, break the loop if all entries are fetched
+		if paginatedResponse.TotalEntries > 0 {
+			if paginatedResponse.TotalEntries-pageSize*currentPage <= 0 {
+				break
+			}
+		}
+
+		currentPage++
+	}
+
+	return entries, nil
 }
 
 func (c *HTTPClient) newRequest(ctx context.Context, opts *HTTPRequestOpts) (*http.Request, error) {
@@ -255,13 +326,4 @@ func (c *HTTPClient) sendRequest(httpClient *http.Client, req *http.Request) (*h
 	}
 
 	return resp, nil
-}
-
-func ctxWithTimeout(ctx context.Context, timeout time.Duration) (context.Context, func()) {
-	ctxTimeout := DefaultRequestTimeout
-	if timeout > 0 {
-		ctxTimeout = timeout
-	}
-
-	return context.WithTimeout(ctx, ctxTimeout)
 }

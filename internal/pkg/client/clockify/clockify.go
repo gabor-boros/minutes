@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"time"
 
 	"strconv"
@@ -17,8 +16,6 @@ import (
 )
 
 const (
-	// MaxPageLength is the maximum page length defined by Clockify.
-	MaxPageLength int = 5000
 	// PathWorklog is the API endpoint used to search and create worklogs.
 	PathWorklog string = "/api/v1/workspaces/%s/user/%s/time-entries"
 )
@@ -73,8 +70,13 @@ type clockifyClient struct {
 	workspace     string
 }
 
-func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRegex *regexp.Regexp) worklog.Entries {
+func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
 	var entries worklog.Entries
+
+	fetchedEntries, ok := rawEntries.([]FetchEntry)
+	if !ok {
+		return nil, fmt.Errorf("%v: %s", client.ErrFetchEntries, "cannot parse returned entries")
+	}
 
 	for _, entry := range fetchedEntries {
 		billableDuration := entry.TimeInterval.End.Sub(entry.TimeInterval.Start)
@@ -106,79 +108,54 @@ func (c *clockifyClient) parseEntries(fetchedEntries []FetchEntry, tagsAsTasksRe
 		}
 
 		if c.TagsAsTasks && len(entry.Tags) > 0 {
-			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, tagsAsTasksRegex, entry.Tags)
+			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, c.TagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)
 		} else {
 			entries = append(entries, worklogEntry)
 		}
 	}
 
-	return entries
+	return entries, nil
 }
 
-func (c *clockifyClient) fetchEntries(ctx context.Context, searchURL string) ([]FetchEntry, error) {
+func (c *clockifyClient) fetchEntries(ctx context.Context, reqURL string) (interface{}, *client.PaginatedFetchResponse, error) {
 	resp, err := c.Call(ctx, &client.HTTPRequestOpts{
 		Method:  http.MethodGet,
-		Url:     searchURL,
+		Url:     reqURL,
 		Auth:    c.authenticator,
 		Timeout: c.Timeout,
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
 	var fetchedEntries []FetchEntry
 	if err = json.Unmarshal(resp, &fetchedEntries); err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	return fetchedEntries, nil
+	return fetchedEntries, &client.PaginatedFetchResponse{}, err
 }
 
 func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) (worklog.Entries, error) {
-	var err error
-	var entries worklog.Entries
-	currentPage := 1
-	pageSize := 100
+	fetchURL, err := c.URL(fmt.Sprintf(PathWorklog, c.workspace, opts.User), map[string]string{
+		"start":       utils.DateFormatRFC3339UTC.Format(opts.Start.Local()),
+		"end":         utils.DateFormatRFC3339UTC.Format(opts.End.Local()),
+		"hydrated":    strconv.FormatBool(true),
+		"in-progress": strconv.FormatBool(false),
+	})
 
-	var tagsAsTasksRegex *regexp.Regexp
-	if c.TagsAsTasks {
-		tagsAsTasksRegex, err = regexp.Compile(c.TagsAsTasksRegex)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 	}
 
-	// Naive pagination as the API does not return the number of total entries
-	for currentPage*pageSize < MaxPageLength {
-		searchURL, err := c.URL(fmt.Sprintf(PathWorklog, c.workspace, opts.User), map[string]string{
-			"start":       utils.DateFormatRFC3339UTC.Format(opts.Start.Local()),
-			"end":         utils.DateFormatRFC3339UTC.Format(opts.End.Local()),
-			"page":        strconv.Itoa(currentPage),
-			"page-size":   strconv.Itoa(pageSize),
-			"hydrated":    strconv.FormatBool(true),
-			"in-progress": strconv.FormatBool(false),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		fetchedEntries, err := c.fetchEntries(ctx, searchURL)
-		if err != nil {
-			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
-		}
-
-		// The API returned no entries, meaning no entries left
-		if len(fetchedEntries) == 0 {
-			break
-		}
-
-		entries = append(entries, c.parseEntries(fetchedEntries, tagsAsTasksRegex)...)
-		currentPage++
-	}
-
-	return entries, nil
+	return c.PaginatedFetch(ctx, &client.PaginatedFetchOpts{
+		URL:           fetchURL,
+		PageSizeParam: "page-size",
+		FetchFunc:     c.fetchEntries,
+		ParseFunc:     c.parseEntries,
+	})
 }
 
 // NewFetcher returns a new Clockify client for fetching entries.

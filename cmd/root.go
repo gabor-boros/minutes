@@ -237,13 +237,18 @@ func validateFlags() {
 }
 
 func getFetcher() (client.Fetcher, error) {
+	tagsAsTasksRegex, err := regexp.Compile(viper.GetString("tags-as-tasks-regex"))
+	if err != nil {
+		return nil, err
+	}
+
 	switch viper.GetString("source") {
 	case "clockify":
 		return clockify.NewFetcher(&clockify.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
 				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-				Timeout:          0,
+				TagsAsTasksRegex: tagsAsTasksRegex,
+				Timeout:          client.DefaultRequestTimeout,
 			},
 			TokenAuth: client.TokenAuth{
 				Header: "X-Api-Key",
@@ -256,8 +261,8 @@ func getFetcher() (client.Fetcher, error) {
 		return tempo.NewFetcher(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
 				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-				Timeout:          0,
+				TagsAsTasksRegex: tagsAsTasksRegex,
+				Timeout:          client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("tempo-username"),
@@ -269,8 +274,8 @@ func getFetcher() (client.Fetcher, error) {
 		return timewarrior.NewFetcher(&timewarrior.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
 				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-				Timeout:          0,
+				TagsAsTasksRegex: tagsAsTasksRegex,
+				Timeout:          client.DefaultRequestTimeout,
 			},
 			CLIClient: client.CLIClient{
 				Command:            viper.GetString("timewarrior-command"),
@@ -285,8 +290,8 @@ func getFetcher() (client.Fetcher, error) {
 		return toggl.NewFetcher(&toggl.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
 				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-				Timeout:          0,
+				TagsAsTasksRegex: tagsAsTasksRegex,
+				Timeout:          client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("toggl-api-key"),
@@ -305,9 +310,7 @@ func getUploader() (client.Uploader, error) {
 	case "tempo":
 		return tempo.NewUploader(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
-				TagsAsTasksRegex: viper.GetString("tags-as-tasks-regex"),
-				Timeout:          0,
+				TagsAsTasks: viper.GetBool("tags-as-tasks"),
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("tempo-username"),

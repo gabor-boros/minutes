@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 
@@ -188,6 +189,9 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	defer mockServer.Close()
 
 	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
 		TokenAuth: client.TokenAuth{
 			Header: "X-Api-Key",
 			Token:  "t-o-k-e-n",
@@ -354,7 +358,8 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
 			TagsAsTasks:      true,
-			TagsAsTasksRegex: `^TASK\-\d+$`,
+			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
+			Timeout:          client.DefaultRequestTimeout,
 		},
 		TokenAuth: client.TokenAuth{
 			Header: "X-Api-Key",
