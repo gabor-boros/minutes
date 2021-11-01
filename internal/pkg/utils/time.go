@@ -34,3 +34,8 @@ func (d DateFormat) String() string {
 func (d DateFormat) Format(t time.Time) string {
 	return t.Format(d.String())
 }
+
+// Parse the given string with the specified layout.
+func (d DateFormat) Parse(s string) (time.Time, error) {
+	return time.Parse(d.String(), s)
+}
