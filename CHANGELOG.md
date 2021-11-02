@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.0] - 2021-11-02
+
+**Bug Fixes**
+
+- Set timeout for tempo uploader ([afc16c1](https://github.com/gabor-boros/minutes/commit/afc16c14d1d8e4a1fc94e31c922ee4a45e1c0b7a))
 
 **Documentation**
 
@@ -12,6 +16,7 @@ All notable changes to this project will be documented in this file.
 
 - Add filtering for projects and clients (#29) ([ea5031f](https://github.com/gabor-boros/minutes/commit/ea5031f565780ab8476543c0f52a3a22d1ec543c))
 - Add token name option for token auth ([cff5e53](https://github.com/gabor-boros/minutes/commit/cff5e53a677e66fc475aaf328307c00b438c1ed5))
+- Add Harvest as source (#33) ([c949a0c](https://github.com/gabor-boros/minutes/commit/c949a0c4dbed01af6dafbbe583f52498fd0a68d3))
 
 **Miscellaneous Tasks**
 
@@ -21,14 +26,6 @@ All notable changes to this project will be documented in this file.
 **Refactor**
 
 - Rework client composition logic and remove unnecessary Toggl flag (#30) ([6658984](https://github.com/gabor-boros/minutes/commit/6658984618f7e3c156110f1ac2527390b468d0a8))
-- Add paginated API call helpers ([4e88bec](https://github.com/gabor-boros/minutes/commit/4e88bec04964c42a79329f311cb7bc3f53dadaca))
-- Use paginated call helpers ([901800f](https://github.com/gabor-boros/minutes/commit/901800f5fbc37f3702e7e6413c508db59966be78))
-- Use paginated call helpers ([6ddca80](https://github.com/gabor-boros/minutes/commit/6ddca804799e65525d7d913deeeb463d0e93bb32))
-- Parse TagsAsTasks as regexp ([bf32537](https://github.com/gabor-boros/minutes/commit/bf32537fa39efe3f6c93f9c7056c49115d3f5eb8))
-
-**Revert**
-
-- Remove unnecessary error ([1120133](https://github.com/gabor-boros/minutes/commit/112013353c6e5cb4478f1c44294790c304b1885c))
 
 ## [0.1.0] - 2021-10-20
 
