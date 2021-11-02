@@ -66,9 +66,11 @@ Flags:
       --filter-client string                   filter for client name after fetching
       --filter-project string                  filter for project name after fetching
       --force-billed-duration                  treat every second spent as billed
+      --harvest-account int                    set the Account ID
+      --harvest-api-key string                 set the API key
   -h, --help                                   help for minutes
       --round-to-closest-minute                round time to closest minute
-  -s, --source string                          set the source of the sync [clockify tempo timewarrior toggl]
+  -s, --source string                          set the source of the sync [clockify harvest tempo timewarrior toggl]
       --source-user string                     set the source user ID
       --start string                           set the start date (defaults to 00:00:00)
       --table-hide-column strings              hide table column [summary project client start end]
@@ -86,7 +88,6 @@ Flags:
       --timewarrior-project-tag-regex string   regex of project tag pattern
       --timewarrior-unbillable-tag string      set the unbillable tag (default "unbillable")
       --toggl-api-key string                   set the API key
-      --toggl-url string                       set the base URL (default "https://api.track.toggl.com")
       --toggl-workspace int                    set the workspace ID
       --version                                show command version
 ```
@@ -182,7 +183,7 @@ widthmax = 40
 | Clockify    | **yes**       | upon request  |
 | Everhour    | upon request  | upon request  |
 | FreshBooks  | upon request  | **planned**   |
-| Harvest     | upon request  | upon request  |
+| Harvest     | **yes**       | upon request  |
 | QuickBooks  | upon request  | upon request  |
 | Tempo       | **yes**       | **yes**       |
 | Time Doctor | upon request  | upon request  |

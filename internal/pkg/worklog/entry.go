@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -17,6 +18,24 @@ type IDNameField struct {
 // In case both fields are filled, it returns true, otherwise, false.
 func (f IDNameField) IsComplete() bool {
 	return f.ID != "" && f.Name != ""
+}
+
+// IntIDNameField stands for every field that has an int ID and string Name.
+// This field struct is a helper struct that should be avoided in the code,
+// but should serve a good use in client implementation. The field has a
+// method ConvertToIDNameField to convert itself into an IDNameField.
+type IntIDNameField struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// ConvertToIDNameField creates an IDName field from itself.
+// ConvertToIDNameField should be called when it leaves client context.
+func (f *IntIDNameField) ConvertToIDNameField() IDNameField {
+	return IDNameField{
+		ID:   strconv.Itoa(f.ID),
+		Name: f.Name,
+	}
 }
 
 // Entries defines a collection of entries.

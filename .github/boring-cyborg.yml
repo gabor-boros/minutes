@@ -8,6 +8,9 @@ labelPRBasedOnFilePath:
   clockify:
     - internal/pkg/client/clockify/**/*
 
+  harvest:
+    - internal/pkg/client/harvest/**/*
+
   tempo:
     - internal/pkg/client/tempo/**/*
 

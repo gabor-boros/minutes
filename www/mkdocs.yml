@@ -63,6 +63,7 @@ nav:
 - configuration.md
 - Sources:
   - Clockify: sources/clockify.md
+  - Harvest: sources/harvest.md
   - Tempo: sources/tempo.md
   - Timewarrior: sources/timewarrior.md
   - Toggl Track: sources/toggl.md

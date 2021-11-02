@@ -42,6 +42,20 @@ func getIncompleteTestEntry() worklog.Entry {
 	return entry
 }
 
+func TestIntIDNameField_ConvertToIDNameField(t *testing.T) {
+	field := worklog.IntIDNameField{
+		ID:   1234,
+		Name: "Test",
+	}
+
+	expectedField := worklog.IDNameField{
+		ID:   "1234",
+		Name: "Test",
+	}
+
+	require.Equal(t, field.ConvertToIDNameField(), expectedField)
+}
+
 func TestIDNameFieldIsComplete(t *testing.T) {
 	var field worklog.IDNameField
 
