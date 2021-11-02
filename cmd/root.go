@@ -311,6 +311,7 @@ func getUploader() (client.Uploader, error) {
 		return tempo.NewUploader(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
 				TagsAsTasks: viper.GetBool("tags-as-tasks"),
+				Timeout:     client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("tempo-username"),
