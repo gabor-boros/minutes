@@ -10,10 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
-
 	"github.com/gabor-boros/minutes/internal/pkg/client/clockify"
-
+	"github.com/gabor-boros/minutes/internal/pkg/client/harvest"
+	"github.com/gabor-boros/minutes/internal/pkg/client/timewarrior"
 	"github.com/gabor-boros/minutes/internal/pkg/client/toggl"
 
 	"github.com/gabor-boros/minutes/internal/cmd/utils"
@@ -41,7 +40,7 @@ var (
 	commit  string
 	date    string
 
-	sources = []string{"clockify", "tempo", "timewarrior", "toggl"}
+	sources = []string{"clockify", "harvest", "tempo", "timewarrior", "toggl"}
 	targets = []string{"tempo"}
 
 	ErrNoSourceImplementation = errors.New("no source implementation found")
@@ -75,6 +74,7 @@ func init() {
 
 	initCommonFlags()
 	initClockifyFlags()
+	initHarvestFlags()
 	initTempoFlags()
 	initTimewarriorFlags()
 	initTogglFlags()
@@ -142,6 +142,11 @@ func initClockifyFlags() {
 	rootCmd.Flags().StringP("clockify-url", "", "https://api.clockify.me", "set the base URL")
 	rootCmd.Flags().StringP("clockify-api-key", "", "", "set the API key")
 	rootCmd.Flags().StringP("clockify-workspace", "", "", "set the workspace ID")
+}
+
+func initHarvestFlags() {
+	rootCmd.Flags().StringP("harvest-api-key", "", "", "set the API key")
+	rootCmd.Flags().IntP("harvest-account", "", 0, "set the Account ID")
 }
 
 func initTempoFlags() {
@@ -256,6 +261,20 @@ func getFetcher() (client.Fetcher, error) {
 			},
 			BaseURL:   viper.GetString("clockify-url"),
 			Workspace: viper.GetString("clockify-workspace"),
+		})
+	case "harvest":
+		return harvest.NewFetcher(&harvest.ClientOpts{
+			BaseClientOpts: client.BaseClientOpts{
+				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
+				TagsAsTasksRegex: tagsAsTasksRegex,
+				Timeout:          client.DefaultRequestTimeout,
+			},
+			TokenAuth: client.TokenAuth{
+				TokenName: "Bearer",
+				Token:     viper.GetString("harvest-api-key"),
+			},
+			BaseURL: "https://api.harvestapp.com",
+			Account: viper.GetInt("harvest-account"),
 		})
 	case "tempo":
 		return tempo.NewFetcher(&tempo.ClientOpts{

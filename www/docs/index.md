@@ -68,7 +68,7 @@ The following platforms and tools are supported. If you miss your favorite tool,
 | Clockify    | **yes**       | upon request  |
 | Everhour    | upon request  | upon request  |
 | FreshBooks  | upon request  | **planned**   |
-| Harvest     | upon request  | upon request  |
+| Harvest     | **yes**       | upon request  |
 | QuickBooks  | upon request  | upon request  |
 | Tempo       | **yes**       | **yes**       |
 | Time Doctor | upon request  | upon request  |
