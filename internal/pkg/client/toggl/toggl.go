@@ -94,7 +94,7 @@ func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, err
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.TagsAsTasks && len(fetchedEntry.Tags) > 0 {
+		if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && len(fetchedEntry.Tags) > 0 {
 			var tags []worklog.IDNameField
 			for _, tag := range fetchedEntry.Tags {
 				tags = append(tags, worklog.IDNameField{

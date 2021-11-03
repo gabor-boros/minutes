@@ -127,7 +127,6 @@ func initCommonFlags() {
 	rootCmd.Flags().StringSliceP("table-sort-by", "", []string{utils.ColumnStart, utils.ColumnProject, utils.ColumnTask, utils.ColumnSummary}, fmt.Sprintf("sort table by column %v", utils.Columns))
 	rootCmd.Flags().StringSliceP("table-hide-column", "", []string{}, fmt.Sprintf("hide table column %v", utils.HideableColumns))
 
-	rootCmd.Flags().BoolP("tags-as-tasks", "", false, "treat tags matching the value of tags-as-tasks-regex as tasks")
 	rootCmd.Flags().StringP("tags-as-tasks-regex", "", "", "regex of the task pattern")
 
 	rootCmd.Flags().BoolP("round-to-closest-minute", "", false, "round time to closest minute")
@@ -196,16 +195,9 @@ func validateFlags() {
 		cobra.CheckErr(fmt.Sprintf("\"%s\" is not part of the supported targets %v\n", target, targets))
 	}
 
-	if viper.GetBool("tags-as-tasks") {
-		tasksAsTagsRegex := viper.GetString("tags-as-tasks-regex")
-
-		if tasksAsTagsRegex == "" {
-			cobra.CheckErr("tags-as-tasks-regex cannot be empty if tags-as-tasks is set")
-		}
-
-		_, err = regexp.Compile(tasksAsTagsRegex)
-		cobra.CheckErr(err)
-	}
+	tagsAsTasksRegex := viper.GetString("tags-as-tasks-regex")
+	_, err = regexp.Compile(tagsAsTasksRegex)
+	cobra.CheckErr(err)
 
 	for _, sortBy := range viper.GetStringSlice("table-sort-by") {
 		column := sortBy
@@ -261,7 +253,6 @@ func getFetcher() (client.Fetcher, error) {
 	case "clockify":
 		return clockify.NewFetcher(&clockify.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
 				TagsAsTasksRegex: tagsAsTasksRegex,
 				Timeout:          client.DefaultRequestTimeout,
 			},
@@ -275,7 +266,6 @@ func getFetcher() (client.Fetcher, error) {
 	case "harvest":
 		return harvest.NewFetcher(&harvest.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
 				TagsAsTasksRegex: tagsAsTasksRegex,
 				Timeout:          client.DefaultRequestTimeout,
 			},
@@ -289,7 +279,6 @@ func getFetcher() (client.Fetcher, error) {
 	case "tempo":
 		return tempo.NewFetcher(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
 				TagsAsTasksRegex: tagsAsTasksRegex,
 				Timeout:          client.DefaultRequestTimeout,
 			},
@@ -302,7 +291,6 @@ func getFetcher() (client.Fetcher, error) {
 	case "timewarrior":
 		return timewarrior.NewFetcher(&timewarrior.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
 				TagsAsTasksRegex: tagsAsTasksRegex,
 				Timeout:          client.DefaultRequestTimeout,
 			},
@@ -318,7 +306,6 @@ func getFetcher() (client.Fetcher, error) {
 	case "toggl":
 		return toggl.NewFetcher(&toggl.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks:      viper.GetBool("tags-as-tasks"),
 				TagsAsTasksRegex: tagsAsTasksRegex,
 				Timeout:          client.DefaultRequestTimeout,
 			},
@@ -339,8 +326,7 @@ func getUploader() (client.Uploader, error) {
 	case "tempo":
 		return tempo.NewUploader(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasks: viper.GetBool("tags-as-tasks"),
-				Timeout:     client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("tempo-username"),

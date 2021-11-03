@@ -78,7 +78,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.TagsAsTasksRegex.String() != "" && c.TagsAsTasksRegex.MatchString(tag) {
+		} else if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && c.TagsAsTasksRegex.MatchString(tag) {
 			worklogEntry.Task = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
@@ -94,7 +94,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 		}
 	}
 
-	if c.TagsAsTasks && len(entry.Tags) > 0 {
+	if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && len(entry.Tags) > 0 {
 		var tags []worklog.IDNameField
 		for _, tag := range entry.Tags {
 			tags = append(tags, worklog.IDNameField{

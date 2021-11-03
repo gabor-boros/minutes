@@ -107,7 +107,7 @@ func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, 
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.TagsAsTasks && len(entry.Tags) > 0 {
+		if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && len(entry.Tags) > 0 {
 			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, c.TagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)
 		} else {

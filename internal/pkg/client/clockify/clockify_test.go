@@ -212,7 +212,7 @@ func TestClockifyClient_FetchEntries(t *testing.T) {
 	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
 
-func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
+func TestClockifyClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
 	remainingCalls := 1
@@ -357,7 +357,6 @@ func TestClockifyClient_FetchEntries_TasksAsTags(t *testing.T) {
 
 	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasks:      true,
 			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
 			Timeout:          client.DefaultRequestTimeout,
 		},

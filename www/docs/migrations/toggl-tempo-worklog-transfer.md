@@ -27,7 +27,6 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tags-as-tasks = true
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true

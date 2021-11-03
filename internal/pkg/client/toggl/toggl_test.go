@@ -297,7 +297,6 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 
 	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasks:      true,
 			TagsAsTasksRegex: regexp.MustCompile(`^CPT-\w+$`),
 			Timeout:          client.DefaultRequestTimeout,
 		},

@@ -43,7 +43,6 @@ Flags:
       --table-sort-by strings        sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
   -t, --target string                set the target of the sync [tempo]
       --target-user string           set the source user ID
-      --tags-as-tasks                treat tags matching the value of tags-as-tasks-regex as tasks
       --tags-as-tasks-regex string   regex of the task pattern
       --tempo-password string        set the login password
       --tempo-url string             set the base URL
@@ -79,7 +78,7 @@ $ minutes --date-format "2006-01-02" --start "2021-10-07" --end "2021-10-08"
 
 ```shell
 # Specify how a tag should look like to be considered as a task
-$ minutes --tags-as-tasks --tags-as-tasks-regex '[A-Z]{2,7}-\d{1,6}'
+$ minutes --tags-as-tasks-regex '[A-Z]{2,7}-\d{1,6}'
 ```
 
 ### Minute based rounding

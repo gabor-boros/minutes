@@ -40,17 +40,8 @@ var (
 // When a client needs other options as well, it composes a new set of options
 // using BaseClientOpts.
 type BaseClientOpts struct {
-	// TagsAsTasks defines to use tag names to determine the task.
-	// Using TagsAsTasks can be useful if the user's workflow involves
-	// splitting activity across multiple tasks, or when the user has no option
-	// to set multiple tasks for a single activity.
-	//
-	// This option must be used in conjunction with TagsAsTasksRegex option.
-	TagsAsTasks bool
 	// TagsAsTasksRegex sets the regular expression used for extracting tasks
 	// from the list of tags.
-	//
-	// This option must be used in conjunction with TagsAsTasks option.
 	TagsAsTasksRegex *regexp.Regexp
 	// Timeout sets the timeout for the client to execute a request.
 	// In the case of HTTP clients, the timeout is applied on the HTTP request,

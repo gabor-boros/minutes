@@ -6,8 +6,8 @@ The source makes the following special mappings.
 
 | From        | To                     | Description                                                                                                                                         |
 | ----------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tags        | Task                   | Turns tags into tasks and split the entry into as many pieces as the item has matching tags when `tags-as-tasks` is enabled                         |
-| Task        | Summary or Description | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks` is enabled, Summary will be set to the Description of the item |
+| Tags        | Task                   | Turns tags into tasks and split the entry into as many pieces as the item has matching tags when `tags-as-tasks-regex` is set                         |
+| Task        | Summary or Description | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks-regex` is set, Summary will be set to the Description of the item |
 
 ## CLI flags
 
@@ -54,7 +54,6 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tags-as-tasks = true
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 
 round-to-closest-minute = true
