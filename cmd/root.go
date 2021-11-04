@@ -99,10 +99,12 @@ func initConfig() {
 	viper.SetEnvPrefix(envPrefix)
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed(), configFile)
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			cobra.CheckErr(err)
+		}
 	} else {
-		cobra.CheckErr(err)
+		fmt.Println("Using config file:", viper.ConfigFileUsed(), configFile)
 	}
 
 	// Bind flags to config value
@@ -173,6 +175,14 @@ func validateFlags() {
 	var err error
 	source := viper.GetString("source")
 	target := viper.GetString("target")
+
+	if source == "" {
+		cobra.CheckErr("sync source must be set")
+	}
+
+	if target == "" {
+		cobra.CheckErr("sync target must be set")
+	}
 
 	if source == target {
 		cobra.CheckErr("sync source cannot match the target")
