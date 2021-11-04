@@ -347,7 +347,11 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	var err error
 
 	if viper.GetBool("version") {
-		fmt.Printf("%s version %s, commit %s (%s)\n", program, version, commit[:7], date)
+		if version == "" || len(commit) < 7 || date == "" {
+			fmt.Println("dirty build")
+		} else {
+			fmt.Printf("%s version %s, commit %s (%s)\n", program, version, commit[:7], date)
+		}
 		os.Exit(0)
 	}
 
