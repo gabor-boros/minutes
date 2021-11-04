@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2021-11-04
+
+**Bug Fixes**
+
+- Multiple small issues fix (#35) ([ebb0730](https://github.com/gabor-boros/minutes/commit/ebb07300af6def0a8338d5e28c63a7496279aa72))
+
+**Build**
+
+- Sign build artifacts ([d69bde3](https://github.com/gabor-boros/minutes/commit/d69bde3c0d7cfff81fd1cfc020a8f860fa0a465f))
+
 ## [0.2.1] - 2021-11-04
 
 **Bug Fixes**
