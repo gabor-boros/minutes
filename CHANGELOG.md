@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2021-11-04
+
+**Bug Fixes**
+
+- Use 7 char long commit hash ([d137a63](https://github.com/gabor-boros/minutes/commit/d137a63d5fd7a399814922b5ea40769c09df188e))
+
 ## [0.2.0] - 2021-11-02
 
 **Bug Fixes**
