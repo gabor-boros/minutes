@@ -4,7 +4,18 @@ This guide show you the basics `minutes`, walks through the available flags, and
 
 ## Installation
 
-To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have `go` installed, you can build from source as well.
+### Using `brew`
+
+``` shell
+$ brew tap gabor-boros/brew
+$ brew install minutes
+```
+
+### Manual install
+
+To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have `go` installed, you can build from source as well
+
+### Configuration
 
 `minutes` has numerous flags and there will be more when other sources or targets are added. Therefore, `minutes` comes with a config file, that can be placed to the user's home directory or the config directory.
 

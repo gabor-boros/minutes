@@ -28,3 +28,25 @@ milestones:
     fail_on_error: true
 changelog:
   skip: true
+brews:
+  -
+    tap:
+      owner: gabor-boros
+      name: homebrew-brew
+    commit_author:
+      name: "Gabor Boros"
+      email: gabor.brs@gmail.com
+    folder: Formula
+    homepage: "https://github.com/gabor-boros/minutes"
+    description: "Sync worklogs between time trackers, invoicing, and bookkeeping software"
+    license: "MIT"
+    dependencies:
+      - name: go
+        type: build
+    custom_block: |
+      head "https://github.com/gabor-boros/minutes", branch: "main"
+
+      livecheck do
+        url "https://github.com/gabor-boros/minutes/releases"
+        regex(/^v(\d+(?:\.\d+)+)$/i)
+      end
