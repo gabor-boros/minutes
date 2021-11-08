@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2021-11-08
+
+**Build**
+
+- Add homebrew formula publishing ([82d115c](https://github.com/gabor-boros/minutes/commit/82d115c8eda1e2724d5724da622a79b08acb0fb5))
+
 ## [0.2.2] - 2021-11-04
 
 **Bug Fixes**
