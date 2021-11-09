@@ -357,8 +357,7 @@ func TestClockifyClient_FetchEntries_TagsAsTasks(t *testing.T) {
 
 	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
-			Timeout:          client.DefaultRequestTimeout,
+			Timeout: client.DefaultRequestTimeout,
 		},
 		TokenAuth: client.TokenAuth{
 			Header: "X-Api-Key",
@@ -371,9 +370,10 @@ func TestClockifyClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	require.Nil(t, err)
 
 	entries, err := clockifyClient.FetchEntries(context.Background(), &client.FetchOpts{
-		User:  "steve-rogers",
-		Start: start,
-		End:   end,
+		User:             "steve-rogers",
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
 	})
 
 	require.Nil(t, err, "cannot fetch entries")

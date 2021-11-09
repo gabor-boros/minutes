@@ -297,8 +297,7 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 
 	togglClient, err := toggl.NewFetcher(&toggl.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasksRegex: regexp.MustCompile(`^CPT-\w+$`),
-			Timeout:          client.DefaultRequestTimeout,
+			Timeout: client.DefaultRequestTimeout,
 		},
 		BasicAuth: client.BasicAuth{
 			Username: clientUsername,
@@ -310,9 +309,10 @@ func TestTogglClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	require.Nil(t, err)
 
 	entries, err := togglClient.FetchEntries(context.Background(), &client.FetchOpts{
-		User:  "987654321",
-		Start: start,
-		End:   end,
+		User:             "987654321",
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(`^CPT-\w+$`),
 	})
 
 	require.Nil(t, err, "cannot fetch entries")

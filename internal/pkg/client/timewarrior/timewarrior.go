@@ -43,7 +43,7 @@ type timewarriorClient struct {
 	unbillableTag   string
 }
 
-func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error) {
+func (c *timewarriorClient) parseEntry(entry FetchEntry, opts *client.FetchOpts) (worklog.Entries, error) {
 	var entries worklog.Entries
 
 	startDate, err := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), entry.Start, time.Local)
@@ -78,7 +78,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && c.TagsAsTasksRegex.MatchString(tag) {
+		} else if opts.TagsAsTasksRegex != nil && opts.TagsAsTasksRegex.String() != "" && opts.TagsAsTasksRegex.MatchString(tag) {
 			worklogEntry.Task = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
@@ -94,7 +94,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 		}
 	}
 
-	if c.TagsAsTasksRegex != nil && c.TagsAsTasksRegex.String() != "" && len(entry.Tags) > 0 {
+	if opts.TagsAsTasksRegex != nil && opts.TagsAsTasksRegex.String() != "" && len(entry.Tags) > 0 {
 		var tags []worklog.IDNameField
 		for _, tag := range entry.Tags {
 			tags = append(tags, worklog.IDNameField{
@@ -103,7 +103,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 			})
 		}
 
-		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, c.TagsAsTasksRegex, tags)
+		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, opts.TagsAsTasksRegex, tags)
 		entries = append(entries, splitEntries...)
 	} else {
 		entries = append(entries, worklogEntry)
@@ -148,7 +148,7 @@ func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.Fetch
 
 	var entries worklog.Entries
 	for _, entry := range fetchedEntries {
-		parsedEntries, err := c.parseEntry(entry)
+		parsedEntries, err := c.parseEntry(entry, opts)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}

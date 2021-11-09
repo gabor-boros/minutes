@@ -12,7 +12,6 @@ import (
 	netURL "net/url"
 	"os/exec"
 	"reflect"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -40,9 +39,6 @@ var (
 // When a client needs other options as well, it composes a new set of options
 // using BaseClientOpts.
 type BaseClientOpts struct {
-	// TagsAsTasksRegex sets the regular expression used for extracting tasks
-	// from the list of tags.
-	TagsAsTasksRegex *regexp.Regexp
 	// Timeout sets the timeout for the client to execute a request.
 	// In the case of HTTP clients, the timeout is applied on the HTTP request,
 	// while in the case of CLI based clients it will be applied on the command
@@ -243,7 +239,7 @@ func (c *HTTPClient) PaginatedFetch(ctx context.Context, opts *PaginatedFetchOpt
 			break
 		}
 
-		parsedEntries, err := opts.ParseFunc(rawEntries)
+		parsedEntries, err := opts.ParseFunc(rawEntries, opts.BaseFetchOpts)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", ErrFetchEntries, err)
 		}

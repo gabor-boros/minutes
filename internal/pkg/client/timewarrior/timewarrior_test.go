@@ -121,8 +121,7 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasksRegex: regexp.MustCompile(""),
-			Timeout:          client.DefaultRequestTimeout,
+			Timeout: client.DefaultRequestTimeout,
 		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",
@@ -137,8 +136,9 @@ func TestTimewarriorClient_FetchEntries(t *testing.T) {
 	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
-		Start: start,
-		End:   end,
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(""),
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
@@ -218,8 +218,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
-			Timeout:          client.DefaultRequestTimeout,
+			Timeout: client.DefaultRequestTimeout,
 		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",
@@ -234,8 +233,9 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasksRegex_NoSplit(t *testing.T) {
 	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
-		Start: start,
-		End:   end,
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
 	})
 
 	require.Nil(t, err, "cannot fetch entries")
@@ -334,8 +334,7 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 
 	timewarriorClient, err := timewarrior.NewFetcher(&timewarrior.ClientOpts{
 		BaseClientOpts: client.BaseClientOpts{
-			TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
-			Timeout:          client.DefaultRequestTimeout,
+			Timeout: client.DefaultRequestTimeout,
 		},
 		CLIClient: client.CLIClient{
 			Command:            "timewarrior-command",
@@ -350,8 +349,9 @@ func TestTimewarriorClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	require.Nil(t, err)
 
 	entries, err := timewarriorClient.FetchEntries(context.Background(), &client.FetchOpts{
-		Start: start,
-		End:   end,
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
 	})
 
 	require.Nil(t, err, "cannot fetch entries")

@@ -244,17 +244,12 @@ func validateFlags() {
 }
 
 func getFetcher() (client.Fetcher, error) {
-	tagsAsTasksRegex, err := regexp.Compile(viper.GetString("tags-as-tasks-regex"))
-	if err != nil {
-		return nil, err
-	}
 
 	switch viper.GetString("source") {
 	case "clockify":
 		return clockify.NewFetcher(&clockify.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasksRegex: tagsAsTasksRegex,
-				Timeout:          client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			TokenAuth: client.TokenAuth{
 				Header: "X-Api-Key",
@@ -266,8 +261,7 @@ func getFetcher() (client.Fetcher, error) {
 	case "harvest":
 		return harvest.NewFetcher(&harvest.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasksRegex: tagsAsTasksRegex,
-				Timeout:          client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			TokenAuth: client.TokenAuth{
 				TokenName: "Bearer",
@@ -279,8 +273,7 @@ func getFetcher() (client.Fetcher, error) {
 	case "tempo":
 		return tempo.NewFetcher(&tempo.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasksRegex: tagsAsTasksRegex,
-				Timeout:          client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("tempo-username"),
@@ -291,8 +284,7 @@ func getFetcher() (client.Fetcher, error) {
 	case "timewarrior":
 		return timewarrior.NewFetcher(&timewarrior.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasksRegex: tagsAsTasksRegex,
-				Timeout:          client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			CLIClient: client.CLIClient{
 				Command:            viper.GetString("timewarrior-command"),
@@ -306,8 +298,7 @@ func getFetcher() (client.Fetcher, error) {
 	case "toggl":
 		return toggl.NewFetcher(&toggl.ClientOpts{
 			BaseClientOpts: client.BaseClientOpts{
-				TagsAsTasksRegex: tagsAsTasksRegex,
-				Timeout:          client.DefaultRequestTimeout,
+				Timeout: client.DefaultRequestTimeout,
 			},
 			BasicAuth: client.BasicAuth{
 				Username: viper.GetString("toggl-api-key"),
@@ -373,10 +364,14 @@ func runRootCmd(_ *cobra.Command, _ []string) {
 	uploader, err := getUploader()
 	cobra.CheckErr(err)
 
+	tagsAsTasksRegex, err := regexp.Compile(viper.GetString("tags-as-tasks-regex"))
+	cobra.CheckErr(err)
+
 	entries, err := fetcher.FetchEntries(context.Background(), &client.FetchOpts{
-		End:   end,
-		Start: start,
-		User:  viper.GetString("source-user"),
+		End:              end,
+		Start:            start,
+		User:             viper.GetString("source-user"),
+		TagsAsTasksRegex: tagsAsTasksRegex,
 	})
 	cobra.CheckErr(err)
 
