@@ -15,7 +15,7 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 
 !!! warning
 
-    To extract tasks from tags, set the `tags-as-tasks-regex` regardless the value of `tags-as-tasks`.
+    To extract tasks from tags, set the `tags-as-tasks-regex`.
 
 ## Field mappings
 
@@ -77,7 +77,6 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tags-as-tasks = true
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
