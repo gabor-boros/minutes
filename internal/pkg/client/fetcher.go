@@ -35,9 +35,6 @@ type FetchOpts struct {
 
 	// TagsAsTasksRegex sets the regular expression used for extracting tasks
 	// from the list of tags.
-	//
-	// If both TagsAsTasksRegex and TagsInSummaryRegex are set, the tags will be
-	// merged.
 	TagsAsTasksRegex *regexp.Regexp
 }
 
