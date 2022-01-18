@@ -68,17 +68,17 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry, opts *client.FetchOpts)
 		if tag == c.unbillableTag {
 			worklogEntry.UnbillableDuration = worklogEntry.BillableDuration
 			worklogEntry.BillableDuration = 0
-		} else if c.clientTagRegex.String() != "" && c.clientTagRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(c.clientTagRegex) && c.clientTagRegex.MatchString(tag) {
 			worklogEntry.Client = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.projectTagRegex.String() != "" && c.projectTagRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(c.projectTagRegex) && c.projectTagRegex.MatchString(tag) {
 			worklogEntry.Project = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
 			}
-		} else if opts.TagsAsTasksRegex != nil && opts.TagsAsTasksRegex.String() != "" && opts.TagsAsTasksRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(opts.TagsAsTasksRegex) && opts.TagsAsTasksRegex.MatchString(tag) {
 			worklogEntry.Task = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
@@ -94,7 +94,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry, opts *client.FetchOpts)
 		}
 	}
 
-	if opts.TagsAsTasksRegex != nil && opts.TagsAsTasksRegex.String() != "" && len(entry.Tags) > 0 {
+	if utils.IsRegexSet(opts.TagsAsTasksRegex) && len(entry.Tags) > 0 {
 		var tags []worklog.IDNameField
 		for _, tag := range entry.Tags {
 			tags = append(tags, worklog.IDNameField{
