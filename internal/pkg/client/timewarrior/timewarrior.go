@@ -43,7 +43,7 @@ type timewarriorClient struct {
 	unbillableTag   string
 }
 
-func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error) {
+func (c *timewarriorClient) parseEntry(entry FetchEntry, opts *client.FetchOpts) (worklog.Entries, error) {
 	var entries worklog.Entries
 
 	startDate, err := time.ParseInLocation(utils.DateFormatRFC3339Compact.String(), entry.Start, time.Local)
@@ -68,17 +68,17 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 		if tag == c.unbillableTag {
 			worklogEntry.UnbillableDuration = worklogEntry.BillableDuration
 			worklogEntry.BillableDuration = 0
-		} else if c.clientTagRegex.String() != "" && c.clientTagRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(c.clientTagRegex) && c.clientTagRegex.MatchString(tag) {
 			worklogEntry.Client = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.projectTagRegex.String() != "" && c.projectTagRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(c.projectTagRegex) && c.projectTagRegex.MatchString(tag) {
 			worklogEntry.Project = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
 			}
-		} else if c.TagsAsTasksRegex.String() != "" && c.TagsAsTasksRegex.MatchString(tag) {
+		} else if utils.IsRegexSet(opts.TagsAsTasksRegex) && opts.TagsAsTasksRegex.MatchString(tag) {
 			worklogEntry.Task = worklog.IDNameField{
 				ID:   tag,
 				Name: tag,
@@ -94,7 +94,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 		}
 	}
 
-	if c.TagsAsTasks && len(entry.Tags) > 0 {
+	if utils.IsRegexSet(opts.TagsAsTasksRegex) && len(entry.Tags) > 0 {
 		var tags []worklog.IDNameField
 		for _, tag := range entry.Tags {
 			tags = append(tags, worklog.IDNameField{
@@ -103,7 +103,7 @@ func (c *timewarriorClient) parseEntry(entry FetchEntry) (worklog.Entries, error
 			})
 		}
 
-		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, c.TagsAsTasksRegex, tags)
+		splitEntries := worklogEntry.SplitByTagsAsTasks(worklogEntry.Summary, opts.TagsAsTasksRegex, tags)
 		entries = append(entries, splitEntries...)
 	} else {
 		entries = append(entries, worklogEntry)
@@ -148,7 +148,7 @@ func (c *timewarriorClient) FetchEntries(ctx context.Context, opts *client.Fetch
 
 	var entries worklog.Entries
 	for _, entry := range fetchedEntries {
-		parsedEntries, err := c.parseEntry(entry)
+		parsedEntries, err := c.parseEntry(entry, opts)
 		if err != nil {
 			return nil, fmt.Errorf("%v: %v", client.ErrFetchEntries, err)
 		}

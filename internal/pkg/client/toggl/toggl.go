@@ -57,7 +57,7 @@ type togglClient struct {
 	workspace     int
 }
 
-func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
+func (c *togglClient) parseEntries(rawEntries interface{}, opts *client.FetchOpts) (worklog.Entries, error) {
 	var entries worklog.Entries
 
 	fetchedEntries, ok := rawEntries.([]FetchEntry)
@@ -94,7 +94,7 @@ func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, err
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.TagsAsTasks && len(fetchedEntry.Tags) > 0 {
+		if utils.IsRegexSet(opts.TagsAsTasksRegex) && len(fetchedEntry.Tags) > 0 {
 			var tags []worklog.IDNameField
 			for _, tag := range fetchedEntry.Tags {
 				tags = append(tags, worklog.IDNameField{
@@ -103,7 +103,7 @@ func (c *togglClient) parseEntries(rawEntries interface{}) (worklog.Entries, err
 				})
 			}
 
-			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, c.TagsAsTasksRegex, tags)
+			splitEntries := entry.SplitByTagsAsTasks(entry.Summary, opts.TagsAsTasksRegex, tags)
 			entries = append(entries, splitEntries...)
 		} else {
 			entries = append(entries, entry)
@@ -152,9 +152,10 @@ func (c *togglClient) FetchEntries(ctx context.Context, opts *client.FetchOpts) 
 	}
 
 	return c.PaginatedFetch(ctx, &client.PaginatedFetchOpts{
-		URL:       fetchURL,
-		FetchFunc: c.fetchEntries,
-		ParseFunc: c.parseEntries,
+		BaseFetchOpts: opts,
+		URL:           fetchURL,
+		FetchFunc:     c.fetchEntries,
+		ParseFunc:     c.parseEntries,
 	})
 }
 

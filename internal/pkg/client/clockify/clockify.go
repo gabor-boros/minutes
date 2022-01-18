@@ -70,7 +70,7 @@ type clockifyClient struct {
 	workspace     string
 }
 
-func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
+func (c *clockifyClient) parseEntries(rawEntries interface{}, opts *client.FetchOpts) (worklog.Entries, error) {
 	var entries worklog.Entries
 
 	fetchedEntries, ok := rawEntries.([]FetchEntry)
@@ -107,8 +107,8 @@ func (c *clockifyClient) parseEntries(rawEntries interface{}) (worklog.Entries, 
 			UnbillableDuration: unbillableDuration,
 		}
 
-		if c.TagsAsTasks && len(entry.Tags) > 0 {
-			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, c.TagsAsTasksRegex, entry.Tags)
+		if utils.IsRegexSet(opts.TagsAsTasksRegex) && len(entry.Tags) > 0 {
+			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, opts.TagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)
 		} else {
 			entries = append(entries, worklogEntry)
@@ -151,6 +151,7 @@ func (c *clockifyClient) FetchEntries(ctx context.Context, opts *client.FetchOpt
 	}
 
 	return c.PaginatedFetch(ctx, &client.PaginatedFetchOpts{
+		BaseFetchOpts: opts,
 		URL:           fetchURL,
 		PageSizeParam: "page-size",
 		FetchFunc:     c.fetchEntries,

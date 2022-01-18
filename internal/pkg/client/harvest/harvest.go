@@ -82,7 +82,7 @@ type harvestClient struct {
 	account       int
 }
 
-func (c *harvestClient) parseEntries(rawEntries interface{}) (worklog.Entries, error) {
+func (c *harvestClient) parseEntries(rawEntries interface{}, _ *client.FetchOpts) (worklog.Entries, error) {
 	var entries worklog.Entries
 
 	fetchedEntries, ok := rawEntries.([]FetchEntry)

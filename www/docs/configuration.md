@@ -48,7 +48,6 @@ On Linux/Unix systems, the following locations are checked for the configuration
 | table-truncate-column   | map[string]int                                      | Truncate text in the given column to contain no more than `x` characters, where `x` is set by `int`                                           | table-truncate-column = { summary = 30 }              |                                                                                  |
 | target                  | string                                              | Set the upload target name                                                                                                                    | target = "tempo"                                      | Check the list of available targets                                              |
 | target-user             | string                                              | Set the upload target user ID                                                                                                                 | target = "gabor-boros"                                |                                                                                  |
-| tags-as-tasks           | bool                                                | Treat tags matching the value of `tags-as-tasks-regex` as tasks                                                                               | tags-as-tasks = true                                  |                                                                                  |
 | tags-as-tasks-regex     | string                                              | Regex of the task pattern                                                                                                                     | tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'            |                                                                                  |
 
 ## Source and target specific configuration
@@ -75,7 +74,6 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tags-as-tasks = true
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true

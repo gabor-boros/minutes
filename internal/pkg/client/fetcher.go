@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"regexp"
 	"time"
 
 	"github.com/gabor-boros/minutes/internal/pkg/worklog"
@@ -31,6 +32,10 @@ type FetchOpts struct {
 	User  string
 	Start time.Time
 	End   time.Time
+
+	// TagsAsTasksRegex sets the regular expression used for extracting tasks
+	// from the list of tags.
+	TagsAsTasksRegex *regexp.Regexp
 }
 
 // Fetcher specifies the functions used to fetch worklog entries.
@@ -47,9 +52,11 @@ type PaginatedFetchResponse struct {
 }
 
 type PaginatedFetchFunc = func(context.Context, string) (interface{}, *PaginatedFetchResponse, error)
-type PaginatedParseFunc = func(interface{}) (worklog.Entries, error)
+type PaginatedParseFunc = func(interface{}, *FetchOpts) (worklog.Entries, error)
 
 type PaginatedFetchOpts struct {
+	BaseFetchOpts *FetchOpts
+
 	URL           string
 	PageSize      int
 	PageSizeParam string

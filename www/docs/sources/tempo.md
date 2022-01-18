@@ -7,7 +7,7 @@ The source makes the following special mappings.
 | From       | To      | Description                                                                                                                                         |
 | ---------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | AccountKey | Client  |                                                                                                                                                     |
-| ProjectKey | Project | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks` is enabled, Summary will be set to the Description of the item |
+| ProjectKey | Project | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks-regex` is set, Summary will be set to the Description of the item |
 | IssueKey   | Task    |                                                                                                                                                     |
 | Comment    | Notes   |                                                                                                                                                     |
 
@@ -57,7 +57,6 @@ tempo-username = "<jira username>"
 tempo-password = "<jira password>"
 
 # General config
-tags-as-tasks = true
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
