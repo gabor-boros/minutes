@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Fix comment wording ([cb3b3bb](https://github.com/gabor-boros/minutes/commit/cb3b3bb9763bdb6c68d5e93d5f7f16de0605abfe))
 
+**Miscellaneous Tasks**
+
+- Upgrade dependencies ([cefd2af](https://github.com/gabor-boros/minutes/commit/cefd2af0da957cb462974aba2f4390950f44dcc3))
+
 **Refactor**
 
 - Remove tags-as-tasks flag ([8ea8769](https://github.com/gabor-boros/minutes/commit/8ea87697a14c59070d149bcca0823c2cc69228c7))
