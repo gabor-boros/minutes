@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/gabor-boros/minutes/cmd"
-)
+import "github.com/gabor-boros/minutes/cmd/root"
 
 var (
 	version string
@@ -11,5 +9,5 @@ var (
 )
 
 func main() {
-	cmd.Execute(version, commit, date)
+	root.Execute(version, commit, date)
 }
