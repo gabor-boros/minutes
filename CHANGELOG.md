@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Remove tags-as-tasks flag ([8ea8769](https://github.com/gabor-boros/minutes/commit/8ea87697a14c59070d149bcca0823c2cc69228c7))
 - Move tags-as-tasks in-house to FetchOpts ([6caa95a](https://github.com/gabor-boros/minutes/commit/6caa95a91e4b0573057868563d19570e90383659))
 - Unify how regex is checked ([0c393c5](https://github.com/gabor-boros/minutes/commit/0c393c586ae1af8298f4d207f7459776efb24bfc))
+- Split root command ([55723b6](https://github.com/gabor-boros/minutes/commit/55723b664b5eb8cec613783f886716c034354b42))
 
 **Testing**
 
