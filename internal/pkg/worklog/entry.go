@@ -94,7 +94,13 @@ func (e *Entry) SplitDuration(parts int) (splitBillableDuration time.Duration, s
 // SplitByTagsAsTasks splits the entry into pieces treating tags as tasks.
 // Not matching tags won't be treated as a new entry should be created,
 // therefore that tag will be skipped and the returned entries will lack that.
+// If no tags are provided, the original entry will be returned as the only item
+// of the `Entries` list.
 func (e *Entry) SplitByTagsAsTasks(summary string, regex *regexp.Regexp, tags []IDNameField) Entries {
+	if len(tags) == 0 {
+		return Entries{*e}
+	}
+
 	var tasks []IDNameField
 	for _, tag := range tags {
 		if taskName := regex.FindString(tag.Name); taskName != "" {
