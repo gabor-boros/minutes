@@ -107,6 +107,12 @@ func (c *clockifyClient) parseEntries(rawEntries interface{}, opts *client.Fetch
 			UnbillableDuration: unbillableDuration,
 		}
 
+		// If the entry's summary is empty, but we have notes, let's use notes for summary too
+		// See: https://github.com/gabor-boros/minutes/issues/38
+		if worklogEntry.Summary == "" && worklogEntry.Notes != "" {
+			worklogEntry.Summary = worklogEntry.Notes
+		}
+
 		if utils.IsRegexSet(opts.TagsAsTasksRegex) && len(entry.Tags) > 0 {
 			pageEntries := worklogEntry.SplitByTagsAsTasks(entry.Description, opts.TagsAsTasksRegex, entry.Tags)
 			entries = append(entries, pageEntries...)

@@ -379,3 +379,83 @@ func TestClockifyClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	require.Nil(t, err, "cannot fetch entries")
 	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
+
+
+func TestClockifyClient_FetchEntries_TagsAsTasks_NoTags(t *testing.T) {
+	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
+	remainingCalls := 1
+
+	expectedEntries := worklog.Entries{
+		{
+			Client: worklog.IDNameField{
+				ID:   "456",
+				Name: "My Awesome Company",
+			},
+			Project: worklog.IDNameField{
+				ID:   "123",
+				Name: "TASK-1234",
+			},
+			Task: worklog.IDNameField{},
+			Summary:            "Have a coffee with Tony",
+			Notes:              "Have a coffee with Tony",
+			Start:              start,
+			BillableDuration:   end.Sub(start),
+			UnbillableDuration: 0,
+		},
+	}
+
+	mockServer := newMockServer(t, &mockServerOpts{
+		Path:           fmt.Sprintf(clockify.PathWorklog, "marvel-studios", "steve-rogers"),
+		Method:         http.MethodGet,
+		StatusCode:     http.StatusOK,
+		Token:          "t-o-k-e-n",
+		TokenHeader:    "X-Api-Key",
+		RemainingCalls: &remainingCalls,
+		ResponseData: &[]clockify.FetchEntry{
+			{
+				Description: "Have a coffee with Tony",
+				Billable:    true,
+				Project: clockify.Project{
+					IDNameField: worklog.IDNameField{
+						ID:   "123",
+						Name: "TASK-1234",
+					},
+					ClientID:   "456",
+					ClientName: "My Awesome Company",
+				},
+				TimeInterval: clockify.Interval{
+					Start: start,
+					End:   end,
+				},
+				Task: worklog.IDNameField{},
+				Tags: []worklog.IDNameField{},
+			},
+		},
+	})
+	defer mockServer.Close()
+
+	clockifyClient, err := clockify.NewFetcher(&clockify.ClientOpts{
+		BaseClientOpts: client.BaseClientOpts{
+			Timeout: client.DefaultRequestTimeout,
+		},
+		TokenAuth: client.TokenAuth{
+			Header: "X-Api-Key",
+			Token:  "t-o-k-e-n",
+		},
+		BaseURL:   mockServer.URL,
+		Workspace: "marvel-studios",
+	})
+
+	require.Nil(t, err)
+
+	entries, err := clockifyClient.FetchEntries(context.Background(), &client.FetchOpts{
+		User:             "steve-rogers",
+		Start:            start,
+		End:              end,
+		TagsAsTasksRegex: regexp.MustCompile(`^TASK-\d+$`),
+	})
+
+	require.Nil(t, err, "cannot fetch entries")
+	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
+}
