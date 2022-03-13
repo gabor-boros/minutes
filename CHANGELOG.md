@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+**Bug Fixes**
+
+- Summary is filled if description exists ([557e286](https://github.com/gabor-boros/minutes/commit/557e286110be54733511791083b3fa0f92b0d38e))
+- Return single item entries if no tags given ([405c405](https://github.com/gabor-boros/minutes/commit/405c405518b09228d455b32543b9486b6625d4fa))
+
 **Documentation**
 
 - Fix comment wording ([cb3b3bb](https://github.com/gabor-boros/minutes/commit/cb3b3bb9763bdb6c68d5e93d5f7f16de0605abfe))
