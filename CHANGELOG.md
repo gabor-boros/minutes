@@ -6,27 +6,20 @@ All notable changes to this project will be documented in this file.
 
 **Bug Fixes**
 
-- Summary is filled if description exists ([557e286](https://github.com/gabor-boros/minutes/commit/557e286110be54733511791083b3fa0f92b0d38e))
-- Return single item entries if no tags given ([405c405](https://github.com/gabor-boros/minutes/commit/405c405518b09228d455b32543b9486b6625d4fa))
-
-**Documentation**
-
-- Fix comment wording ([cb3b3bb](https://github.com/gabor-boros/minutes/commit/cb3b3bb9763bdb6c68d5e93d5f7f16de0605abfe))
+- Fill summary if description exists ([0d6aebe](https://github.com/gabor-boros/minutes/commit/0d6aebe8439327acdc5fa1264b4a08b715fba5b1))
 
 **Miscellaneous Tasks**
 
-- Upgrade dependencies ([cefd2af](https://github.com/gabor-boros/minutes/commit/cefd2af0da957cb462974aba2f4390950f44dcc3))
+- Upgrade dependencies ([037ffdd](https://github.com/gabor-boros/minutes/commit/037ffdd1be49a6245e82459678e458c29eecdb68))
 
 **Refactor**
 
-- Remove tags-as-tasks flag ([8ea8769](https://github.com/gabor-boros/minutes/commit/8ea87697a14c59070d149bcca0823c2cc69228c7))
-- Move tags-as-tasks in-house to FetchOpts ([6caa95a](https://github.com/gabor-boros/minutes/commit/6caa95a91e4b0573057868563d19570e90383659))
-- Unify how regex is checked ([0c393c5](https://github.com/gabor-boros/minutes/commit/0c393c586ae1af8298f4d207f7459776efb24bfc))
-- Split root command ([55723b6](https://github.com/gabor-boros/minutes/commit/55723b664b5eb8cec613783f886716c034354b42))
+- Rework tag parsing ([d1cbe49](https://github.com/gabor-boros/minutes/commit/d1cbe498a009537b77d9176a29ace57c68796219))
+- Split root command (#37) ([b456227](https://github.com/gabor-boros/minutes/commit/b456227b2e49a8db727c1f56848720e95cfe37ca))
 
-**Testing**
+**Styling**
 
-- Use `ElementsMatch` over `Equal` ([841e0df](https://github.com/gabor-boros/minutes/commit/841e0df9a0ccd4a6b6067b7cff494b89f4c7cbe5))
+- Fix formatting for clockify tests ([26fa0b1](https://github.com/gabor-boros/minutes/commit/26fa0b12f9a8e1ae3941674aa8c69bda9a3efce7))
 
 ## [0.2.3] - 2021-11-08
 
