@@ -380,7 +380,6 @@ func TestClockifyClient_FetchEntries_TagsAsTasks(t *testing.T) {
 	require.ElementsMatch(t, expectedEntries, entries, "fetched entries are not matching")
 }
 
-
 func TestClockifyClient_FetchEntries_TagsAsTasks_NoTags(t *testing.T) {
 	start := time.Date(2021, 10, 2, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2021, 10, 2, 23, 59, 59, 0, time.UTC)
@@ -396,7 +395,7 @@ func TestClockifyClient_FetchEntries_TagsAsTasks_NoTags(t *testing.T) {
 				ID:   "123",
 				Name: "TASK-1234",
 			},
-			Task: worklog.IDNameField{},
+			Task:               worklog.IDNameField{},
 			Summary:            "Have a coffee with Tony",
 			Notes:              "Have a coffee with Tony",
 			Start:              start,
