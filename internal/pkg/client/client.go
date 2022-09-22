@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	netURL "net/url"
 	"os/exec"
@@ -192,7 +191,7 @@ func (c *HTTPClient) Call(ctx context.Context, opts *HTTPRequestOpts) ([]byte, e
 		return nil, err
 	}
 
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 // PaginatedFetch fetches the entries from the given paginated API.

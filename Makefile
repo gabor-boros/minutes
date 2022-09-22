@@ -16,6 +16,7 @@ prerequisites: ## Download and install prerequisites
 	go install github.com/sqs/goreturns@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
+	go install golang.org/x/vuln/cmd/govulncheck@latest
 
 deps: ## Download dependencies
 	go mod download
@@ -25,6 +26,7 @@ format: ## Run formatter on the project
 	goreturns -b -local -p -w -e -l .
 
 lint: format ## Run linters on the project
+	govulncheck -v ./...
 	golangci-lint run --timeout 5m -E golint -e '(struct field|type|method|func) [a-zA-Z`]+ should be [a-zA-Z`]+'
 	gosec -quiet ./...
 

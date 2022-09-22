@@ -10,10 +10,6 @@ import (
 func NewProgressWriter(updateFrequency time.Duration) progress.Writer {
 	writer := progress.NewWriter()
 
-	writer.ShowTime(true)
-	writer.ShowTracker(false)
-	writer.ShowValue(false)
-
 	writer.SetAutoStop(true)
 	writer.SetTrackerPosition(progress.PositionRight)
 
@@ -25,6 +21,9 @@ func NewProgressWriter(updateFrequency time.Duration) progress.Writer {
 	writer.Style().Options.ErrorString = "failed!  " // Have the same length as DoneString
 	writer.Style().Options.Separator = "\t"
 	writer.Style().Options.SnipIndicator = "..."
+	writer.Style().Visibility.Time = true
+	writer.Style().Visibility.Tracker = false
+	writer.Style().Visibility.Value = false
 
 	return writer
 }
