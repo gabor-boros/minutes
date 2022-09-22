@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2022-09-22
+
+**Refactor**
+
+- Update dependencies (#45) ([1314e95](https://github.com/gabor-boros/minutes/commit/1314e95318b1d236b84f2bb5242eac8a72e3454a))
+
 ## [0.3.0] - 2022-03-14
 
 **Bug Fixes**
