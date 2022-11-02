@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2022-11-02
+
+**Ci**
+
+- Upgrade go executable to fix security issues ([45c4466](https://github.com/gabor-boros/minutes/commit/45c446651e8eed2879c1966d0bb6bdc2c420a65e))
+
 ## [0.3.1] - 2022-09-22
 
 **Refactor**
