@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+**Miscellaneous Tasks**
+
+- Update dependencies ([c8bd9b6](https://github.com/gabor-boros/minutes/commit/c8bd9b69c6d8395b944fbec710ba0e1331d3c7c5))
+
 ## [0.3.2] - 2022-11-02
 
 **Ci**
