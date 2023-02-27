@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.3.3] - 2023-02-27
 
 **Miscellaneous Tasks**
 
-- Update dependencies ([c8bd9b6](https://github.com/gabor-boros/minutes/commit/c8bd9b69c6d8395b944fbec710ba0e1331d3c7c5))
+- Update dependencies ([34b5704](https://github.com/gabor-boros/minutes/commit/34b5704a9bc98074bf6115d1e80df4946615b8b6))
+- Update dependencies and go version ([abf2676](https://github.com/gabor-boros/minutes/commit/abf26762775f4767f99586d67bf53217b65dd191))
 
 ## [0.3.2] - 2022-11-02
 
