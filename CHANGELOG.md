@@ -9,6 +9,11 @@ All notable changes to this project will be documented in this file.
 - Update dependencies ([11850d8](https://github.com/gabor-boros/minutes/commit/11850d888de888275f3eb814a992a08f9ae5068a))
 - Bump dependencies and go version ([43e68dc](https://github.com/gabor-boros/minutes/commit/43e68dce9ede26e90b1c3a01653a03a84cc18275))
 
+**Refactor**
+
+- Adjust goreleaser configuration ([86e7efe](https://github.com/gabor-boros/minutes/commit/86e7efe2d84a9a0bd6e93314fb94abdcf7cf7583))
+- Resolve linter errors ([c5d8865](https://github.com/gabor-boros/minutes/commit/c5d8865706a4ac628ba3eea0baa64acef68c0a09))
+
 ## [0.3.3] - 2023-02-27
 
 **Miscellaneous Tasks**
