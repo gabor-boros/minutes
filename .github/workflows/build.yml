@@ -13,16 +13,16 @@ jobs:
     strategy:
       matrix:
         go:
-          - "^1.22"
+          - "1.22.4"
         os:
           - ubuntu-latest
           - windows-latest
           - macos-latest
     runs-on: "${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: "${{ matrix.go }}"
       - name: Prerequisites
@@ -34,7 +34,7 @@ jobs:
       - name: Stash test results
         uses: actions/upload-artifact@master
         with:
-          name: "Test results"
+          name: "${{ matrix.os }}-${{ matrix.go }}"
           path: .coverage.out
           retention-days: 7
       - name: Build
@@ -46,15 +46,15 @@ jobs:
     needs:
       - test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Unstash test results
         uses: actions/download-artifact@master
         with:
-          name: "Test results"
+          name: ubuntu-latest-1.22.4
       - name: Upload test results
-        uses: paambaati/codeclimate-action@v3.0.0
+        uses: paambaati/codeclimate-action@v6
         env:
-          CC_TEST_REPORTER_ID: 20a724e6a2bf80ab3a3cb88c02df2e95bf918da42e63bc5eaa6f0c9dfbe7e77d
+          CC_TEST_REPORTER_ID: c9d94a2c1e909f32ec045ed9653456f64c0666bfde95012e9b913dbe4b988020
         with:
           prefix: github.com/${{github.repository}}
           coverageLocations: ${{github.workspace}}/.coverage.out:gocov

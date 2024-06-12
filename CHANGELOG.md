@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.4] - 2024-06-12
+## [0.3.4] - 2024-06-14
 
 **Miscellaneous Tasks**
 
@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 
 - Adjust goreleaser configuration ([86e7efe](https://github.com/gabor-boros/minutes/commit/86e7efe2d84a9a0bd6e93314fb94abdcf7cf7583))
 - Resolve linter errors ([c5d8865](https://github.com/gabor-boros/minutes/commit/c5d8865706a4ac628ba3eea0baa64acef68c0a09))
+
+**Build**
+
+- Fix GitHub workflow artifact upload ([593d850](https://github.com/gabor-boros/minutes/commit/593d850b348690f71d6ce81e059fb341765bec57))
 
 ## [0.3.3] - 2023-02-27
 
