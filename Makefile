@@ -26,8 +26,8 @@ format: ## Run formatter on the project
 	goreturns -b -local -p -w -e -l .
 
 lint: format ## Run linters on the project
-	govulncheck -v ./...
-	golangci-lint run --timeout 5m -E golint -e '(struct field|type|method|func) [a-zA-Z`]+ should be [a-zA-Z`]+'
+	govulncheck ./...
+	golangci-lint run --timeout 5m -E revive -e '(struct field|type|method|func) [a-zA-Z`]+ should be [a-zA-Z`]+'
 	gosec -quiet ./...
 
 test: deps ## Run tests
