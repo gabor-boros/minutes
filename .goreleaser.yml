@@ -11,14 +11,15 @@ builds:
       - darwin
 dist: bin
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+  - name_template: >-
+      {{- .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 signs:
   - artifacts: all
 snapshot:
@@ -27,16 +28,15 @@ milestones:
   - close: true
     fail_on_error: true
 changelog:
-  skip: true
+  disable: true
 brews:
-  -
-    tap:
+  - repository:
       owner: gabor-boros
       name: homebrew-brew
     commit_author:
       name: "Gabor Boros"
       email: gabor.brs@gmail.com
-    folder: Formula
+    directory: Formula
     homepage: "https://github.com/gabor-boros/minutes"
     description: "Sync worklogs between time trackers, invoicing, and bookkeeping software"
     license: "MIT"

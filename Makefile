@@ -41,11 +41,11 @@ coverage-report: ## Generate coverage report from previous test run
 	go tool cover -html "$(COVERAGE_OUT)" -o "$(COVERAGE_HTML)"
 
 build: deps ## Build binary
-	goreleaser build --rm-dist --snapshot --single-target
+	goreleaser build --clean --snapshot --single-target
 	@find bin -name "$(BIN_NAME)" -exec cp "{}" bin/ \;
 
 release: ## Release a new version on GitHub
-	goreleaser release --rm-dist
+	goreleaser release --clean
 
 changelog: ## Generate changelog
 	git-cliff > CHANGELOG.md
