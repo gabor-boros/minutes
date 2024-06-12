@@ -189,7 +189,9 @@ func TestExecCommandHelper(t *testing.T) {
 	}
 
 	_, _ = fmt.Fprint(os.Stdout, os.Getenv("STDOUT"))
-	exitCode, _ := strconv.Atoi(os.Getenv("EXIT_CODE"))
+	exitCode, err := strconv.Atoi(os.Getenv("EXIT_CODE"))
+	require.NoError(t, err)
+
 	os.Exit(exitCode)
 }
 

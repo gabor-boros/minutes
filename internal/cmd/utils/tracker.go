@@ -13,7 +13,7 @@ func NewProgressWriter(updateFrequency time.Duration) progress.Writer {
 	writer.SetAutoStop(true)
 	writer.SetTrackerPosition(progress.PositionRight)
 
-	writer.SetMessageWidth(50)
+	writer.SetMessageLength(50)
 	writer.SetUpdateFrequency(updateFrequency)
 
 	writer.Style().Colors = progress.StyleColorsDefault
