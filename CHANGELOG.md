@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 **Build**
 
-- Fix GitHub workflow artifact upload ([593d850](https://github.com/gabor-boros/minutes/commit/593d850b348690f71d6ce81e059fb341765bec57))
+- Fix GitHub workflow artifact upload ([bf501ec](https://github.com/gabor-boros/minutes/commit/bf501ec87998b835b44fe22b3c7ed948682d32a9))
 
 ## [0.3.3] - 2023-02-27
 
