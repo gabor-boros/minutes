@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.5](https://github.com/gabor-boros/minutes/compare/v0.3.4...v0.3.5) (2026-10-31)
+## [0.4.0](https://github.com/gabor-boros/minutes/compare/v0.3.4...v0.4.0) (2026-10-31)
 
 
 ### Features
