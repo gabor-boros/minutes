@@ -1,147 +1,55 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  # Releases created with GITHUB_TOKEN do not emit events, so
+  # release-please.yml calls this workflow once all assets are uploaded.
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to publish
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish
+        required: true
+        type: string
 
 concurrency:
-  group: release-${{ github.workflow }}-${{ github.event.release.tag_name || github.ref }}
+  group: release-${{ github.workflow }}-${{ inputs.tag }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
-  build:
-    name: build (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            archive: tar.gz
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            archive: tar.gz
-            cross: true
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            archive: tar.gz
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            archive: tar.gz
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            archive: zip
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-            archive: zip
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
-        with:
-          toolchain: "1.85.0"
-          targets: ${{ matrix.target }}
-
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-        with:
-          key: ${{ matrix.target }}
-
-      - name: Install cross
-        if: matrix.cross
-        uses: taiki-e/install-action@68a389c788b2cd04016ce8c80ee23b80d2ab3d68 # v2.88.1
-        with:
-          tool: cross
-
-      - name: Build
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${{ matrix.cross }}" == "true" ]]; then
-            cross build --release --locked -p minutes --target "${{ matrix.target }}"
-          else
-            cargo build --release --locked -p minutes --target "${{ matrix.target }}"
-          fi
-
-      - name: Package
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
-          BIN_DIR="target/${{ matrix.target }}/release"
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            BIN="$BIN_DIR/minutes.exe"
-          else
-            BIN="$BIN_DIR/minutes"
-          fi
-          ASSET="minutes_${VERSION}_${{ matrix.target }}"
-          mkdir -p dist
-          if [[ "${{ matrix.archive }}" == "zip" ]]; then
-            (
-              cd "$BIN_DIR"
-              if command -v zip >/dev/null 2>&1; then
-                zip -q "$GITHUB_WORKSPACE/dist/${ASSET}.zip" "$(basename "$BIN")"
-              else
-                powershell -Command "Compress-Archive -Path '$(basename "$BIN")' -DestinationPath '$GITHUB_WORKSPACE/dist/${ASSET}.zip'"
-              fi
-            )
-            echo "ASSET_PATH=dist/${ASSET}.zip" >> "$GITHUB_ENV"
-            echo "ASSET_NAME=${ASSET}.zip" >> "$GITHUB_ENV"
-          else
-            tar -C "$BIN_DIR" -czf "dist/${ASSET}.tar.gz" "$(basename "$BIN")"
-            echo "ASSET_PATH=dist/${ASSET}.tar.gz" >> "$GITHUB_ENV"
-            echo "ASSET_NAME=${ASSET}.tar.gz" >> "$GITHUB_ENV"
-          fi
-
-      - name: Upload release asset
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
-        with:
-          files: ${{ env.ASSET_PATH }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload checksum artifact
-        if: startsWith(matrix.target, 'aarch64-apple-darwin') || startsWith(matrix.target, 'x86_64-apple-darwin')
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: brew-${{ matrix.target }}
-          path: ${{ env.ASSET_PATH }}
-          retention-days: 1
-
   homebrew:
     name: homebrew
-    needs: build
     runs-on: macos-latest
     timeout-minutes: 15
     env:
       HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      TAG: ${{ github.event.release.tag_name }}
+      TAG: ${{ inputs.tag }}
     steps:
       - name: Skip without tap token
         if: env.HOMEBREW_TAP_TOKEN == ''
         run: echo "HOMEBREW_TAP_TOKEN not set; skipping Homebrew update."
 
-      - name: Download Darwin artifacts
+      - name: Download and verify release assets
         if: env.HOMEBREW_TAP_TOKEN != ''
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: brew-*
-          merge-multiple: true
-          path: artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir artifacts \
+            --pattern '*-apple-darwin.tar.gz' --pattern '*-apple-darwin.tar.gz.sha256'
+          cd artifacts
+          for f in *.sha256; do
+            shasum -a 256 -c "$f"
+          done
 
       - name: Update Homebrew formula
         if: env.HOMEBREW_TAP_TOKEN != ''
