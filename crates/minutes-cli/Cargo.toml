@@ -1,0 +1,43 @@
+[package]
+name = "minutes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Command-line interface for Minutes"
+readme = "README.md"
+
+[[bin]]
+name = "minutes"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+comfy-table.workspace = true
+console.workspace = true
+ctrlc.workspace = true
+dialoguer.workspace = true
+directories.workspace = true
+figment.workspace = true
+futures.workspace = true
+indicatif.workspace = true
+minutes-client.workspace = true
+minutes-clockify.workspace = true
+minutes-core.workspace = true
+minutes-harvest.workspace = true
+minutes-tempo.workspace = true
+minutes-timewarrior.workspace = true
+minutes-toggl.workspace = true
+regex.workspace = true
+serde.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+figment = { workspace = true, features = ["test"] }
+toml.workspace = true
+
+[lints]
+workspace = true

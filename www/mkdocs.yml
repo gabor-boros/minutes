@@ -70,6 +70,7 @@ nav:
 - Targets:
   - targets/tempo.md
 - Migrations:
+  - From 0.3.x to 0.4.x: migrations/from-0.3-to-0.4.md
   - From "Tempoit": migrations/tempoit.md
   - From "Toggl to Jira": migrations/toggl-tempo-worklog-transfer.md
 - Contributing: CONTRIBUTING.md

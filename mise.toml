@@ -1,0 +1,46 @@
+[settings]
+lockfile = true
+
+[tools]
+"npm:@commitlint/cli" = "19.8"
+"npm:@commitlint/config-conventional" = "19.8"
+pre-commit = "4.2"
+rust = "1.99"
+python = "3.12"
+
+[tasks.build]
+description = "Build the project for development"
+run = ["cargo build -p minutes"]
+
+[tasks."build:release"]
+description = "Build the project for release"
+run = ["cargo build --release -p minutes"]
+
+[tasks.test]
+description = "Run workspace tests"
+run = ["cargo test --workspace"]
+
+[tasks.format]
+description = "Format Rust sources"
+run = ["cargo fmt --all"]
+
+[tasks."format:check"]
+description = "Check Rust formatting"
+run = ["cargo fmt --all -- --check"]
+
+[tasks.lint]
+description = "Run clippy with warnings denied"
+run = ["cargo clippy --workspace --all-targets -- -D warnings"]
+
+[tasks.docs]
+description = "Serve the documentation site locally"
+dir = "www"
+run = ["mkdocs serve"]
+
+[tasks."docs:deps"]
+description = "Install documentation Python dependencies"
+run = ["pip install -r www/requirements.txt"]
+
+[tasks.pre-commit]
+description = "Install pre-commit and commit-msg hooks"
+run = ["pre-commit install --install-hooks"]

@@ -1,0 +1,58 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/minutes-core",
+    "crates/minutes-cli",
+    "crates/minutes-client",
+    "crates/minutes-clockify",
+    "crates/minutes-harvest",
+    "crates/minutes-tempo",
+    "crates/minutes-timewarrior",
+    "crates/minutes-toggl",
+]
+
+[workspace.package]
+# x-release-please-version
+version = "0.3.4"
+edition = "2024"
+rust-version = "1.99"
+license = "MIT"
+authors = ["Gabor Boros <gabor.brs@gmail.com>"]
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1.92"
+base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+clap = { version = "4", features = ["derive"] }
+comfy-table = "7"
+console = "0.15"
+ctrlc = "3"
+dialoguer = "0.11"
+directories = "6"
+figment = { version = "0.10", features = ["toml", "env"] }
+futures = { version = "0.3", default-features = false, features = ["std"] }
+indicatif = "0.17"
+minutes-client = { path = "crates/minutes-client" }
+minutes-clockify = { path = "crates/minutes-clockify" }
+minutes-core = { path = "crates/minutes-core" }
+minutes-harvest = { path = "crates/minutes-harvest" }
+minutes-tempo = { path = "crates/minutes-tempo" }
+minutes-timewarrior = { path = "crates/minutes-timewarrior" }
+minutes-toggl = { path = "crates/minutes-toggl" }
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2.0.21"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "process"] }
+toml = "0.8"
+url = "2.5.8"
+wiremock = "0.6"
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"

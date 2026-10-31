@@ -1,13 +1,3 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![Maintainability][maintainability-shield]][maintainability-url]
-[![Coverage][coverage-shield]][coverage-url]
-
-
-<br />
 <div align="center">
   <h3 align="center">Minutes</h3>
 
@@ -23,8 +13,6 @@
   </p>
 </div>
 
-<!-- ABOUT THE PROJECT -->
-
 ## About The Project
 
 ![minutes](./www/docs/assets/img/hero.png)
@@ -33,78 +21,86 @@ Minutes is a CLI tool for synchronizing work logs between multiple time trackers
 
 Minutes come with absolutely **NO WARRANTY**; before and after synchronizing any logs, please ensure you got the expected result.
 
+Upgrading from 0.3.x? See the [0.3 → 0.4 migration guide](https://gabor-boros.github.io/minutes/migrations/from-0.3-to-0.4/).
+
 ## Getting Started
 
 ### Prerequisites
 
-Based on the nature of the project, prerequisites depending on what tools you are using. In case you are using Clockify as a time tracker and Tempo as your sync target, you should have an account at Clockify and Jira.
+Based on the nature of the project, prerequisites depend on what tools you are using. In case you are using Clockify as a time tracker and Tempo as your sync target, you should have an account at Clockify and Jira.
 
 ### Installation
 
 #### Using `brew`
 
-``` shell
+```shell
 $ brew tap gabor-boros/brew
 $ brew install minutes
 ```
 
 #### Manual install
 
-To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have `go` installed, you can build from source as well.
+To install `minutes`, use one of the [release artifacts](https://github.com/gabor-boros/minutes/releases). If you have a Rust toolchain installed, you can build from source as well:
+
+```shell
+$ cargo install --path crates/minutes-cli
+```
 
 #### Configuration
 
-`minutes` has numerous flags and there will be more when other sources or targets are added. Therefore, `minutes` comes with a config file, that can be placed to the user's home directory or the config directory.
+`minutes` loads configuration from `.minutes.toml` (home directory or OS config dir), then `MINUTES_*` environment variables, then CLI flags. Later layers win.
 
-_To read more about the config file, please refer to the [Documentation](https://gabor-boros.github.io/minutes/getting-started)_
+_To read more about the config file, please refer to the [Documentation](https://gabor-boros.github.io/minutes/configuration)._
 
 ## Usage
 
-Below you can find more information about how to use `minutes`.
-
 ```plaintext
-Usage:
-  minutes [flags]
+Fetches worklog entries from a source tracker, shows an overview table, then uploads complete entries to a target tracker.
 
-Flags:
-      --clockify-api-key string                set the API key
-      --clockify-url string                    set the base URL (default "https://api.clockify.me")
-      --clockify-workspace string              set the workspace ID
-      --config string                          config file (default is $HOME/.minutes.yaml)
-      --date-format string                     set start and end date format (in Go style) (default "2006-01-02 15:04:05")
-      --dry-run                                fetch entries, but do not sync them
-      --end string                             set the end date (defaults to now)
-      --filter-client string                   filter for client name after fetching
-      --filter-project string                  filter for project name after fetching
-      --force-billed-duration                  treat every second spent as billed
-      --harvest-account int                    set the Account ID
-      --harvest-api-key string                 set the API key
-  -h, --help                                   help for minutes
-      --round-to-closest-minute                round time to closest minute
-  -s, --source string                          set the source of the sync [clockify harvest tempo timewarrior toggl]
-      --source-user string                     set the source user ID
-      --start string                           set the start date (defaults to 00:00:00)
-      --table-hide-column strings              hide table column [summary project client start end]
-      --table-sort-by strings                  sort table by column [task summary project client start end billable unbillable] (default [start,project,task,summary])
-      --tags-as-tasks-regex string             regex of the task pattern
-  -t, --target string                          set the target of the sync [tempo]
-      --target-user string                     set the source user ID
-      --tempo-password string                  set the login password
-      --tempo-url string                       set the base URL
-      --tempo-username string                  set the login user ID
-      --timewarrior-arguments strings          set additional arguments
-      --timewarrior-client-tag-regex string    regex of client tag pattern
-      --timewarrior-command string             set the executable name (default "timew")
-      --timewarrior-project-tag-regex string   regex of project tag pattern
-      --timewarrior-unbillable-tag string      set the unbillable tag (default "unbillable")
-      --toggl-api-key string                   set the API key
-      --toggl-workspace int                    set the workspace ID
-      --version                                show command version
+Config file: .minutes.toml (home directory or OS config dir). Override with --config, MINUTES_* environment variables, or flags. Date formats use chrono strftime (default %Y-%m-%d %H:%M:%S).
+
+Usage: minutes [OPTIONS]
+
+Options:
+      --config <PATH>                          Path to a `.minutes.toml` file
+  -s, --source <SOURCE>                        Source tracker [clockify|harvest|tempo|timewarrior|toggl]
+  -t, --target <TARGET>                        Target tracker [clockify|harvest|tempo|timewarrior|toggl]
+      --start <START>                          Inclusive range start (must match `--date-format`)
+      --end <END>                              Inclusive range end (must match `--date-format`)
+      --date-format <FORMAT>                   Chrono strftime pattern for `--start` / `--end`
+      --dry-run                                Fetch and print entries without uploading
+      --yes                                    Skip the interactive “Continue?” confirmation
+      --force-billed-duration                  Treat total time as billable before upload
+      --round-to-closest-minute                Round each entry's duration to the closest minute
+      --tags-as-tasks-regex <REGEX>            Regex of tags that should become tasks
+      --filter-client <REGEX>                  Regex filter applied to client names after fetch
+      --filter-project <REGEX>                 Regex filter applied to project names after fetch
+      --table-sort-by <COLUMN>...              Sort overview table by these columns (`-name` for descending)
+      --table-hide-column <COLUMN>...          Hide these columns from the overview table
+      --clockify-url <URL>                     Clockify API base URL (default `https://api.clockify.me/api/v1/`)
+      --clockify-api-key <KEY>                 Clockify API key
+      --clockify-workspace <ID>                Clockify workspace ID
+      --clockify-user <ID>                     Clockify user ID
+      --harvest-access-token <TOKEN>           Harvest personal access token
+      --harvest-account <ID>                   Harvest account ID
+      --harvest-user <ID>                      Harvest user ID
+      --tempo-url <URL>                        Tempo base URL
+      --tempo-username <USER>                  Tempo username for Basic Auth
+      --tempo-password <PASSWORD>              Tempo password or API token for Basic Auth
+      --tempo-worker <WORKER>                  Tempo worker key used on search and create requests
+      --timewarrior-command <PROGRAM>          Timewarrior executable (default `timew`)
+      --timewarrior-arguments <ARG>...         Extra arguments prepended to every Timewarrior invocation
+      --timewarrior-unbillable-tag <TAG>       Tag that marks an interval as non-billable (default `unbillable`)
+      --timewarrior-client-tag-regex <REGEX>   Regex matching Timewarrior tags treated as the client
+      --timewarrior-project-tag-regex <REGEX>  Regex matching Timewarrior tags treated as the project
+      --toggl-url <URL>                        Toggl Track API base URL (default `https://api.track.toggl.com/`)
+      --toggl-api-token <TOKEN>                Toggl API token
+      --toggl-workspace <ID>                   Toggl workspace ID
+      --toggl-user <ID>                        Toggl user ID
+  -h, --help                                   Print help
 ```
 
 ### Usage examples
-
-Depending on the config file, the number of flags can change.
 
 #### Simplest command
 
@@ -113,92 +109,82 @@ Depending on the config file, the number of flags can change.
 $ minutes
 ```
 
+#### Preview without uploading
+
+```shell
+$ minutes --dry-run
+```
+
+#### Non-interactive sync
+
+```shell
+$ minutes --yes
+```
+
 #### Set specific date and time
 
 ```shell
-# Set the date and time to fetch entries in the given time frame
 $ minutes --start "2021-10-07 00:00:00" --end "2021-10-07 23:59:59"
 ```
 
 ```shell
-# Specify the start and end date format
-$ minutes --date-format "2006-01-02" --start "2021-10-07" --end "2021-10-08"
+$ minutes --date-format "%Y-%m-%d" --start "2021-10-07" --end "2021-10-08"
 ```
 
 #### Use tags for tasks
 
 ```shell
-# Specify how a tag should look like to be considered as a task
 $ minutes --tags-as-tasks-regex '[A-Z]{2,7}-\d{1,6}'
 ```
 
 #### Minute based rounding
 
 ```shell
-# Set the billed and unbilled time separately
-# to round to the closest minute (even if it is zero)
 $ minutes --round-to-closest-minute
 ```
 
 ### Sample config file
 
 ```toml
-# Source config
 source = "clockify"
-source-user = "<clockify user ID>"
-
-clockify-url = "https://api.clockify.me"
-clockify-api-key = "<clockify API token>"
-clockify-workspace = "<clockify workspace ID>"
-
-# Target config
 target = "tempo"
-target-user = "<jira username>"
-
-tempo-url = "https://<org>.atlassian.net"
-tempo-username = "<jira username>"
-tempo-password = "<jira password>"
-
-# General config
+date-format = "%Y-%m-%d %H:%M:%S"
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true
 
-table-sort-by = [
-    "start",
-    "project",
-    "task",
-    "summary",
-]
+clockify-url = "https://api.clockify.me/api/v1/"
+clockify-api-key = "<clockify API token>"
+clockify-workspace = "<clockify workspace ID>"
+clockify-user = "<clockify user ID>"
 
-table-hide-column = [
-    "end"
-]
+tempo-url = "https://<org>.atlassian.net/"
+tempo-username = "<jira username>"
+tempo-password = "<jira password or API token>"
+tempo-worker = "<jira username>"
 
-[table-column-truncates]
-summary = 40
-project = 10
-client = 10
-
-# Column Config
-[table-column-config.summary]
-widthmax = 40
+table-sort-by = ["start", "project", "task", "summary"]
+table-hide-column = ["end"]
 ```
+
+Environment overrides use a `MINUTES_` prefix and underscores (`MINUTES_TOGGL_API_TOKEN`, `MINUTES_SOURCE`, …).
 
 ## Supported tools
 
+Every listed **yes** backend can be used as `--source` and/or `--target`. Uploads run with up to five concurrent requests and show a full-width progress bar per entry.
+
 | Tool        | Use as source | Use as target |
 | ----------- | ------------- | ------------- |
-| Clockify    | **yes**       | upon request  |
+| Clockify    | **yes**       | **yes**       |
 | Everhour    | upon request  | upon request  |
 | FreshBooks  | upon request  | **planned**   |
-| Harvest     | **yes**       | upon request  |
+| Harvest     | **yes**       | **yes**       |
 | QuickBooks  | upon request  | upon request  |
 | Tempo       | **yes**       | **yes**       |
 | Time Doctor | upon request  | upon request  |
 | TimeCamp    | upon request  | upon request  |
-| Timewarrior | **yes**       | upon request  |
-| Toggl Track | **yes**       | upon request  |
+| Timewarrior | **yes**       | **yes**       |
+| Toggl Track | **yes**       | **yes**       |
 | Zoho Books  | upon request  | **planned**   |
 
 See the [open issues](https://github.com/gabor-boros/minutes/issues) for a full list of proposed features, tools and known issues.
@@ -221,23 +207,8 @@ Don't forget to give the project a star!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b github-username/amazing-feature`)
-3. Commit your Changes (`git commit -m 'feat(new tool): add my favorite tool as a source`)
+3. Commit your Changes (`git commit -m 'feat(new tool): add my favorite tool as a source'`)
 4. Push to the Branch (`git push origin github-username/amazing-feature`)
 5. Open a Pull Request
 
-<!-- MARKDOWN LINKS & IMAGES -->
-
-[contributors-shield]: https://img.shields.io/github/contributors/gabor-boros/minutes.svg
-[contributors-url]: https://github.com/gabor-boros/minutes/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/gabor-boros/minutes.svg
-[forks-url]: https://github.com/gabor-boros/minutes/network/members
-[stars-shield]: https://img.shields.io/github/stars/gabor-boros/minutes.svg
-[stars-url]: https://github.com/gabor-boros/minutes/stargazers
-[issues-shield]: https://img.shields.io/github/issues/gabor-boros/minutes.svg
-[issues-url]: https://github.com/gabor-boros/minutes/issues
-[license-shield]: https://img.shields.io/github/license/gabor-boros/minutes.svg
-[license-url]: https://github.com/gabor-boros/minutes/blob/main/LICENSE
-[maintainability-shield]: https://api.codeclimate.com/v1/badges/316725f57830f48733e8/maintainability
-[maintainability-url]: https://codeclimate.com/github/gabor-boros/minutes/maintainability
-[coverage-shield]: https://api.codeclimate.com/v1/badges/316725f57830f48733e8/test_coverage
-[coverage-url]: https://codeclimate.com/github/gabor-boros/minutes/test_coverage
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local development with mise, pre-commit, and commitlint.

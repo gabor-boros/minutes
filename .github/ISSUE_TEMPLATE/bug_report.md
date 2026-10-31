@@ -15,7 +15,7 @@ A clear and concise description of what the bug is.
 
 Steps to reproduce the behavior:
 
-1. 
+1.
 
 **Expected behavior**
 
@@ -29,7 +29,7 @@ If applicable, add screenshots to help explain your problem.
 
  - OS name:
  - OS version:
- - Version (output of `minutes --version`): 
+ - Version (output of `minutes --version`):
 
 **List of flags used:**
 

@@ -4,31 +4,29 @@ Source documentation for [Clockify](https://clockify.me/).
 
 The source makes the following special mappings.
 
-| From        | To                     | Description                                                                                                                                         |
-| ----------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tags        | Task                   | Turns tags into tasks and split the entry into as many pieces as the item has matching tags when `tags-as-tasks-regex` is set                         |
-| Task        | Summary or Description | Tasks will be used for defining the summary of an entry; in case the `tags-as-tasks-regex` is set, Summary will be set to the Description of the item |
+| From | To | Description |
+| ---- | -- | ----------- |
+| Tags | Task | Turns tags into tasks and splits the entry into as many pieces as the item has matching tags when `tags-as-tasks-regex` is set |
+| Task | Summary or Description | Tasks are used for the summary of an entry; when `tags-as-tasks-regex` is set, Summary is set to the Description of the item |
 
 ## CLI flags
 
-The source provides to following extra CLI flags.
-
 ```plaintext
 Flags:
-    --clockify-api-key string      set the API key (default "https://clockify.me")
-    --clockify-url string          set the base URL
-    --clockify-workspace string    set the workspace ID
+    --clockify-api-key <KEY>       Clockify API key
+    --clockify-url <URL>           Clockify API base URL (default https://api.clockify.me/api/v1/)
+    --clockify-workspace <ID>      Clockify workspace ID
+    --clockify-user <ID>           Clockify user ID
 ```
 
 ## Configuration options
 
-The source provides the following extra configuration options.
-
-| Config option      | Kind   | Description                                                | Example                               |
-| ------------------ | ------ | ---------------------------------------------------------- | ------------------------------------- |
-| clockify-url       | string | URL for the Clockify installation without a trailing slash | clockify-url = "https://clockify.me"  |
-| clockify-api-key   | string | API key gathered from Clockify[^1]                         | clockify-api-key = "<API KEY>"        |
-| clockify-workspace | string | Clockify workspace ID[^2]                                  | clockify-workspace = "<WORKSPACE ID>" |
+| Config option | Kind | Description | Example |
+| ------------- | ---- | ----------- | ------- |
+| clockify-url | string | Clockify API base URL | clockify-url = "https://api.clockify.me/api/v1/" |
+| clockify-api-key | string | API key gathered from Clockify[^1] | clockify-api-key = "<API KEY>" |
+| clockify-workspace | string | Clockify workspace ID[^2] | clockify-workspace = "<WORKSPACE ID>" |
+| clockify-user | string | Clockify user ID | clockify-user = "<USER ID>" |
 
 ## Limitations
 
@@ -37,25 +35,20 @@ No known limitations.
 ## Example configuration
 
 ```toml
-# Source config
 source = "clockify"
-source-user = "<YOUR USER ID>"
+target = "tempo"
 
-clockify-url = "https://api.clockify.me"
+clockify-url = "https://api.clockify.me/api/v1/"
 clockify-api-key = "<YOUR API KEY>"
 clockify-workspace = "<YOUR WORKSPACE ID>"
+clockify-user = "<YOUR USER ID>"
 
-# Target config
-target = "tempo"
-target-user = "<jira username>"
-
-tempo-url = "https://<org>.atlassian.net"
+tempo-url = "https://<org>.atlassian.net/"
 tempo-username = "<jira username>"
-tempo-password = "<jira password>"
+tempo-password = "<jira password or API token>"
+tempo-worker = "<jira username>"
 
-# General config
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
-
 round-to-closest-minute = true
 force-billed-duration = true
 ```

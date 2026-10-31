@@ -40,7 +40,7 @@ If you are proposing a feature:
 
 Ready to contribute? Here's how to set up `minutes` for local development.
 
-As step 0 make sure you have Go 1.17+ and Python 3 installed.
+As step 0 make sure you have [mise](https://mise.jdx.dev/) installed.
 
 1. Fork the repository
 2. Clone your fork locally
@@ -49,14 +49,14 @@ As step 0 make sure you have Go 1.17+ and Python 3 installed.
 $ git clone git@github.com:your_name_here/minutes.git
 ```
 
-3. Install prerequisites
+3. Install tools and hooks
 
 ```shell
 $ cd minutes
-$ make prerequisites
-$ make deps
-$ python -m virtualenv -p python3 virtualenv
-$ pip install -r www/requirements.txt
+$ mise trust
+$ mise install
+$ mise run pre-commit
+$ mise run docs:deps
 ```
 
 4. Create a branch for local development
@@ -68,20 +68,19 @@ $ git checkout -b github-username/bugfix-or-feature-name
 5. When you're done making changes, check that your changes are formatted, passing linters, and tests are succeeding
 
 ```shell
-$ make format
-$ make lint
-$ make test
+$ mise run format
+$ mise run lint
+$ mise run test
 ```
 
-6. Update documentation and check the results by running `make docs`
+6. Update documentation and check the results by running `mise run docs`
 7. Commit your changes and push your branch to GitHub
 
-We use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/), and we require every commit to
-follow this pattern.
+We use [conventional commits](https://www.conventionalcommits.org/). Commit messages are checked by commitlint via the `commit-msg` hook.
 
 ```shell
 $ git add .
-$ git commit -m "action(scope): summary"
+$ git commit -m "feat(scope): summary"
 $ git push origin github-username/bugfix-or-feature-name
 ```
 
@@ -99,17 +98,17 @@ Before you submit a pull request, check that it meets these guidelines:
 
 A reminder for the maintainers on how to release.
 
-Before doing anything, ensure you have [git-cliff](https://github.com/orhun/git-cliff) installed, and you already
-executed `make prerequisites`.
+Releases are driven by [Release Please](https://github.com/googleapis/release-please). Conventional commits on `main` open or update a release PR that bumps `[workspace.package].version` in the root `Cargo.toml` (member crates inherit via `version.workspace = true`) and updates `CHANGELOG.md`. The config uses `release-type: simple` because the `rust` strategy cannot rewrite inherited member versions.
 
 1. Make sure every required PR is merged
-2. Make sure every test is passing both on GitHub and locally
-3. Make sure that formatters are not complaining (`make format` returns 0)
-4. Make sure that linters are not complaining (`make lint` returns 0)
-5. Take a note about the next release version, keeping semantic versioning in mind
-6. Update the CHANGELOG.md using `TAG="<CURRENT RELEASE VERSION>" make changelog`
-7. Compare the CHANGELOG.md changes and push to master
-8. Cut a new tag for the next release version 
-9. Run `GITHUB_TOKEN="<TOKEN>" make release` to package the tool and create a GitHub release
-10. Provide a changelog for the release using CHANGELOG.md
-11. Create a new milestone following the `v<NEXT RELEASE VERSION>` pattern
+2. Make sure CI is green on `main`
+3. Wait for (or trigger) the Release Please PR
+4. Review the changelog and version bump, then merge the Release Please PR
+5. Merging creates the GitHub Release/tag; the release workflow builds multi-platform binaries, uploads them to the release, and updates the Homebrew formula in `gabor-boros/homebrew-brew`
+
+### Maintainer secrets
+
+Configure these repository secrets for CI:
+
+- `HOMEBREW_TAP_TOKEN` — token with write access to `gabor-boros/homebrew-brew`
+- Optionally a PAT for Release Please if the default `GITHUB_TOKEN` cannot open release PRs

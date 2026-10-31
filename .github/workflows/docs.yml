@@ -1,20 +1,39 @@
 name: Docs
 
-'on':
+on:
   push:
     branches:
       - main
     paths:
-      - '**.md'
-      - 'www/**'
+      - "**.md"
+      - "www/**"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: 3.x
-      - run: pip install -r www/requirements.txt
-      - run: cd www && mkdocs gh-deploy --force
+          python-version: "3.12"
+
+      - name: Install docs dependencies
+        run: pip install -r www/requirements.txt
+
+      - name: Deploy
+        run: cd www && mkdocs gh-deploy --force

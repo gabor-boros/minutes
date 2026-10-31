@@ -1,0 +1,15 @@
+[package]
+name = "minutes-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Core library for the Minutes time-tracking toolkit"
+
+[dependencies]
+regex.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

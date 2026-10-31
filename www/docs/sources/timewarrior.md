@@ -7,7 +7,7 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 !!! warning
 
     Timewarrior has no built-in support for marking an entry billable/unbillable. Therefore, every entry will be treated
-    as billable unless it is not forced by `force-billed-duration` or a matching tag for `timewarrior-unbillable-tag`.
+    as billable unless it is forced by `force-billed-duration` or a matching tag for `timewarrior-unbillable-tag`.
 
 !!! warning
 
@@ -21,35 +21,31 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 
 The source makes the following special mappings.
 
-| From       | To                                | Description                                                                                              |
-| ---------- | --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| From | To | Description |
+| ---- | -- | ----------- |
 | Annotation | Notes, Summary, Task (optionally) | Annotations are used to set Notes and Summary; if no task regex is set, it will be used for Task as well |
-| Tags       | Client, Project, Task             | Depending on the client, project, and task regex, tags will be used accordingly                          |
+| Tags | Client, Project, Task | Depending on the client, project, and task regex, tags will be used accordingly |
 
 ## CLI flags
 
-The source provides to following extra CLI flags.
-
 ```plaintext
 Flags:
-    --timewarrior-arguments strings          set additional arguments
-    --timewarrior-client-tag-regex string    regex of client tag pattern
-    --timewarrior-command string             set the executable name (default "timew")
-    --timewarrior-project-tag-regex string   regex of project tag pattern
-    --timewarrior-unbillable-tag string      set the unbillable tag (default "unbillable")
+    --timewarrior-arguments <ARG>...           Extra arguments prepended to every Timewarrior invocation
+    --timewarrior-client-tag-regex <REGEX>     Regex matching tags treated as the client
+    --timewarrior-command <PROGRAM>            Executable name or path (default timew)
+    --timewarrior-project-tag-regex <REGEX>    Regex matching tags treated as the project
+    --timewarrior-unbillable-tag <TAG>         Tag that marks an interval as non-billable (default unbillable)
 ```
 
 ## Configuration options
 
-The source provides the following extra configuration options.
-
-| Config option                 | Kind    | Description                                                         | Example                                          |
-| ----------------------------- | ------- | ------------------------------------------------------------------- | ------------------------------------------------ |
-| timewarrior-arguments         | []string | Set additional arguments for the export command                    | timewarrior-arguments = "reviewed"               |
-| timewarrior-client-tag-regex  | string  | Set the regular expression for extracting Client names from tags    | timewarrior-client-tag-regex = '^(CLIENT-\w+)$'  |
-| timewarrior-command           | string  | Set the timewarrior command                                         | timewarrior-command = "timew"                    |
-| timewarrior-project-tag-regex | string  | Set the regular expression for extracting Project names from tags   | timewarrior-project-tag-regex = '^PROJ-DEV-\w+$' |
-| timewarrior-unbillable-tag    | string  | Set the regular expression to identify which entries are unbillable | timewarrior-unbillable-tag = "unbillable"        |
+| Config option | Kind | Description | Example |
+| ------------- | ---- | ----------- | ------- |
+| timewarrior-arguments | []string | Extra arguments for Timewarrior | timewarrior-arguments = ["log"] |
+| timewarrior-client-tag-regex | string | Regex for extracting Client names from tags | timewarrior-client-tag-regex = '^(CLIENT-\w+)$' |
+| timewarrior-command | string | Timewarrior command | timewarrior-command = "timew" |
+| timewarrior-project-tag-regex | string | Regex for extracting Project names from tags | timewarrior-project-tag-regex = '^PROJ-DEV-\w+$' |
+| timewarrior-unbillable-tag | string | Tag that marks entries as unbillable | timewarrior-unbillable-tag = "unbillable" |
 
 ## Limitations
 
@@ -58,25 +54,18 @@ No known limitations.
 ## Example configuration
 
 ```toml
-# Source config
 source = "timewarrior"
-source-user = "-"  # Timewarrior does not support multiple users
+target = "tempo"
 
-# Timewarrior config
 timewarrior-arguments = ["log"]
 timewarrior-client-tag-regex = '^(oc)$'
 timewarrior-project-tag-regex = '^(log)$'
 
-# Target config
-target = "tempo"
-target-user = "<jira username>"
-
-# Tempo config
-tempo-url = "https://<org>.atlassian.net"
+tempo-url = "https://<org>.atlassian.net/"
 tempo-username = "<jira username>"
-tempo-password = "<jira password>"
+tempo-password = "<jira password or API token>"
+tempo-worker = "<jira username>"
 
-# General config
 tags-as-tasks-regex = '[A-Z]{2,7}-\d{1,6}'
 round-to-closest-minute = true
 force-billed-duration = true

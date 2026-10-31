@@ -197,5 +197,3 @@ All notable changes to this project will be documented in this file.
 - Fine-tune artifact stashing ([8e05ab3](https://github.com/gabor-boros/minutes/commit/8e05ab35c86d47c1da1369c08e51ebf40316fd25))
 - Do not run docs deploy on pull requests ([637bb6e](https://github.com/gabor-boros/minutes/commit/637bb6ebbb7e7a3800ca07ce7d23353b3ef60a48))
 - Replace PR welcome bot ([b4b7291](https://github.com/gabor-boros/minutes/commit/b4b729126fa6f068e2680f71e1172c08d938caf4))
-
-

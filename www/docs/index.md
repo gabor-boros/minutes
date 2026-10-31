@@ -77,6 +77,10 @@ The following platforms and tools are supported. If you miss your favorite tool,
 | Toggl Track | **yes**       | upon request  |
 | Zoho Books  | upon request  | **planned**   |
 
+## Upgrading from 0.3.x
+
+If you are moving from the Go-based 0.3.x releases, update your `.minutes.toml` using the [0.3 → 0.4 migration guide](migrations/from-0.3-to-0.4.md).
+
 ## Versioning
 
 Minutes adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -84,6 +88,6 @@ Minutes adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Disclaimer
 
 !!! warning
-    
+
     Minutes comes with absolutely **no warranty**.
     When money comes into the picture, everyone should be more careful what they are doing. Before and after synchronizing any logs to the `target`, **make sure the entries displayed on the screen matching the `source` entries**.
