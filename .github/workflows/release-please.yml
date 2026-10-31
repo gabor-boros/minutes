@@ -14,13 +14,149 @@ permissions:
   contents: write
   pull-requests: write
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - name: Release Please
+        id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  build:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    name: build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            archive: tar.gz
+            cross: true
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            archive: tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            archive: zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: "1.85.0"
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.cross
+        uses: taiki-e/install-action@68a389c788b2cd04016ce8c80ee23b80d2ab3d68 # v2.88.1
+        with:
+          tool: cross
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ matrix.cross }}" == "true" ]]; then
+            cross build --release --locked -p minutes --target "${{ matrix.target }}"
+          else
+            cargo build --release --locked -p minutes --target "${{ matrix.target }}"
+          fi
+
+      - name: Package
+        shell: bash
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          BIN_DIR="target/${{ matrix.target }}/release"
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            BIN="$BIN_DIR/minutes.exe"
+          else
+            BIN="$BIN_DIR/minutes"
+          fi
+          ASSET="minutes_${VERSION}_${{ matrix.target }}"
+          mkdir -p dist
+          if [[ "${{ matrix.archive }}" == "zip" ]]; then
+            (
+              cd "$BIN_DIR"
+              if command -v zip >/dev/null 2>&1; then
+                zip -q "$GITHUB_WORKSPACE/dist/${ASSET}.zip" "$(basename "$BIN")"
+              else
+                powershell -Command "Compress-Archive -Path '$(basename "$BIN")' -DestinationPath '$GITHUB_WORKSPACE/dist/${ASSET}.zip'"
+              fi
+            )
+            echo "ASSET_PATH=dist/${ASSET}.zip" >> "$GITHUB_ENV"
+            echo "ASSET_NAME=${ASSET}.zip" >> "$GITHUB_ENV"
+          else
+            tar -C "$BIN_DIR" -czf "dist/${ASSET}.tar.gz" "$(basename "$BIN")"
+            echo "ASSET_PATH=dist/${ASSET}.tar.gz" >> "$GITHUB_ENV"
+            echo "ASSET_NAME=${ASSET}.tar.gz" >> "$GITHUB_ENV"
+          fi
+
+      - name: Checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "$ASSET_NAME" > "$ASSET_NAME.sha256"
+          else
+            shasum -a 256 "$ASSET_NAME" > "$ASSET_NAME.sha256"
+          fi
+          echo "CHECKSUM_PATH=dist/$ASSET_NAME.sha256" >> "$GITHUB_ENV"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            ${{ env.ASSET_PATH }}
+            ${{ env.CHECKSUM_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs: [release-please, build]
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    permissions:
+      contents: write
+    secrets: inherit
