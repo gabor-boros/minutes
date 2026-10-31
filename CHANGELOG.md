@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/gabor-boros/minutes/compare/v0.3.4...v0.4.0) (2026-10-31)
+
+
+### Features
+
+* implement full source/sink matrix and RIIR ([86e99aa](https://github.com/gabor-boros/minutes/commit/86e99aa70001d3f94491baf59ee9625351b8c80c))
+
 ## [0.3.4] - 2024-06-14
 
 **Miscellaneous Tasks**
