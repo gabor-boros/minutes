@@ -987,7 +987,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "minutes"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1015,7 +1015,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-client"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "minutes-core",
@@ -1030,7 +1030,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-clockify"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1047,7 +1047,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-core"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "regex",
  "thiserror 2.0.21",
@@ -1055,7 +1055,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-harvest"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1071,7 +1071,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-tempo"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -1088,7 +1088,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-timewarrior"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1103,7 +1103,7 @@ dependencies = [
 
 [[package]]
 name = "minutes-toggl"
-version = "0.4.0"
+version = "0.3.4"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
