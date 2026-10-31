@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0](https://github.com/gabor-boros/minutes/compare/v0.4.0...v0.5.0) (2026-10-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* This refactoring corrects a wrong assumption in the timewarrior source, that used tags-as-tasks flag. From now on, the timewarrior client will split entries as the other sources if the split condition matches.
+
+### Features
+
+* add filtering for projects and clients ([#29](https://github.com/gabor-boros/minutes/issues/29)) ([ea5031f](https://github.com/gabor-boros/minutes/commit/ea5031f565780ab8476543c0f52a3a22d1ec543c))
+* add Harvest as source ([#33](https://github.com/gabor-boros/minutes/issues/33)) ([c949a0c](https://github.com/gabor-boros/minutes/commit/c949a0c4dbed01af6dafbbe583f52498fd0a68d3))
+* add initial Toggl Track integration ([#13](https://github.com/gabor-boros/minutes/issues/13)) ([59c2a17](https://github.com/gabor-boros/minutes/commit/59c2a179b6ef21a94c4280017682862eedd41de8))
+* add token name option for token auth ([cff5e53](https://github.com/gabor-boros/minutes/commit/cff5e53a677e66fc475aaf328307c00b438c1ed5))
+* add upload status indicator ([#10](https://github.com/gabor-boros/minutes/issues/10)) ([d27c124](https://github.com/gabor-boros/minutes/commit/d27c12426b7c864261c31c43e9101f7599a31167))
+* **cli:** add initial CLI implementation ([98a6759](https://github.com/gabor-boros/minutes/commit/98a6759ec7557d5bdc5e313f00086cc468ee4197))
+* **client:** add basic client implementation ([2501bcc](https://github.com/gabor-boros/minutes/commit/2501bccb7e73982780e37454685822e50766ae9c))
+* **clockify:** add basic clockify client implementation ([cb04282](https://github.com/gabor-boros/minutes/commit/cb04282b206bc1a926ab6e37b4cd67450e2c4766))
+* implement full source/sink matrix and RIIR ([86e99aa](https://github.com/gabor-boros/minutes/commit/86e99aa70001d3f94491baf59ee9625351b8c80c))
+* **tempo:** add basic tempo client implementation ([202ac41](https://github.com/gabor-boros/minutes/commit/202ac41def09858d31809be3a6fa8cf5b9f95a00))
+* **timewarrior:** add initial timewarrior integration ([748a304](https://github.com/gabor-boros/minutes/commit/748a30424cc8ad61eb0be44c9e5bf3e32a905ace))
+* **worklog:** initial worklog implementation ([b73017b](https://github.com/gabor-boros/minutes/commit/b73017bc6e29c12af91848ee39304f7b65060d1b))
+
+
+### Bug Fixes
+
+* **clockify:** fill summary if description exists ([0d6aebe](https://github.com/gabor-boros/minutes/commit/0d6aebe8439327acdc5fa1264b4a08b715fba5b1))
+* multiple small issues fix ([#35](https://github.com/gabor-boros/minutes/issues/35)) ([ebb0730](https://github.com/gabor-boros/minutes/commit/ebb07300af6def0a8338d5e28c63a7496279aa72))
+* set timeout for tempo uploader ([afc16c1](https://github.com/gabor-boros/minutes/commit/afc16c14d1d8e4a1fc94e31c922ee4a45e1c0b7a))
+* solve time parsing issue when start or end date is defined ([3d9c7be](https://github.com/gabor-boros/minutes/commit/3d9c7be5fc5df0d259a3faca8976f42c38d83845))
+* **toggl:** add missing user filtering for Toggl integration ([649f873](https://github.com/gabor-boros/minutes/commit/649f8738eb6f590df012d4967757ede9476a002e))
+* upload related task entries sequentially ([#14](https://github.com/gabor-boros/minutes/issues/14)) ([55ffaed](https://github.com/gabor-boros/minutes/commit/55ffaed56218b9c7738bcc1c3d6217cb7a6c8ea6))
+* use 7 char long commit hash ([d137a63](https://github.com/gabor-boros/minutes/commit/d137a63d5fd7a399814922b5ea40769c09df188e))
+
+
+### Code Refactoring
+
+* rework tag parsing ([d1cbe49](https://github.com/gabor-boros/minutes/commit/d1cbe498a009537b77d9176a29ace57c68796219))
+
 ## [0.4.0](https://github.com/gabor-boros/minutes/compare/v0.3.4...v0.4.0) (2026-10-31)
 
 
