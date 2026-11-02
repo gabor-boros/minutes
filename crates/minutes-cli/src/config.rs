@@ -47,6 +47,8 @@ pub struct Config {
     pub force_billed_duration: bool,
     /// Round each entry's elapsed time to the nearest minute before upload.
     pub round_to_closest_minute: bool,
+    /// Merge entries with the same client/project/task/summary on the same day.
+    pub merge_by_day: bool,
 
     /// Regex applied to tags that should become tasks (where the source supports tags).
     pub tags_as_tasks_regex: Option<String>,
@@ -70,6 +72,11 @@ pub struct Config {
     pub harvest_access_token: Option<String>,
     pub harvest_account: Option<i64>,
     pub harvest_user: Option<String>,
+
+    // --- Kimai ---
+    pub kimai_url: Option<String>,
+    pub kimai_api_token: Option<String>,
+    pub kimai_user: Option<i64>,
 
     // --- Tempo ---
     pub tempo_url: Option<String>,
@@ -97,6 +104,7 @@ impl Config {
     pub fn defaults() -> Self {
         Self {
             date_format: DEFAULT_DATE_FORMAT.to_owned(),
+            merge_by_day: true,
             table_sort_by: vec![
                 "start".to_owned(),
                 "project".to_owned(),
@@ -281,6 +289,7 @@ mod tests {
         assert_eq!(config.date_format, DEFAULT_DATE_FORMAT);
         assert_eq!(config.table_sort_by[0], "start");
         assert!(!config.dry_run);
+        assert!(config.merge_by_day);
     }
 
     #[test]

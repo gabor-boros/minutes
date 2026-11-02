@@ -1004,6 +1004,7 @@ dependencies = [
  "minutes-clockify",
  "minutes-core",
  "minutes-harvest",
+ "minutes-kimai",
  "minutes-tempo",
  "minutes-timewarrior",
  "minutes-toggl",
@@ -1061,6 +1062,23 @@ dependencies = [
  "chrono",
  "minutes-client",
  "minutes-core",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "tokio",
+ "wiremock",
+]
+
+[[package]]
+name = "minutes-kimai"
+version = "0.4.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "minutes-client",
+ "minutes-core",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

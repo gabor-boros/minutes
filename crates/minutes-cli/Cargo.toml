@@ -28,6 +28,7 @@ minutes-client.workspace = true
 minutes-clockify.workspace = true
 minutes-core.workspace = true
 minutes-harvest.workspace = true
+minutes-kimai.workspace = true
 minutes-tempo.workspace = true
 minutes-timewarrior.workspace = true
 minutes-toggl.workspace = true

@@ -64,11 +64,13 @@ nav:
 - Sources:
   - Clockify: sources/clockify.md
   - Harvest: sources/harvest.md
+  - Kimai: sources/kimai.md
   - Tempo: sources/tempo.md
   - Timewarrior: sources/timewarrior.md
   - Toggl Track: sources/toggl.md
 - Targets:
-  - targets/tempo.md
+  - Kimai: targets/kimai.md
+  - Tempo: targets/tempo.md
 - Migrations:
   - From 0.3.x to 0.4.x: migrations/from-0.3-to-0.4.md
   - From "Tempoit": migrations/tempoit.md

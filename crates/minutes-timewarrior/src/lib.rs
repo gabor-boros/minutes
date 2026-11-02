@@ -156,6 +156,18 @@ impl TimewarriorClient {
         self
     }
 
+    /// Tags a Timewarrior interval with `tag`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`TimewarriorError`] when the CLI call fails.
+    pub async fn tag_interval(&self, interval_id: i64, tag: &str) -> Result<(), TimewarriorError> {
+        self.cmd
+            .run(["tag", &format!("@{interval_id}"), tag])
+            .await?;
+        Ok(())
+    }
+
     fn parse_entries(&self, fetched: Vec<FetchEntry>) -> Result<Vec<Entry>, TimewarriorError> {
         let mut entries = Vec::new();
         for raw in fetched {
@@ -165,6 +177,14 @@ impl TimewarriorClient {
     }
 
     fn parse_entry(&self, raw: FetchEntry) -> Result<Vec<Entry>, TimewarriorError> {
+        if raw
+            .tags
+            .iter()
+            .any(|tag| tag == "kimai_id" || tag.starts_with("kimai_id:"))
+        {
+            return Ok(Vec::new());
+        }
+
         let Some(end_raw) = raw.end else {
             return Ok(Vec::new());
         };
@@ -184,24 +204,24 @@ impl TimewarriorClient {
         for tag in &raw.tags {
             if !self.unbillable_tag.is_empty() && tag == &self.unbillable_tag {
                 billable = false;
-            } else if self
+            } else if let Some(value) = self
                 .client_tag_regex
                 .as_ref()
-                .is_some_and(|re| re.is_match(tag))
+                .and_then(|regex| tag_value(regex, tag))
             {
-                client.clone_from(tag);
-            } else if self
+                client = value;
+            } else if let Some(value) = self
                 .project_tag_regex
                 .as_ref()
-                .is_some_and(|re| re.is_match(tag))
+                .and_then(|regex| tag_value(regex, tag))
             {
-                project.clone_from(tag);
-            } else if self
+                project = value;
+            } else if let Some(value) = self
                 .tags_as_tasks
                 .as_ref()
-                .is_some_and(|re| re.is_match(tag))
+                .and_then(|regex| tag_value(regex, tag))
             {
-                task.clone_from(tag);
+                task = value;
             }
         }
 
@@ -215,7 +235,8 @@ impl TimewarriorClient {
             ProjectId::from(project.as_str()),
             TaskId::from(task.as_str()),
             interval,
-        );
+        )
+        .with_source_id(raw.id.to_string());
 
         if !client.is_empty() {
             entry = entry.with_client_name(client);
@@ -328,6 +349,8 @@ impl WorklogSink for TimewarriorClient {
 #[derive(Debug, Deserialize)]
 struct FetchEntry {
     #[serde(default)]
+    id: i64,
+    #[serde(default)]
     start: String,
     #[serde(default)]
     end: Option<String>,
@@ -370,13 +393,25 @@ fn push_label_tag(tags: &mut Vec<String>, name: Option<&str>, id: &impl std::fmt
 ///
 /// Duration is divided evenly across matching tags. Tags that do not match are
 /// ignored; if none match, an empty list is returned.
+fn tag_value(regex: &Regex, tag: &str) -> Option<String> {
+    regex.captures(tag).map(|captures| {
+        captures
+            .get(1)
+            .or_else(|| captures.get(0))
+            .map_or_else(String::new, |value| value.as_str().to_owned())
+    })
+}
+
 fn split_by_tags_as_tasks(
     entry: &Entry,
     summary: &str,
     regex: &Regex,
     tags: &[String],
 ) -> Vec<Entry> {
-    let tasks: Vec<&String> = tags.iter().filter(|tag| regex.is_match(tag)).collect();
+    let tasks: Vec<String> = tags
+        .iter()
+        .filter_map(|tag| tag_value(regex, tag))
+        .collect();
     if tasks.is_empty() {
         return Vec::new();
     }
@@ -407,6 +442,7 @@ fn split_by_tags_as_tasks(
             if !tag.is_empty() {
                 split = split.with_task_name(tag.clone());
             }
+            split = split.with_source_ids(entry.source_ids.clone());
             if !summary.is_empty() {
                 split = split.with_summary(summary.to_owned());
             }
@@ -525,6 +561,40 @@ mod tests {
         assert_eq!(calls[0][0], "export");
         assert_eq!(calls[0][1], "from");
         assert_eq!(calls[0][3], "to");
+    }
+
+    #[tokio::test]
+    async fn fetch_entries_extracts_first_capture_group() {
+        let export = br#"[
+            {
+                "id": 1,
+                "start": "20211002T090000Z",
+                "end": "20211002T100000Z",
+                "tags": ["client:acme", "project:website", "TASK-42"],
+                "annotation": "Ship billing fix"
+            }
+        ]"#;
+        let runner = FakeRunner::new(vec![Ok(export.to_vec())]);
+        let client = client_with_runner(runner)
+            .with_client_tag_regex(r"^client:(.+)$")
+            .expect("client regex")
+            .with_project_tag_regex(r"^project:(.+)$")
+            .expect("project regex")
+            .with_tags_as_tasks(Regex::new(r"^TASK-(\d+)$").expect("regex"));
+
+        let (start, end) = sample_window();
+        let entries = client
+            .fetch_entries(&FetchOpts::new(start, end))
+            .await
+            .expect("fetch");
+
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].client, ClientId::from("acme"));
+        assert_eq!(entries[0].client_name.as_deref(), Some("acme"));
+        assert_eq!(entries[0].project, ProjectId::from("website"));
+        assert_eq!(entries[0].project_name.as_deref(), Some("website"));
+        assert_eq!(entries[0].task, TaskId::from("42"));
+        assert_eq!(entries[0].task_name.as_deref(), Some("42"));
     }
 
     #[tokio::test]

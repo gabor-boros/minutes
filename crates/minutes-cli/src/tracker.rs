@@ -14,6 +14,8 @@ pub enum Tracker {
     Clockify,
     /// Harvest (`https://www.getharvest.com`).
     Harvest,
+    /// Kimai (`https://www.kimai.org`).
+    Kimai,
     /// Tempo Timesheets (Jira).
     Tempo,
     /// Timewarrior (local CLI).
@@ -29,6 +31,7 @@ impl Tracker {
         match self {
             Self::Clockify => "clockify",
             Self::Harvest => "harvest",
+            Self::Kimai => "kimai",
             Self::Tempo => "tempo",
             Self::Timewarrior => "timewarrior",
             Self::Toggl => "toggl",
@@ -49,11 +52,12 @@ impl FromStr for Tracker {
         match s.trim().to_ascii_lowercase().as_str() {
             "clockify" => Ok(Self::Clockify),
             "harvest" => Ok(Self::Harvest),
+            "kimai" => Ok(Self::Kimai),
             "tempo" => Ok(Self::Tempo),
             "timewarrior" => Ok(Self::Timewarrior),
             "toggl" => Ok(Self::Toggl),
             other => Err(format!(
-                "unknown tracker `{other}`; expected one of: clockify, harvest, tempo, timewarrior, toggl"
+                "unknown tracker `{other}`; expected one of: clockify, harvest, kimai, tempo, timewarrior, toggl"
             )),
         }
     }

@@ -77,6 +77,11 @@ pub struct Cli {
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub round_to_closest_minute: bool,
 
+    /// Merge entries with the same client/project/task/summary on the same day.
+    #[arg(long, value_name = "BOOL", action = clap::ArgAction::Set)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merge_by_day: Option<bool>,
+
     /// Regex of tags that should become tasks (split time evenly across matches).
     #[arg(long, value_name = "REGEX")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -136,6 +141,21 @@ pub struct Cli {
     #[arg(long, value_name = "ID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub harvest_user: Option<String>,
+
+    /// Kimai base URL (for example `https://kimai.example.com`).
+    #[arg(long, value_name = "URL")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kimai_url: Option<String>,
+
+    /// Kimai API token.
+    #[arg(long, value_name = "TOKEN")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kimai_api_token: Option<String>,
+
+    /// Kimai user ID used for fetching timesheets.
+    #[arg(long, value_name = "ID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kimai_user: Option<i64>,
 
     /// Tempo base URL (for example `https://org.atlassian.net/`).
     #[arg(long, value_name = "URL")]
@@ -219,6 +239,7 @@ impl Cli {
             yes: false,
             force_billed_duration: false,
             round_to_closest_minute: false,
+            merge_by_day: None,
             tags_as_tasks_regex: None,
             filter_client: None,
             filter_project: None,
@@ -231,6 +252,9 @@ impl Cli {
             harvest_access_token: None,
             harvest_account: None,
             harvest_user: None,
+            kimai_url: None,
+            kimai_api_token: None,
+            kimai_user: None,
             tempo_url: None,
             tempo_username: None,
             tempo_password: None,

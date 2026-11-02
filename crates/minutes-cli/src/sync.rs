@@ -10,6 +10,7 @@ use crate::backends::Backend;
 use crate::config::Config;
 use crate::progress::upload_with_progress;
 use crate::table::render_overview;
+use crate::tracker::Tracker;
 use crate::transform::{force_billed_duration, merge_by_day, round_to_closest_minute};
 /// Runs a full sync using the resolved `config`.
 ///
@@ -38,7 +39,11 @@ pub async fn run(config: Config) -> Result<()> {
 
     let fetched = source.fetch_entries(&opts).await?;
     let filtered = filter.apply(fetched);
-    let mut entries = merge_by_day(filtered);
+    let mut entries = if config.merge_by_day {
+        merge_by_day(filtered)
+    } else {
+        filtered
+    };
 
     if config.round_to_closest_minute {
         entries = round_to_closest_minute(entries);
@@ -89,7 +94,23 @@ pub async fn run(config: Config) -> Result<()> {
         }
     }
 
-    upload_with_progress(&target, &complete).await
+    let uploaded = upload_with_progress(&target, &complete).await?;
+
+    if source_kind == Tracker::Timewarrior {
+        for (entry, remote_id) in &uploaded {
+            let Some(kimai_id) = remote_id else {
+                continue;
+            };
+            let tag = format!("kimai_id:{kimai_id}");
+            for interval_id in &entry.source_ids {
+                if let Err(err) = source.tag_timewarrior_interval(interval_id, &tag).await {
+                    eprintln!("warning: failed to tag timewarrior interval {interval_id}: {err:#}");
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn build_filter(config: &Config) -> Result<EntryFilter> {
@@ -127,6 +148,7 @@ mod tests {
 
     #[test]
     fn trackers_display_as_kebab_names() {
+        assert_eq!(Tracker::Kimai.to_string(), "kimai");
         assert_eq!(Tracker::Toggl.to_string(), "toggl");
         assert_eq!(Tracker::Tempo.to_string(), "tempo");
     }
