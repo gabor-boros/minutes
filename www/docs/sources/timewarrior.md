@@ -13,9 +13,21 @@ Therefore, several assumptions were made to integrate with Timewarrior, though t
 
     When `timewarrior-client-tag-regex` or `timewarrior-project-tag-regex` is matching multiple tags, the last tag will be used.
 
+!!! info
+
+    The client, project, and task regexes support capture groups. When the pattern has a first capture group,
+    its value is used as the extracted name; otherwise the whole match is used. For example, `^client:(.+)$`
+    turns the `client:acme` tag into `acme`, and `^TASK-(\d+)$` turns `TASK-42` into `42`.
+
 !!! warning
 
     To extract tasks from tags, set the `tags-as-tasks-regex`.
+
+!!! info
+
+    Intervals tagged `kimai_id` or `kimai_id:<id>` are skipped when fetching.
+    When `minutes` uploads from Timewarrior to Kimai, it adds this tag to the
+    source interval automatically, so repeated runs do not create duplicates.
 
 ## Field mappings
 
@@ -42,9 +54,9 @@ Flags:
 | Config option | Kind | Description | Example |
 | ------------- | ---- | ----------- | ------- |
 | timewarrior-arguments | []string | Extra arguments for Timewarrior | timewarrior-arguments = ["log"] |
-| timewarrior-client-tag-regex | string | Regex for extracting Client names from tags | timewarrior-client-tag-regex = '^(CLIENT-\w+)$' |
+| timewarrior-client-tag-regex | string | Regex for extracting Client names from tags | timewarrior-client-tag-regex = '^client:(.+)$' |
 | timewarrior-command | string | Timewarrior command | timewarrior-command = "timew" |
-| timewarrior-project-tag-regex | string | Regex for extracting Project names from tags | timewarrior-project-tag-regex = '^PROJ-DEV-\w+$' |
+| timewarrior-project-tag-regex | string | Regex for extracting Project names from tags | timewarrior-project-tag-regex = '^project:(.+)$' |
 | timewarrior-unbillable-tag | string | Tag that marks entries as unbillable | timewarrior-unbillable-tag = "unbillable" |
 
 ## Limitations

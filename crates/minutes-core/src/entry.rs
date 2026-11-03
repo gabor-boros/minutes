@@ -88,6 +88,8 @@ pub struct Entry {
     pub notes: Option<String>,
     /// When the work ran and whether it is billable.
     pub interval: WorkInterval,
+    /// Source backend interval ids that contributed to this entry.
+    pub source_ids: Vec<String>,
 }
 
 impl std::fmt::Display for Entry {
@@ -143,6 +145,7 @@ impl Entry {
             summary: None,
             notes: None,
             interval,
+            source_ids: Vec::new(),
         }
     }
 
@@ -233,7 +236,30 @@ impl Entry {
         self.summary = self.summary.or(other.summary);
         self.notes = self.notes.or(other.notes);
 
+        for source_id in other.source_ids {
+            if !self.source_ids.contains(&source_id) {
+                self.source_ids.push(source_id);
+            }
+        }
+
         Ok(self)
+    }
+
+    /// Replaces the source backend interval ids.
+    #[must_use]
+    pub fn with_source_ids(mut self, source_ids: Vec<String>) -> Self {
+        self.source_ids = source_ids;
+        self
+    }
+
+    /// Adds one source backend interval id.
+    #[must_use]
+    pub fn with_source_id(mut self, source_id: impl Into<String>) -> Self {
+        let source_id = source_id.into();
+        if !self.source_ids.contains(&source_id) {
+            self.source_ids.push(source_id);
+        }
+        self
     }
 }
 

@@ -20,9 +20,12 @@ const MAX_CONCURRENT_UPLOADS: usize = 5;
 ///
 /// Returns an error when one or more uploads fail. Successful uploads are kept;
 /// failures are listed in the error message.
-pub async fn upload_with_progress(backend: &Backend, entries: &[Entry]) -> Result<()> {
+pub async fn upload_with_progress(
+    backend: &Backend,
+    entries: &[Entry],
+) -> Result<Vec<(Entry, Option<String>)>> {
     if entries.is_empty() {
-        return Ok(());
+        return Ok(Vec::new());
     }
 
     let multi = MultiProgress::new();
@@ -40,46 +43,59 @@ pub async fn upload_with_progress(backend: &Backend, entries: &[Entry]) -> Resul
         bars.push(bar);
     }
 
-    let failures: Vec<String> = stream::iter(entries.iter().zip(bars.iter()))
-        .map(|(entry, bar)| {
-            let done_style = done_style.clone();
-            let fail_style = fail_style.clone();
-            async move {
-                bar.enable_steady_tick(std::time::Duration::from_millis(80));
-                let result = backend.push_entry(entry).await;
-                bar.disable_steady_tick();
-                match result {
-                    Ok(()) => {
-                        bar.set_style(done_style);
-                        bar.set_prefix("uploaded!");
-                        bar.inc(1);
-                        bar.finish();
-                        None
-                    }
-                    Err(err) => {
-                        let label = entry_label(entry);
-                        bar.set_style(fail_style);
-                        bar.set_prefix("failed!");
-                        bar.abandon();
-                        Some(format!("{label}: {err:#}"))
+    let outcomes: Vec<(Entry, Option<String>, String)> =
+        stream::iter(entries.iter().zip(bars.iter()))
+            .map(|(entry, bar)| {
+                let done_style = done_style.clone();
+                let fail_style = fail_style.clone();
+                let entry = entry.clone();
+                async move {
+                    bar.enable_steady_tick(std::time::Duration::from_millis(80));
+                    let result = backend.push_entry_with_remote_id(&entry).await;
+                    bar.disable_steady_tick();
+                    match result {
+                        Ok(remote_id) => {
+                            bar.set_style(done_style);
+                            bar.set_prefix("uploaded!");
+                            bar.inc(1);
+                            bar.finish();
+                            (entry, remote_id, String::new())
+                        }
+                        Err(err) => {
+                            let label = entry_label(&entry);
+                            bar.set_style(fail_style);
+                            bar.set_prefix("failed!");
+                            bar.abandon();
+                            (entry, None, format!("{label}: {err:#}"))
+                        }
                     }
                 }
-            }
-        })
-        .buffer_unordered(MAX_CONCURRENT_UPLOADS)
-        .filter_map(async |failure| failure)
-        .collect()
-        .await;
+            })
+            .buffer_unordered(MAX_CONCURRENT_UPLOADS)
+            .collect()
+            .await;
+
+    let failures: Vec<String> = outcomes
+        .iter()
+        .map(|(_, _, failure)| failure.clone())
+        .filter(|failure| !failure.is_empty())
+        .collect();
+
+    let uploaded: Vec<(Entry, Option<String>)> = outcomes
+        .into_iter()
+        .filter(|(_, _, failure)| failure.is_empty())
+        .map(|(entry, remote_id, _)| (entry, remote_id))
+        .collect();
 
     if failures.is_empty() {
         println!(
             "Successfully uploaded {} entr{}.",
-            entries.len(),
-            plural(entries.len())
+            uploaded.len(),
+            plural(uploaded.len())
         );
-        Ok(())
+        Ok(uploaded)
     } else {
-        let succeeded = entries.len() - failures.len();
+        let succeeded = uploaded.len();
         eprintln!(
             "Uploaded {succeeded} entr{}, {} failed:",
             plural(succeeded),

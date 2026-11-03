@@ -63,8 +63,8 @@ Usage: minutes [OPTIONS]
 
 Options:
       --config <PATH>                          Path to a `.minutes.toml` file
-  -s, --source <SOURCE>                        Source tracker [clockify|harvest|tempo|timewarrior|toggl]
-  -t, --target <TARGET>                        Target tracker [clockify|harvest|tempo|timewarrior|toggl]
+  -s, --source <SOURCE>                        Source tracker [clockify|harvest|kimai|tempo|timewarrior|toggl]
+  -t, --target <TARGET>                        Target tracker [clockify|harvest|kimai|tempo|timewarrior|toggl]
       --start <START>                          Inclusive range start (must match `--date-format`)
       --end <END>                              Inclusive range end (must match `--date-format`)
       --date-format <FORMAT>                   Chrono strftime pattern for `--start` / `--end`
@@ -72,6 +72,7 @@ Options:
       --yes                                    Skip the interactive “Continue?” confirmation
       --force-billed-duration                  Treat total time as billable before upload
       --round-to-closest-minute                Round each entry's duration to the closest minute
+      --merge-by-day <BOOL>                    Merge entries with the same client/project/task/summary on the same day [default: true]
       --tags-as-tasks-regex <REGEX>            Regex of tags that should become tasks
       --filter-client <REGEX>                  Regex filter applied to client names after fetch
       --filter-project <REGEX>                 Regex filter applied to project names after fetch
@@ -84,6 +85,9 @@ Options:
       --harvest-access-token <TOKEN>           Harvest personal access token
       --harvest-account <ID>                   Harvest account ID
       --harvest-user <ID>                      Harvest user ID
+      --kimai-url <URL>                        Kimai base URL (for example `https://kimai.example.com`)
+      --kimai-api-token <TOKEN>                Kimai API token
+      --kimai-user <ID>                        Kimai user ID used for fetching timesheets
       --tempo-url <URL>                        Tempo base URL
       --tempo-username <USER>                  Tempo username for Basic Auth
       --tempo-password <PASSWORD>              Tempo password or API token for Basic Auth
@@ -179,6 +183,7 @@ Every listed **yes** backend can be used as `--source` and/or `--target`. Upload
 | Everhour    | upon request  | upon request  |
 | FreshBooks  | upon request  | **planned**   |
 | Harvest     | **yes**       | **yes**       |
+| Kimai       | **yes**       | **yes**       |
 | QuickBooks  | upon request  | upon request  |
 | Tempo       | **yes**       | **yes**       |
 | Time Doctor | upon request  | upon request  |

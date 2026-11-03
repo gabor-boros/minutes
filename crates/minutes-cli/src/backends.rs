@@ -5,6 +5,7 @@ use minutes_client::{FetchOpts, WorklogSink, WorklogSource};
 use minutes_clockify::ClockifyClient;
 use minutes_core::Entry;
 use minutes_harvest::HarvestClient;
+use minutes_kimai::KimaiClient;
 use minutes_tempo::TempoClient;
 use minutes_timewarrior::TimewarriorClient;
 use minutes_toggl::TogglClient;
@@ -25,6 +26,8 @@ pub enum Backend {
     Clockify(ClockifyClient),
     /// Harvest HTTP client.
     Harvest(HarvestClient),
+    /// Kimai HTTP client.
+    Kimai(KimaiClient),
     /// Tempo HTTP client.
     Tempo(TempoClient),
     /// Local Timewarrior CLI client.
@@ -46,6 +49,7 @@ impl Backend {
         match tracker {
             Tracker::Clockify => Ok(Self::Clockify(build_clockify(config, tags_as_tasks)?)),
             Tracker::Harvest => Ok(Self::Harvest(build_harvest(config)?)),
+            Tracker::Kimai => Ok(Self::Kimai(build_kimai(config, tags_as_tasks)?)),
             Tracker::Tempo => Ok(Self::Tempo(build_tempo(config)?)),
             Tracker::Timewarrior => {
                 Ok(Self::Timewarrior(build_timewarrior(config, tags_as_tasks)?))
@@ -69,6 +73,10 @@ impl Backend {
                 .fetch_entries(opts)
                 .await
                 .context("harvest: failed to fetch entries"),
+            Self::Kimai(client) => client
+                .fetch_entries(opts)
+                .await
+                .context("kimai: failed to fetch entries"),
             Self::Tempo(client) => client
                 .fetch_entries(opts)
                 .await
@@ -84,34 +92,73 @@ impl Backend {
         }
     }
 
-    /// Pushes a single worklog entry.
+    /// Pushes a single worklog entry and returns a remote id when the backend
+    /// exposes one (Kimai timesheet id).
     ///
     /// # Errors
     ///
     /// Returns the underlying backend error with context.
-    pub async fn push_entry(&self, entry: &Entry) -> Result<()> {
-        let entries = std::slice::from_ref(entry);
+    pub async fn push_entry_with_remote_id(&self, entry: &Entry) -> Result<Option<String>> {
         match self {
-            Self::Clockify(client) => client
-                .push_entries(entries)
+            Self::Clockify(client) => {
+                client
+                    .push_entries(std::slice::from_ref(entry))
+                    .await
+                    .context("clockify: failed to push entry")?;
+                Ok(None)
+            }
+            Self::Harvest(client) => {
+                client
+                    .push_entries(std::slice::from_ref(entry))
+                    .await
+                    .context("harvest: failed to push entry")?;
+                Ok(None)
+            }
+            Self::Kimai(client) => client
+                .push_entry_with_id(entry)
                 .await
-                .context("clockify: failed to push entry"),
-            Self::Harvest(client) => client
-                .push_entries(entries)
+                .map(|id| Some(id.to_string()))
+                .context("kimai: failed to push entry"),
+            Self::Tempo(client) => {
+                client
+                    .push_entries(std::slice::from_ref(entry))
+                    .await
+                    .context("tempo: failed to push entry")?;
+                Ok(None)
+            }
+            Self::Timewarrior(client) => {
+                client
+                    .push_entries(std::slice::from_ref(entry))
+                    .await
+                    .context("timewarrior: failed to push entry")?;
+                Ok(None)
+            }
+            Self::Toggl(client) => {
+                client
+                    .push_entries(std::slice::from_ref(entry))
+                    .await
+                    .context("toggl: failed to push entry")?;
+                Ok(None)
+            }
+        }
+    }
+
+    /// Tags a Timewarrior interval when this backend is Timewarrior.
+    ///
+    /// # Errors
+    ///
+    /// Returns the underlying backend error with context.
+    pub async fn tag_timewarrior_interval(&self, interval_id: &str, tag: &str) -> Result<()> {
+        if let Self::Timewarrior(client) = self {
+            let id = interval_id
+                .parse::<i64>()
+                .with_context(|| format!("invalid timewarrior interval id `{interval_id}`"))?;
+            client
+                .tag_interval(id, tag)
                 .await
-                .context("harvest: failed to push entry"),
-            Self::Tempo(client) => client
-                .push_entries(entries)
-                .await
-                .context("tempo: failed to push entry"),
-            Self::Timewarrior(client) => client
-                .push_entries(entries)
-                .await
-                .context("timewarrior: failed to push entry"),
-            Self::Toggl(client) => client
-                .push_entries(entries)
-                .await
-                .context("toggl: failed to push entry"),
+                .context("timewarrior: failed to tag interval")
+        } else {
+            Ok(())
         }
     }
 }
@@ -154,6 +201,23 @@ fn build_harvest(config: &Config) -> Result<HarvestClient> {
     let user = require(config.harvest_user.as_deref(), "harvest-user")?;
 
     HarvestClient::new(account, user, token).context("failed to create Harvest client")
+}
+
+fn build_kimai(config: &Config, tags_as_tasks: Option<Regex>) -> Result<KimaiClient> {
+    let url = require(config.kimai_url.as_deref(), "kimai-url")?;
+    let token = require(config.kimai_api_token.as_deref(), "kimai-api-token")?;
+
+    let mut client =
+        KimaiClient::with_base_url(url, token).context("failed to create Kimai client")?;
+
+    if let Some(user) = config.kimai_user {
+        client = client.with_user(user);
+    }
+    if let Some(regex) = tags_as_tasks {
+        client = client.with_tags_as_tasks(regex);
+    }
+
+    Ok(client)
 }
 
 fn build_tempo(config: &Config) -> Result<TempoClient> {
@@ -253,6 +317,14 @@ mod tests {
             panic!("expected missing credentials");
         };
         assert!(err.to_string().contains("toggl-api-token"));
+    }
+
+    #[test]
+    fn kimai_requires_url_and_token() {
+        let Err(err) = Backend::build(Tracker::Kimai, &base_config()) else {
+            panic!("expected missing credentials");
+        };
+        assert!(err.to_string().contains("kimai-url"));
     }
 
     #[test]

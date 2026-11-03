@@ -6,6 +6,7 @@ members = [
     "crates/minutes-client",
     "crates/minutes-clockify",
     "crates/minutes-harvest",
+    "crates/minutes-kimai",
     "crates/minutes-tempo",
     "crates/minutes-timewarrior",
     "crates/minutes-toggl",
@@ -37,6 +38,7 @@ minutes-client = { path = "crates/minutes-client" }
 minutes-clockify = { path = "crates/minutes-clockify" }
 minutes-core = { path = "crates/minutes-core" }
 minutes-harvest = { path = "crates/minutes-harvest" }
+minutes-kimai = { path = "crates/minutes-kimai" }
 minutes-tempo = { path = "crates/minutes-tempo" }
 minutes-timewarrior = { path = "crates/minutes-timewarrior" }
 minutes-toggl = { path = "crates/minutes-toggl" }
